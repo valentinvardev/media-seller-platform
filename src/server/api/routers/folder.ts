@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createAdminClient } from "~/lib/supabase/server";
+import { createSignedUrl } from "~/lib/supabase/admin";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -38,20 +38,10 @@ export const folderRouter = createTRPCRouter({
         },
       });
 
-      let supabase: ReturnType<typeof createAdminClient> | null = null;
-      try { supabase = createAdminClient(); } catch { /* service role key not set */ }
-
       return Promise.all(
         folders.map(async (folder) => {
           const previewUrls = await Promise.all(
-            folder.photos.map(async (photo) => {
-              if (photo.storageKey.startsWith("http")) return photo.storageKey;
-              if (!supabase) return null;
-              const { data } = await supabase.storage
-                .from("photos")
-                .createSignedUrl(photo.storageKey, 3600);
-              return data?.signedUrl ?? null;
-            }),
+            folder.photos.map((photo) => createSignedUrl(photo.storageKey, 3600)),
           );
 
           return {
@@ -83,18 +73,8 @@ export const folderRouter = createTRPCRouter({
 
       if (!folder) return null;
 
-      let supabase2: ReturnType<typeof createAdminClient> | null = null;
-      try { supabase2 = createAdminClient(); } catch { /* service role key not set */ }
-
       const previewUrls = await Promise.all(
-        folder.photos.map(async (photo) => {
-          if (photo.storageKey.startsWith("http")) return photo.storageKey;
-          if (!supabase2) return null;
-          const { data } = await supabase2.storage
-            .from("photos")
-            .createSignedUrl(photo.storageKey, 3600);
-          return data?.signedUrl ?? null;
-        }),
+        folder.photos.map((photo) => createSignedUrl(photo.storageKey, 3600)),
       );
 
       return {

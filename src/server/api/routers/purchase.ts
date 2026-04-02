@@ -1,7 +1,7 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
 import { env } from "~/env";
-import { createAdminClient } from "~/lib/supabase/server";
+import { createSignedUrl } from "~/lib/supabase/admin";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -116,17 +116,10 @@ export const purchaseRouter = createTRPCRouter({
         return null;
       }
 
-      const supabase = createAdminClient();
       const photoUrls = await Promise.all(
         purchase.folder.photos.map(async (photo) => {
-          // Direct URL (placeholder/demo photos stored as full URLs)
-          if (photo.storageKey.startsWith("http")) {
-            return { id: photo.id, filename: photo.filename, url: photo.storageKey };
-          }
-          const { data } = await supabase.storage
-            .from("photos")
-            .createSignedUrl(photo.storageKey, 3600 * 24);
-          return { id: photo.id, filename: photo.filename, url: data?.signedUrl ?? null };
+          const url = await createSignedUrl(photo.storageKey, 3600 * 24);
+          return { id: photo.id, filename: photo.filename, url };
         }),
       );
 
