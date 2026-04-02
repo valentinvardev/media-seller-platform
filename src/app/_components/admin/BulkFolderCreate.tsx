@@ -27,27 +27,26 @@ async function readDirEntry(
   const results: Array<{ file: File; path: string }> = [];
   const reader = entry.createReader();
 
-  await new Promise<void>((resolve) => {
-    const readBatch = () => {
-      reader.readEntries(async (entries) => {
-        if (!entries.length) { resolve(); return; }
-        for (const e of entries) {
-          const p = prefix ? `${prefix}/${e.name}` : e.name;
-          if (e.isFile) {
-            const file = await new Promise<File>((res) =>
-              (e as FileSystemFileEntry).file(res),
-            );
-            if (file.type.startsWith("image/")) results.push({ file, path: p });
-          } else if (e.isDirectory) {
-            const sub = await readDirEntry(e as FileSystemDirectoryEntry, p);
-            results.push(...sub);
-          }
-        }
-        readBatch();
-      });
-    };
-    readBatch();
-  });
+  // readEntries returns max 100 items per call — loop until empty
+  while (true) {
+    const batch = await new Promise<FileSystemEntry[]>((resolve, reject) =>
+      reader.readEntries(resolve, reject),
+    );
+    if (!batch.length) break;
+
+    for (const e of batch) {
+      const p = prefix ? `${prefix}/${e.name}` : e.name;
+      if (e.isFile) {
+        const file = await new Promise<File>((res, rej) =>
+          (e as FileSystemFileEntry).file(res, rej),
+        );
+        if (file.type.startsWith("image/")) results.push({ file, path: p });
+      } else if (e.isDirectory) {
+        const sub = await readDirEntry(e as FileSystemDirectoryEntry, p);
+        results.push(...sub);
+      }
+    }
+  }
 
   return results;
 }
@@ -139,10 +138,15 @@ export function BulkFolderCreate({
     async (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
+
+      // IMPORTANT: capture all FileSystemEntry references synchronously before
+      // any await — dataTransfer.items is cleared after the first async tick.
+      const fsEntries: FileSystemEntry[] = Array.from(e.dataTransfer.items)
+        .map((item) => item.webkitGetAsEntry())
+        .filter((entry): entry is FileSystemEntry => entry !== null);
+
       const allFiles: Array<{ file: File; path: string }> = [];
-      for (const item of Array.from(e.dataTransfer.items)) {
-        const entry = item.webkitGetAsEntry();
-        if (!entry) continue;
+      for (const entry of fsEntries) {
         if (entry.isDirectory) {
           const sub = await readDirEntry(entry as FileSystemDirectoryEntry, entry.name);
           allFiles.push(...sub);
