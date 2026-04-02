@@ -123,7 +123,7 @@ export default async function AdminDashboard() {
                   <th className="px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider text-right">Monto</th>
                 </tr>
               </thead>
-              <tbody className="divide-y" style={{ divideColor: "#1a1a28" }}>
+              <tbody className="divide-y divide-[#1a1a28]">
                 {sales.items.map((sale) => (
                   <tr key={sale.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-5 py-4 text-slate-300">{sale.buyerEmail}</td>
