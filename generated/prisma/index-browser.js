@@ -121,14 +121,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.PostScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  createdById: 'createdById'
-};
-
 exports.Prisma.AccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -157,13 +149,64 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   emailVerified: 'emailVerified',
-  image: 'image'
+  image: 'image',
+  passwordHash: 'passwordHash'
 };
 
 exports.Prisma.VerificationTokenScalarFieldEnum = {
   identifier: 'identifier',
   token: 'token',
   expires: 'expires'
+};
+
+exports.Prisma.CollectionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  coverUrl: 'coverUrl',
+  slug: 'slug',
+  isPublished: 'isPublished',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FolderScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  collectionId: 'collectionId',
+  price: 'price',
+  isPublished: 'isPublished',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PhotoScalarFieldEnum = {
+  id: 'id',
+  folderId: 'folderId',
+  storageKey: 'storageKey',
+  filename: 'filename',
+  width: 'width',
+  height: 'height',
+  order: 'order',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PurchaseScalarFieldEnum = {
+  id: 'id',
+  folderId: 'folderId',
+  buyerEmail: 'buyerEmail',
+  buyerName: 'buyerName',
+  amountPaid: 'amountPaid',
+  currency: 'currency',
+  status: 'status',
+  mercadopagoPreferenceId: 'mercadopagoPreferenceId',
+  mercadopagoPaymentId: 'mercadopagoPaymentId',
+  mercadopagoOrderId: 'mercadopagoOrderId',
+  downloadToken: 'downloadToken',
+  downloadTokenExpires: 'downloadTokenExpires',
+  isPublic: 'isPublic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -180,14 +223,22 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.PurchaseStatus = exports.$Enums.PurchaseStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  REFUNDED: 'REFUNDED'
+};
 
 exports.Prisma.ModelName = {
-  Post: 'Post',
   Account: 'Account',
   Session: 'Session',
   User: 'User',
-  VerificationToken: 'VerificationToken'
+  VerificationToken: 'VerificationToken',
+  Collection: 'Collection',
+  Folder: 'Folder',
+  Photo: 'Photo',
+  Purchase: 'Purchase'
 };
 
 /**
