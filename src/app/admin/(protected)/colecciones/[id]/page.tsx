@@ -3,6 +3,7 @@ import Link from "next/link";
 import { api } from "~/trpc/server";
 import { FolderActions } from "~/app/_components/admin/FolderActions";
 import { EditCollectionForm } from "~/app/_components/admin/EditCollectionForm";
+import { BulkFolderCreate } from "~/app/_components/admin/BulkFolderCreate";
 
 export default async function EditCollectionPage({
   params,
@@ -32,13 +33,16 @@ export default async function EditCollectionPage({
           <h2 className="text-lg font-semibold">
             Carpetas ({collection.folders.length})
           </h2>
-          <Link
-            href={`/admin/colecciones/${id}/carpetas/nueva`}
-            className="text-black text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:scale-[1.02]"
-            style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
-          >
-            + Nueva carpeta
-          </Link>
+          <div className="flex items-center gap-2">
+            <BulkFolderCreate collectionId={id} />
+            <Link
+              href={`/admin/colecciones/${id}/carpetas/nueva`}
+              className="text-black text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:scale-[1.02]"
+              style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+            >
+              + Nueva carpeta
+            </Link>
+          </div>
         </div>
 
         {collection.folders.length === 0 ? (
