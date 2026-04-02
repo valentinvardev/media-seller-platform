@@ -1,21 +1,8 @@
 import { z } from "zod";
-import { createClient } from "~/lib/supabase/server";
+import { getAdminClient } from "~/lib/supabase/admin";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const photoRouter = createTRPCRouter({
-  addToFolder: protectedProcedure
-    .input(
-      z.object({
-        folderId: z.string(),
-        storageKey: z.string(),
-        filename: z.string(),
-        width: z.number().optional(),
-        height: z.number().optional(),
-        order: z.number().optional(),
-      }),
-    )
-    .mutation(({ ctx, input }) => ctx.db.photo.create({ data: input })),
-
   bulkAdd: protectedProcedure
     .input(
       z.object({
@@ -31,10 +18,7 @@ export const photoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const count = await ctx.db.photo.count({
-        where: { folderId: input.folderId },
-      });
-
+      const count = await ctx.db.photo.count({ where: { folderId: input.folderId } });
       await ctx.db.photo.createMany({
         data: input.photos.map((p, i) => ({
           folderId: input.folderId,
@@ -50,13 +34,23 @@ export const photoRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const photo = await ctx.db.photo.findUniqueOrThrow({
-        where: { id: input.id },
-      });
-
-      const supabase = await createClient();
-      await supabase.storage.from("photos").remove([photo.storageKey]);
-
+      const photo = await ctx.db.photo.findUniqueOrThrow({ where: { id: input.id } });
+      const client = getAdminClient();
+      if (client && !photo.storageKey.startsWith("http")) {
+        await client.storage.from("photos").remove([photo.storageKey]);
+      }
       return ctx.db.photo.delete({ where: { id: input.id } });
+    }),
+
+  bulkDelete: protectedProcedure
+    .input(z.object({ ids: z.array(z.string()) }))
+    .mutation(async ({ ctx, input }) => {
+      const photos = await ctx.db.photo.findMany({ where: { id: { in: input.ids } } });
+      const client = getAdminClient();
+      if (client) {
+        const keys = photos.map((p) => p.storageKey).filter((k) => !k.startsWith("http"));
+        if (keys.length) await client.storage.from("photos").remove(keys);
+      }
+      await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });
     }),
 });
