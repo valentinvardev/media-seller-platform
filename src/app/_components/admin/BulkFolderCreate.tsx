@@ -286,7 +286,7 @@ export function BulkFolderCreate({
                 <h2 className="font-bold text-white text-sm">Carga masiva de carpetas</h2>
                 <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
                   {phase === "select"
-                    ? "Arrastrá las carpetas numeradas o seleccioná la carpeta padre"
+                    ? "Seleccioná la carpeta del evento con los dorsales adentro"
                     : phase === "uploading"
                     ? `Subiendo ${groups.length} carpeta${groups.length !== 1 ? "s" : ""}...`
                     : `${doneGroups} creada${doneGroups !== 1 ? "s" : ""} · ${errorGroups} con error`}
@@ -330,12 +330,30 @@ export function BulkFolderCreate({
                       </svg>
                     </div>
                     <p className="text-white font-medium text-sm">
-                      {groups.length > 0 ? "Reemplazar selección" : "Arrastrá las carpetas aquí"}
+                      {groups.length > 0 ? "Reemplazar selección" : "Arrastrá la carpeta del evento aquí"}
                     </p>
                     <p className="text-xs mt-1" style={{ color: "#475569" }}>
-                      o hacé clic · acepta carpetas numeradas (ej: <span style={{ color: "#94a3b8" }}>42/</span>, <span style={{ color: "#94a3b8" }}>107/</span>)
+                      o hacé clic para seleccionar
                     </p>
                   </div>
+
+                  {/* Structure hint */}
+                  {groups.length === 0 && (
+                    <div className="rounded-xl px-4 py-3 flex gap-3" style={{ background: "#07070f", border: "1px solid #1e1e35" }}>
+                      <svg className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#f59e0b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="text-xs leading-relaxed" style={{ color: "#475569" }}>
+                        Seleccioná o arrastrá la <span style={{ color: "#94a3b8" }}>carpeta del evento</span> que adentro tiene las carpetas por dorsal:
+                        <div className="mt-1.5 font-mono" style={{ color: "#334155" }}>
+                          <div>📁 <span style={{ color: "#64748b" }}>maraton_2024/</span></div>
+                          <div className="ml-4">📁 <span style={{ color: "#94a3b8" }}>42/</span> → foto1.jpg foto2.jpg</div>
+                          <div className="ml-4">📁 <span style={{ color: "#94a3b8" }}>107/</span> → foto1.jpg</div>
+                          <div className="ml-4">📁 <span style={{ color: "#94a3b8" }}>256/</span> → foto1.jpg foto2.jpg</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Hidden folder input */}
                   <input
