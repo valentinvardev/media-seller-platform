@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { ConfirmModal } from "./ConfirmModal";
 
 type Photo = {
   id: string;
@@ -15,6 +16,8 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
+  const [bulkConfirm, setBulkConfirm] = useState(false);
+  const [singleConfirm, setSingleConfirm] = useState<string | null>(null); // photo id
 
   const del = api.photo.delete.useMutation({ onSuccess: () => router.refresh() });
   const bulkDelete = api.photo.bulkDelete.useMutation({
@@ -33,11 +36,6 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
     });
   };
 
-  const handleBulkDelete = () => {
-    if (!confirm(`¿Eliminar ${selected.size} foto${selected.size !== 1 ? "s" : ""}?`)) return;
-    bulkDelete.mutate({ ids: Array.from(selected) });
-  };
-
   if (photos.length === 0) {
     return (
       <div className="rounded-2xl border py-10 text-center" style={{ background: "#0a0a15", borderColor: "#1e1e35" }}>
@@ -45,6 +43,8 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
       </div>
     );
   }
+
+  const singlePhoto = singleConfirm ? photos.find((p) => p.id === singleConfirm) : null;
 
   return (
     <div>
@@ -59,7 +59,7 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
         <div className="flex items-center gap-2">
           {selectMode && selected.size > 0 && (
             <button
-              onClick={handleBulkDelete}
+              onClick={() => setBulkConfirm(true)}
               disabled={bulkDelete.isPending}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
               style={{ background: "#ef444420", color: "#f87171", border: "1px solid #ef444440" }}
@@ -149,10 +149,7 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
                 <div className="absolute inset-0 flex items-end justify-end p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                   style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)" }}>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (confirm(`¿Eliminar "${photo.filename}"?`)) del.mutate({ id: photo.id });
-                    }}
+                    onClick={(e) => { e.stopPropagation(); setSingleConfirm(photo.id); }}
                     disabled={del.isPending}
                     className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110 disabled:opacity-50"
                     style={{ background: "#ef444430", color: "#f87171" }}
@@ -167,6 +164,26 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
           );
         })}
       </div>
+
+      {/* Bulk delete confirm */}
+      {bulkConfirm && (
+        <ConfirmModal
+          title={`Eliminar ${selected.size} foto${selected.size !== 1 ? "s" : ""}`}
+          message="Se eliminarán las fotos seleccionadas. Esta acción no se puede deshacer."
+          onConfirm={() => { setBulkConfirm(false); bulkDelete.mutate({ ids: Array.from(selected) }); }}
+          onCancel={() => setBulkConfirm(false)}
+        />
+      )}
+
+      {/* Single delete confirm */}
+      {singleConfirm && singlePhoto && (
+        <ConfirmModal
+          title="Eliminar foto"
+          message={`Se eliminará "${singlePhoto.filename}". Esta acción no se puede deshacer.`}
+          onConfirm={() => { setSingleConfirm(null); del.mutate({ id: singleConfirm }); }}
+          onCancel={() => setSingleConfirm(null)}
+        />
+      )}
     </div>
   );
 }

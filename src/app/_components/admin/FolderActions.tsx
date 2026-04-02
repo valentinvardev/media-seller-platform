@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { ConfirmModal } from "./ConfirmModal";
 
 export function FolderActions({
   id,
@@ -13,6 +15,7 @@ export function FolderActions({
   isPublic: boolean;
 }) {
   const router = useRouter();
+  const [confirming, setConfirming] = useState(false);
 
   const toggle = api.folder.togglePublish.useMutation({ onSuccess: () => router.refresh() });
   const togglePublic = api.folder.togglePublicFolder.useMutation({ onSuccess: () => router.refresh() });
@@ -50,16 +53,21 @@ export function FolderActions({
 
       {/* Delete */}
       <button
-        onClick={() => {
-          if (confirm("¿Eliminar esta carpeta y todas sus fotos?")) {
-            del.mutate({ id });
-          }
-        }}
+        onClick={() => setConfirming(true)}
         disabled={del.isPending}
         className="text-sm text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors"
       >
         Eliminar
       </button>
+
+      {confirming && (
+        <ConfirmModal
+          title="Eliminar carpeta"
+          message="Se eliminará esta carpeta y todas sus fotos. Esta acción no se puede deshacer."
+          onConfirm={() => { setConfirming(false); del.mutate({ id }); }}
+          onCancel={() => setConfirming(false)}
+        />
+      )}
     </>
   );
 }
