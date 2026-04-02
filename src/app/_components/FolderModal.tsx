@@ -30,6 +30,10 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
     },
   });
 
+  const getPublicToken = api.purchase.getPublicFolderToken.useMutation({
+    onSuccess: (token) => router.push(`/descarga/${token}`),
+  });
+
   const handleBuy = () => {
     if (!email) return;
     createPreference.mutate({ folderId, buyerEmail: email, buyerName: name || undefined });
@@ -119,20 +123,33 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
               {/* PREVIEW: two CTAs */}
               {step === "preview" && (
                 <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => setStep("buy")}
-                    className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02]"
-                    style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)", boxShadow: "0 0 20px #f59e0b25" }}
-                  >
-                    Comprar carpeta · $ {Number(folder.price).toLocaleString("es-AR")}
-                  </button>
-                  <button
-                    onClick={() => setStep("email")}
-                    className="w-full py-3 rounded-xl font-medium text-sm border transition-all hover:border-white/20 hover:text-white"
-                    style={{ background: "#16162a", borderColor: "#2a2a45", color: "#94a3b8" }}
-                  >
-                    Ya compré — Acceder con email
-                  </button>
+                  {folder.isPublic ? (
+                    <button
+                      onClick={() => getPublicToken.mutate({ folderId })}
+                      disabled={getPublicToken.isPending}
+                      className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02] disabled:opacity-50"
+                      style={{ background: "linear-gradient(135deg, #10b981, #34d399)", boxShadow: "0 0 20px #10b98125" }}
+                    >
+                      {getPublicToken.isPending ? "Cargando..." : "Ver fotos gratis"}
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setStep("buy")}
+                        className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02]"
+                        style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)", boxShadow: "0 0 20px #f59e0b25" }}
+                      >
+                        Comprar carpeta · $ {Number(folder.price).toLocaleString("es-AR")}
+                      </button>
+                      <button
+                        onClick={() => setStep("email")}
+                        className="w-full py-3 rounded-xl font-medium text-sm border transition-all hover:border-white/20 hover:text-white"
+                        style={{ background: "#16162a", borderColor: "#2a2a45", color: "#94a3b8" }}
+                      >
+                        Ya compré — Acceder con email
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
 

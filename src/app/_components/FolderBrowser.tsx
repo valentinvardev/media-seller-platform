@@ -127,9 +127,13 @@ export function FolderBrowser({ collectionId }: { collectionId: string }) {
               <div className="p-3">
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-bold text-white text-sm">#{folder.number}</span>
-                  <span className="text-xs font-semibold" style={{ color: "#f59e0b" }}>
-                    ${Number(folder.price).toLocaleString("es-AR")}
-                  </span>
+                  {folder.isPublic ? (
+                    <span className="text-xs font-semibold" style={{ color: "#34d399" }}>Gratis</span>
+                  ) : (
+                    <span className="text-xs font-semibold" style={{ color: "#f59e0b" }}>
+                      ${Number(folder.price).toLocaleString("es-AR")}
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-slate-500">
                   {folder.photoCount} foto{folder.photoCount !== 1 ? "s" : ""}

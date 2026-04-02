@@ -80,6 +80,36 @@ export const purchaseRouter = createTRPCRouter({
       };
     }),
 
+  getPublicFolderToken: publicProcedure
+    .input(z.object({ folderId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const folder = await ctx.db.folder.findFirst({
+        where: { id: input.folderId, isPublished: true, isPublic: true },
+      });
+      if (!folder) throw new Error("Folder not found or not public");
+
+      // Reuse existing public system token if one exists
+      const existing = await ctx.db.purchase.findFirst({
+        where: { folderId: input.folderId, buyerEmail: "public@system", status: "APPROVED" },
+        select: { downloadToken: true },
+      });
+      if (existing?.downloadToken) return existing.downloadToken;
+
+      // Create a permanent public access token
+      const token = crypto.randomUUID();
+      await ctx.db.purchase.create({
+        data: {
+          folderId: input.folderId,
+          buyerEmail: "public@system",
+          amountPaid: 0,
+          status: "APPROVED",
+          downloadToken: token,
+          isPublic: true,
+        },
+      });
+      return token;
+    }),
+
   accessByEmail: publicProcedure
     .input(z.object({ email: z.string().email(), folderId: z.string() }))
     .mutation(async ({ ctx, input }) => {

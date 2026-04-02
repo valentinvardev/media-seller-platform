@@ -48,6 +48,7 @@ export const folderRouter = createTRPCRouter({
             id: folder.id,
             number: folder.number,
             price: folder.price,
+            isPublic: folder.isPublic,
             photoCount: folder._count.photos,
             previewUrls: previewUrls.filter(Boolean) as string[],
           };
@@ -83,6 +84,7 @@ export const folderRouter = createTRPCRouter({
         price: folder.price,
         collectionTitle: folder.collection.title,
         collectionSlug: folder.collection.slug,
+        isPublic: folder.isPublic,
         photoCount: folder._count.photos,
         previewUrls: previewUrls.filter(Boolean) as string[],
       };
@@ -146,6 +148,19 @@ export const folderRouter = createTRPCRouter({
       return ctx.db.folder.update({
         where: { id: input.id },
         data: { isPublished: !current.isPublished },
+      });
+    }),
+
+  togglePublicFolder: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const current = await ctx.db.folder.findUniqueOrThrow({
+        where: { id: input.id },
+        select: { isPublic: true },
+      });
+      return ctx.db.folder.update({
+        where: { id: input.id },
+        data: { isPublic: !current.isPublic },
       });
     }),
 
