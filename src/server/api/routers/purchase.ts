@@ -1,7 +1,7 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
 import { env } from "~/env";
-import { createClient } from "~/lib/supabase/server";
+import { createAdminClient } from "~/lib/supabase/server";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -116,7 +116,7 @@ export const purchaseRouter = createTRPCRouter({
         return null;
       }
 
-      const supabase = await createClient();
+      const supabase = createAdminClient();
       const photoUrls = await Promise.all(
         purchase.folder.photos.map(async (photo) => {
           // Direct URL (placeholder/demo photos stored as full URLs)

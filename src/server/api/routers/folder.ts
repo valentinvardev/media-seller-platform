@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createClient } from "~/lib/supabase/server";
+import { createAdminClient } from "~/lib/supabase/server";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -38,7 +38,7 @@ export const folderRouter = createTRPCRouter({
         },
       });
 
-      const supabase = await createClient();
+      const supabase = createAdminClient();
 
       return Promise.all(
         folders.map(async (folder) => {
@@ -81,7 +81,7 @@ export const folderRouter = createTRPCRouter({
 
       if (!folder) return null;
 
-      const supabase = await createClient();
+      const supabase = createAdminClient();
       const previewUrls = await Promise.all(
         folder.photos.map(async (photo) => {
           if (photo.storageKey.startsWith("http")) return photo.storageKey;
