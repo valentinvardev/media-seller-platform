@@ -3,6 +3,7 @@ import Link from "next/link";
 import { api } from "~/trpc/server";
 import { PhotoUploader } from "~/app/_components/admin/PhotoUploader";
 import { PhotoManager } from "~/app/_components/admin/PhotoManager";
+import { createSignedUrl } from "~/lib/supabase/admin";
 
 export default async function FolderPage({
   params,
@@ -12,6 +13,13 @@ export default async function FolderPage({
   const { id: collectionId, folderId } = await params;
   const folder = await api.folder.adminGetById({ id: folderId });
   if (!folder) notFound();
+
+  const photosWithUrls = await Promise.all(
+    folder.photos.map(async (p) => ({
+      ...p,
+      url: await createSignedUrl(p.storageKey, 3600),
+    })),
+  );
 
   return (
     <div>
@@ -44,7 +52,7 @@ export default async function FolderPage({
         {/* Photo grid */}
         <div>
           <h2 className="text-lg font-semibold mb-3">Fotos en esta carpeta</h2>
-          <PhotoManager folderId={folderId} photos={folder.photos} />
+          <PhotoManager folderId={folderId} photos={photosWithUrls} />
         </div>
       </div>
 
