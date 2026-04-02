@@ -141,9 +141,13 @@ export function BulkFolderCreate({
 
       // IMPORTANT: capture all FileSystemEntry references synchronously before
       // any await — dataTransfer.items is cleared after the first async tick.
-      const fsEntries: FileSystemEntry[] = Array.from(e.dataTransfer.items)
-        .map((item) => item.webkitGetAsEntry())
-        .filter((entry): entry is FileSystemEntry => entry !== null);
+      // Use index loop: DataTransferItemList doesn't reliably support Array.from().
+      const fsEntries: FileSystemEntry[] = [];
+      const { items } = e.dataTransfer;
+      for (let i = 0; i < items.length; i++) {
+        const entry = items[i]?.webkitGetAsEntry();
+        if (entry) fsEntries.push(entry);
+      }
 
       const allFiles: Array<{ file: File; path: string }> = [];
       for (const entry of fsEntries) {
