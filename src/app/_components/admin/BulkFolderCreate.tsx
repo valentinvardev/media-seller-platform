@@ -1,54 +1,258 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { StorageBar } from "./StorageBar";
 
-export function BulkFolderCreate({ collectionId, defaultPrice }: { collectionId: string; defaultPrice?: number }) {
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const [price, setPrice] = useState(defaultPrice?.toString() ?? "3500");
-  const [error, setError] = useState("");
+// ─── Types ───────────────────────────────────────────────────────────────────
 
-  const create = api.folder.create.useMutation();
+type FolderGroup = { number: string; files: File[] };
+type UploadPhase = "select" | "uploading" | "done";
+type FolderStatus = "pending" | "creating" | "uploading" | "done" | "error";
 
-  // Parse "1, 2, 3" or "1-10" or "42 107 256"
-  const parseNumbers = (raw: string): string[] => {
-    const results = new Set<string>();
-    const parts = raw.split(/[,\s]+/).filter(Boolean);
-    for (const part of parts) {
-      if (part.includes("-")) {
-        const [start, end] = part.split("-").map(Number);
-        if (start !== undefined && end !== undefined && !isNaN(start) && !isNaN(end) && end >= start && end - start < 1000) {
-          for (let i = start; i <= end; i++) results.add(String(i));
+type FolderProgress = {
+  status: FolderStatus;
+  done: number;
+  total: number;
+  errorMsg?: string;
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+async function readDirEntry(
+  entry: FileSystemDirectoryEntry,
+  prefix = "",
+): Promise<Array<{ file: File; path: string }>> {
+  const results: Array<{ file: File; path: string }> = [];
+  const reader = entry.createReader();
+
+  await new Promise<void>((resolve) => {
+    const readBatch = () => {
+      reader.readEntries(async (entries) => {
+        if (!entries.length) { resolve(); return; }
+        for (const e of entries) {
+          const p = prefix ? `${prefix}/${e.name}` : e.name;
+          if (e.isFile) {
+            const file = await new Promise<File>((res) =>
+              (e as FileSystemFileEntry).file(res),
+            );
+            if (file.type.startsWith("image/")) results.push({ file, path: p });
+          } else if (e.isDirectory) {
+            const sub = await readDirEntry(e as FileSystemDirectoryEntry, p);
+            results.push(...sub);
+          }
         }
-      } else if (!isNaN(Number(part)) && part.trim() !== "") {
-        results.add(part.trim());
+        readBatch();
+      });
+    };
+    readBatch();
+  });
+
+  return results;
+}
+
+function detectNumber(path: string): string | null {
+  const segments = path.split("/").slice(0, -1); // directory parts only
+  return segments.find((s) => /^\d+$/.test(s.trim())) ?? null;
+}
+
+function groupFiles(items: Array<{ file: File; path: string }>): FolderGroup[] {
+  const map = new Map<string, File[]>();
+  for (const { file, path } of items) {
+    const num = detectNumber(path);
+    if (!num) continue;
+    if (!map.has(num)) map.set(num, []);
+    map.get(num)!.push(file);
+  }
+  return Array.from(map.entries())
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([number, files]) => ({ number, files }));
+}
+
+// ─── Status icon ─────────────────────────────────────────────────────────────
+
+function FolderStatusIcon({ status }: { status: FolderStatus }) {
+  if (status === "done") return (
+    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#10b98120" }}>
+      <svg className="w-3 h-3" style={{ color: "#34d399" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+  );
+  if (status === "uploading" || status === "creating") return (
+    <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin flex-shrink-0"
+      style={{ borderColor: "#f59e0b40", borderTopColor: "#f59e0b" }} />
+  );
+  if (status === "error") return (
+    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#ef444420" }}>
+      <svg className="w-3 h-3" style={{ color: "#f87171" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </div>
+  );
+  return (
+    <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ background: "#1e1e35" }} />
+  );
+}
+
+// ─── Main component ──────────────────────────────────────────────────────────
+
+export function BulkFolderCreate({
+  collectionId,
+  defaultPrice,
+}: {
+  collectionId: string;
+  defaultPrice?: number;
+}) {
+  const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [open, setOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [groups, setGroups] = useState<FolderGroup[]>([]);
+  const [progress, setProgress] = useState<Record<string, FolderProgress>>({});
+  const [price, setPrice] = useState(defaultPrice?.toString() ?? "3500");
+  const [phase, setPhase] = useState<UploadPhase>("select");
+  const [globalError, setGlobalError] = useState("");
+
+  const createFolder = api.folder.create.useMutation();
+  const bulkAdd = api.photo.bulkAdd.useMutation();
+
+  const updateProgress = useCallback(
+    (number: string, patch: Partial<FolderProgress>) =>
+      setProgress((prev) => ({ ...prev, [number]: { ...prev[number]!, ...patch } })),
+    [],
+  );
+
+  const processFiles = useCallback(
+    (items: Array<{ file: File; path: string }>) => {
+      const detected = groupFiles(items);
+      setGroups(detected);
+      setProgress({});
+      setGlobalError(detected.length === 0 ? "No se detectaron carpetas numeradas." : "");
+    },
+    [],
+  );
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const allFiles: Array<{ file: File; path: string }> = [];
+      for (const item of Array.from(e.dataTransfer.items)) {
+        const entry = item.webkitGetAsEntry();
+        if (!entry) continue;
+        if (entry.isDirectory) {
+          const sub = await readDirEntry(entry as FileSystemDirectoryEntry, entry.name);
+          allFiles.push(...sub);
+        } else if (entry.isFile) {
+          const file = await new Promise<File>((res) =>
+            (entry as FileSystemFileEntry).file(res),
+          );
+          if (file.type.startsWith("image/")) allFiles.push({ file, path: entry.name });
+        }
       }
+      processFiles(allFiles);
+    },
+    [processFiles],
+  );
+
+  const handleInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files ?? []);
+      const items = files
+        .filter((f) => f.type.startsWith("image/"))
+        .map((f) => ({
+          file: f,
+          path: (f as File & { webkitRelativePath: string }).webkitRelativePath || f.name,
+        }));
+      processFiles(items);
+    },
+    [processFiles],
+  );
+
+  const handleUpload = async () => {
+    const priceNum = Number(price);
+    if (!groups.length) return;
+    if (isNaN(priceNum) || priceNum <= 0) { setGlobalError("Precio inválido."); return; }
+    setGlobalError("");
+
+    const init: Record<string, FolderProgress> = {};
+    groups.forEach((g) => { init[g.number] = { status: "pending", done: 0, total: g.files.length }; });
+    setProgress(init);
+    setPhase("uploading");
+
+    for (const group of groups) {
+      updateProgress(group.number, { status: "creating" });
+
+      let folderId: string;
+      try {
+        const created = await createFolder.mutateAsync({
+          collectionId,
+          number: group.number,
+          price: priceNum,
+          isPublished: true,
+        });
+        folderId = created.id;
+      } catch {
+        updateProgress(group.number, { status: "error", errorMsg: "Ya existe o no se pudo crear" });
+        continue;
+      }
+
+      updateProgress(group.number, { status: "uploading" });
+      const uploaded: { storageKey: string; filename: string; fileSize: number }[] = [];
+
+      for (const file of group.files) {
+        const path = `${collectionId}/${folderId}/${Date.now()}-${file.name}`;
+        try {
+          const signRes = await fetch("/api/uploads/sign", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ path }),
+          });
+          if (!signRes.ok) continue;
+          const { signedUrl } = await signRes.json() as { signedUrl: string };
+          const uploadRes = await fetch(signedUrl, {
+            method: "PUT",
+            headers: { "Content-Type": file.type },
+            body: file,
+          });
+          if (uploadRes.ok) uploaded.push({ storageKey: path, filename: file.name, fileSize: file.size });
+        } catch { /* skip failed photo */ }
+        updateProgress(group.number, { done: uploaded.length });
+      }
+
+      if (uploaded.length > 0) {
+        await bulkAdd.mutateAsync({ folderId, photos: uploaded });
+      }
+      updateProgress(group.number, { status: "done", done: uploaded.length });
     }
-    return Array.from(results);
-  };
 
-  const numbers = parseNumbers(input);
-  const priceNum = Number(price);
-
-  const handleCreate = async () => {
-    if (!numbers.length) { setError("Ingresá al menos un número."); return; }
-    if (!price || isNaN(priceNum) || priceNum <= 0) { setError("Precio inválido."); return; }
-    setError("");
-
-    for (const number of numbers) {
-      await create.mutateAsync({ collectionId, number, price: priceNum, isPublished: true });
-    }
-
-    setInput("");
-    setOpen(false);
+    setPhase("done");
     router.refresh();
   };
 
-  if (!open) {
-    return (
+  const reset = () => {
+    setGroups([]);
+    setProgress({});
+    setPhase("select");
+    setGlobalError("");
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const close = () => {
+    if (phase === "uploading") return;
+    reset();
+    setOpen(false);
+  };
+
+  const totalPhotos = groups.reduce((s, g) => s + g.files.length, 0);
+  const doneGroups = Object.values(progress).filter((p) => p.status === "done").length;
+  const errorGroups = Object.values(progress).filter((p) => p.status === "error").length;
+
+  return (
+    <>
       <button
         onClick={() => setOpen(true)}
         className="text-sm px-4 py-2 rounded-xl transition-all hover:bg-white/5"
@@ -56,87 +260,214 @@ export function BulkFolderCreate({ collectionId, defaultPrice }: { collectionId:
       >
         + Carga masiva
       </button>
-    );
-  }
 
-  return (
-    <div className="rounded-2xl border p-5 mt-4" style={{ background: "#0a0a15", borderColor: "#1e1e35" }}>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-white text-sm">Crear carpetas en masa</h3>
-        <button onClick={() => setOpen(false)} style={{ color: "#64748b" }}>
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <div>
-          <label className="block text-xs mb-1.5" style={{ color: "#64748b" }}>
-            Números de dorsal
-          </label>
-          <textarea
-            value={input}
-            onChange={(e) => { setInput(e.target.value); setError(""); }}
-            placeholder={"42, 107, 256\n1-100\n201 202 203"}
-            rows={3}
-            className="w-full rounded-xl px-4 py-3 text-white text-sm placeholder-slate-600 focus:outline-none resize-none"
-            style={{ background: "#07070f", border: "1px solid #1e1e35" }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "#f59e0b40")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "#1e1e35")}
-          />
-          <p className="text-xs mt-1" style={{ color: "#475569" }}>
-            Separados por coma, espacio, o rangos como <span style={{ color: "#94a3b8" }}>1-50</span>.
-            {numbers.length > 0 && (
-              <span style={{ color: "#fbbf24" }}> → {numbers.length} carpeta{numbers.length !== 1 ? "s" : ""}</span>
-            )}
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-xs mb-1.5" style={{ color: "#64748b" }}>Precio (ARS)</label>
-          <input
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="w-full rounded-xl px-4 py-3 text-white text-sm focus:outline-none"
-            style={{ background: "#07070f", border: "1px solid #1e1e35" }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "#f59e0b40")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "#1e1e35")}
-          />
-        </div>
-
-        {error && (
-          <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "#ef444415", color: "#f87171" }}>{error}</p>
-        )}
-        {create.isError && (
-          <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "#ef444415", color: "#f87171" }}>
-            Error al crear. Algún número puede estar duplicado.
-          </p>
-        )}
-
-        <div className="flex gap-2 mt-1">
-          <button
-            onClick={handleCreate}
-            disabled={create.isPending || numbers.length === 0}
-            className="flex-1 py-2.5 rounded-xl font-bold text-black text-sm transition-all disabled:opacity-40"
-            style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
+          style={{ background: "rgba(0,0,0,0.8)" }}
+          onClick={() => phase !== "uploading" && close()}
+        >
+          <div
+            className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl border flex flex-col overflow-hidden"
+            style={{ background: "#0f0f1a", borderColor: "#1e1e35", maxHeight: "90vh" }}
+            onClick={(e) => e.stopPropagation()}
           >
-            {create.isPending
-              ? "Creando..."
-              : numbers.length > 0
-                ? `Crear ${numbers.length} carpeta${numbers.length !== 1 ? "s" : ""}`
-                : "Crear"}
-          </button>
-          <button
-            onClick={() => setOpen(false)}
-            className="px-4 py-2.5 rounded-xl text-sm"
-            style={{ background: "#1e1e35", color: "#94a3b8" }}
-          >
-            Cancelar
-          </button>
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{ borderColor: "#1e1e35" }}>
+              <div>
+                <h2 className="font-bold text-white text-sm">Carga masiva de carpetas</h2>
+                <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
+                  {phase === "select"
+                    ? "Arrastrá las carpetas numeradas o seleccioná la carpeta padre"
+                    : phase === "uploading"
+                    ? `Subiendo ${groups.length} carpeta${groups.length !== 1 ? "s" : ""}...`
+                    : `${doneGroups} creada${doneGroups !== 1 ? "s" : ""} · ${errorGroups} con error`}
+                </p>
+              </div>
+              {phase !== "uploading" && (
+                <button
+                  onClick={close}
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: "#16162a", color: "#64748b" }}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Body */}
+            <div className="overflow-y-auto flex-1 px-5 py-4 flex flex-col gap-4" style={{ scrollbarWidth: "thin" }}>
+
+              {/* ── SELECT phase ────────────────────────────────────── */}
+              {phase === "select" && (
+                <>
+                  {/* Drop zone */}
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={handleDrop}
+                    onClick={() => inputRef.current?.click()}
+                    className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all"
+                    style={{
+                      borderColor: isDragging ? "#f59e0b80" : "#1e1e35",
+                      background: isDragging ? "#f59e0b08" : "#07070f",
+                    }}
+                  >
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2"
+                      style={{ background: "#f59e0b15", border: "1px solid #f59e0b30" }}>
+                      <svg className="w-5 h-5" style={{ color: "#f59e0b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      </svg>
+                    </div>
+                    <p className="text-white font-medium text-sm">
+                      {groups.length > 0 ? "Reemplazar selección" : "Arrastrá las carpetas aquí"}
+                    </p>
+                    <p className="text-xs mt-1" style={{ color: "#475569" }}>
+                      o hacé clic · acepta carpetas numeradas (ej: <span style={{ color: "#94a3b8" }}>42/</span>, <span style={{ color: "#94a3b8" }}>107/</span>)
+                    </p>
+                  </div>
+
+                  {/* Hidden folder input */}
+                  <input
+                    ref={inputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleInput}
+                    // @ts-expect-error non-standard attribute
+                    webkitdirectory=""
+                    directory=""
+                  />
+
+                  {/* Detected folders list */}
+                  {groups.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-medium" style={{ color: "#64748b" }}>
+                        {groups.length} carpeta{groups.length !== 1 ? "s" : ""} detectada{groups.length !== 1 ? "s" : ""} · {totalPhotos} foto{totalPhotos !== 1 ? "s" : ""}
+                      </p>
+                      <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+                        {groups.map((g) => (
+                          <div key={g.number} className="flex items-center gap-3 px-3 py-2 rounded-lg"
+                            style={{ background: "#07070f", border: "1px solid #1e1e35" }}>
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                              style={{ background: "#f59e0b15", color: "#f59e0b" }}>
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                              </svg>
+                            </div>
+                            <span className="font-mono font-semibold text-white text-sm">#{g.number}</span>
+                            <span className="text-xs flex-1" style={{ color: "#475569" }}>{g.files.length} foto{g.files.length !== 1 ? "s" : ""}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Price */}
+                  <div>
+                    <label className="block text-xs mb-1.5" style={{ color: "#64748b" }}>Precio por carpeta (ARS)</label>
+                    <input
+                      type="number"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className="w-full rounded-xl px-4 py-3 text-white text-sm focus:outline-none"
+                      style={{ background: "#07070f", border: "1px solid #1e1e35" }}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = "#f59e0b40")}
+                      onBlur={(e) => (e.currentTarget.style.borderColor = "#1e1e35")}
+                    />
+                  </div>
+
+                  {globalError && (
+                    <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "#ef444415", color: "#f87171" }}>{globalError}</p>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleUpload}
+                      disabled={groups.length === 0}
+                      className="flex-1 py-2.5 rounded-xl font-bold text-black text-sm transition-all disabled:opacity-40"
+                      style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+                    >
+                      {groups.length > 0
+                        ? `Crear y subir ${groups.length} carpeta${groups.length !== 1 ? "s" : ""}`
+                        : "Crear y subir"}
+                    </button>
+                    <button onClick={close} className="px-4 rounded-xl text-sm"
+                      style={{ background: "#1e1e35", color: "#94a3b8" }}>
+                      Cancelar
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* ── UPLOADING / DONE phase ───────────────────────────── */}
+              {(phase === "uploading" || phase === "done") && (
+                <div className="flex flex-col gap-2">
+                  {groups.map((g) => {
+                    const p = progress[g.number];
+                    if (!p) return null;
+                    const pct = p.total > 0 ? Math.round((p.done / p.total) * 100) : 0;
+                    return (
+                      <div key={g.number} className="rounded-xl px-4 py-3 flex flex-col gap-2"
+                        style={{
+                          background: "#07070f",
+                          border: `1px solid ${p.status === "error" ? "#ef444430" : p.status === "done" ? "#10b98120" : "#1e1e35"}`,
+                        }}>
+                        <div className="flex items-center gap-3">
+                          <FolderStatusIcon status={p.status} />
+                          <span className="font-mono font-semibold text-white text-sm flex-1">#{g.number}</span>
+                          <span className="text-xs" style={{
+                            color: p.status === "done" ? "#34d399"
+                              : p.status === "error" ? "#f87171"
+                              : p.status === "creating" ? "#94a3b8"
+                              : "#f59e0b",
+                          }}>
+                            {p.status === "pending" ? "En cola"
+                              : p.status === "creating" ? "Creando carpeta..."
+                              : p.status === "uploading" ? `${p.done} / ${p.total}`
+                              : p.status === "done" ? `${p.done} foto${p.done !== 1 ? "s" : ""}`
+                              : (p.errorMsg ?? "Error")}
+                          </span>
+                        </div>
+                        {(p.status === "uploading" || p.status === "done") && p.total > 0 && (
+                          <div className="h-1 rounded-full overflow-hidden" style={{ background: "#1e1e35" }}>
+                            <div
+                              className="h-full rounded-full transition-all duration-300"
+                              style={{
+                                width: `${pct}%`,
+                                background: p.status === "done" ? "#10b981" : "#f59e0b",
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {phase === "done" && (
+                    <button
+                      onClick={() => { reset(); setOpen(false); }}
+                      className="w-full py-2.5 mt-2 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02]"
+                      style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+                    >
+                      Cerrar
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Storage bar always visible */}
+              <div className="pt-1 border-t" style={{ borderColor: "#1e1e35" }}>
+                <StorageBar />
+              </div>
+
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

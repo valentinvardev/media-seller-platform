@@ -99,6 +99,7 @@ model Photo {
     folderId   String
     storageKey String
     filename   String
+    fileSize   Int?
     width      Int?
     height     Int?
     order      Int      @default(0)

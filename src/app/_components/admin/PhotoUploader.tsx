@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { StorageBar } from "./StorageBar";
 
 type FileStatus = "pending" | "uploading" | "done" | "error";
 
@@ -115,7 +116,7 @@ export function PhotoUploader({ folderId, collectionId }: { folderId: string; co
       setTimeout(() => setEntries((prev) => prev.map((e) => e.id === id ? { ...e, visible: true } : e)), i * 60);
     }
 
-    const uploaded: { storageKey: string; filename: string }[] = [];
+    const uploaded: { storageKey: string; filename: string; fileSize: number }[] = [];
 
     for (const entry of newEntries) {
       updateEntry(entry.id, { status: "uploading" });
@@ -149,7 +150,7 @@ export function PhotoUploader({ folderId, collectionId }: { folderId: string; co
           continue;
         }
 
-        uploaded.push({ storageKey: path, filename: entry.file.name });
+        uploaded.push({ storageKey: path, filename: entry.file.name, fileSize: entry.file.size });
         updateEntry(entry.id, { status: "done" });
       } catch {
         updateEntry(entry.id, { status: "error", errorMsg: "Error de red." });
@@ -262,6 +263,11 @@ export function PhotoUploader({ folderId, collectionId }: { folderId: string; co
           )}
         </div>
       )}
+
+      {/* Storage */}
+      <div className="mt-4 pt-3 border-t" style={{ borderColor: "#1e1e35" }}>
+        <StorageBar />
+      </div>
 
       {/* Modal */}
       {modalOpen && (

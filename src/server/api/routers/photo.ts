@@ -2,6 +2,8 @@ import { z } from "zod";
 import { getAdminClient } from "~/lib/supabase/admin";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
+const STORAGE_LIMIT_BYTES = 100 * 1024 * 1024 * 1024; // 100 GB
+
 export const photoRouter = createTRPCRouter({
   bulkAdd: protectedProcedure
     .input(
@@ -11,6 +13,7 @@ export const photoRouter = createTRPCRouter({
           z.object({
             storageKey: z.string(),
             filename: z.string(),
+            fileSize: z.number().optional(),
             width: z.number().optional(),
             height: z.number().optional(),
           }),
@@ -24,12 +27,21 @@ export const photoRouter = createTRPCRouter({
           folderId: input.folderId,
           storageKey: p.storageKey,
           filename: p.filename,
+          fileSize: p.fileSize,
           width: p.width,
           height: p.height,
           order: count + i,
         })),
       });
     }),
+
+  getStorageUsage: protectedProcedure.query(async ({ ctx }) => {
+    const result = await ctx.db.photo.aggregate({ _sum: { fileSize: true } });
+    return {
+      usedBytes: Number(result._sum.fileSize ?? 0),
+      limitBytes: STORAGE_LIMIT_BYTES,
+    };
+  }),
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
