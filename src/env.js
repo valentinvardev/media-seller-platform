@@ -15,7 +15,6 @@ export const env = createEnv({
     SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
     MERCADOPAGO_ACCESS_TOKEN: z.string().optional(),
     MERCADOPAGO_WEBHOOK_SECRET: z.string().optional(),
-    NEXT_PUBLIC_BASE_URL: z.string().url().optional(),
     ADMIN_EMAIL: z.string().email().optional(),
     ADMIN_PASSWORD: z.string().optional(),
   },
@@ -24,6 +23,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
     NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY: z.string().optional(),
+    NEXT_PUBLIC_BASE_URL: z.string().url().optional(),
   },
 
   runtimeEnv: {
@@ -34,12 +34,12 @@ export const env = createEnv({
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     MERCADOPAGO_ACCESS_TOKEN: process.env.MERCADOPAGO_ACCESS_TOKEN,
     MERCADOPAGO_WEBHOOK_SECRET: process.env.MERCADOPAGO_WEBHOOK_SECRET,
-    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY: process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY,
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
