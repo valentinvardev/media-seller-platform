@@ -254,10 +254,16 @@ export function BulkFolderCreate({ collectionId, defaultPrice }: { collectionId:
                       <div className="text-xs leading-relaxed" style={{ color: "#475569" }}>
                         <span style={{ color: "#94a3b8" }}>Estructura esperada:</span>
                         <div className="mt-1.5 font-mono space-y-0.5">
-                          <div style={{ color: "#64748b" }}>📁 maraton_2024/ <span className="font-sans" style={{ color: "#334155" }}>← seleccioná esta</span></div>
-                          <div className="ml-4" style={{ color: "#475569" }}>📁 <span style={{ color: "#94a3b8" }}>42/</span> foto1.jpg foto2.jpg</div>
-                          <div className="ml-4" style={{ color: "#475569" }}>📁 <span style={{ color: "#94a3b8" }}>107/</span> foto1.jpg</div>
-                          <div className="ml-4" style={{ color: "#475569" }}>📁 <span style={{ color: "#94a3b8" }}>256/</span> foto1.jpg foto2.jpg</div>
+                          <div className="flex items-center gap-1" style={{ color: "#64748b" }}>
+                            <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+                            <span>maraton_2024/</span> <span className="font-sans" style={{ color: "#334155" }}>← seleccioná esta</span>
+                          </div>
+                          {[["42/", "foto1.jpg foto2.jpg"], ["107/", "foto1.jpg"], ["256/", "foto1.jpg foto2.jpg"]].map(([num, files]) => (
+                            <div key={num} className="ml-4 flex items-center gap-1" style={{ color: "#475569" }}>
+                              <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+                              <span style={{ color: "#94a3b8" }}>{num}</span> <span>{files}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>

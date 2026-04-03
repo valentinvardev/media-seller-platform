@@ -67,8 +67,16 @@ export function FolderBrowser({ collectionId }: { collectionId: string }) {
       {/* Empty */}
       {!isLoading && folders?.length === 0 && (
         <div className="text-center py-20">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4" style={{ background: "#0f0f1a" }}>
-            {debouncedSearch ? "🔍" : "📁"}
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: "#0f0f1a" }}>
+            {debouncedSearch ? (
+              <svg className="w-7 h-7" style={{ color: "#475569" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />
+              </svg>
+            ) : (
+              <svg className="w-7 h-7" style={{ color: "#475569" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+            )}
           </div>
           <p className="text-white font-medium mb-2">
             {debouncedSearch ? `No se encontró el dorsal #${debouncedSearch}` : "Sin carpetas disponibles"}
@@ -111,7 +119,11 @@ export function FolderBrowser({ collectionId }: { collectionId: string }) {
                     ))}
                   </div>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-3xl text-slate-600">📁</div>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <svg className="w-10 h-10" style={{ color: "#334155" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                  </div>
                 )}
 
                 {/* Hover overlay — lock for private, eye for public */}

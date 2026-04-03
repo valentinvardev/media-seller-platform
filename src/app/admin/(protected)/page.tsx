@@ -109,7 +109,11 @@ export default async function AdminDashboard() {
         <div className="rounded-2xl border overflow-hidden" style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}>
           {sales.items.length === 0 ? (
             <div className="py-14 text-center">
-              <p className="text-3xl mb-3">💳</p>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: "#1e1e35" }}>
+                <svg className="w-6 h-6" style={{ color: "#475569" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
               <p className="text-slate-400 text-sm">Aún no hay ventas registradas</p>
               <p className="text-slate-600 text-xs mt-1">Cuando se realice una compra aparecerá aquí</p>
             </div>
