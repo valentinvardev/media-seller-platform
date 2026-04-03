@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { StorageBar } from "./StorageBar";
@@ -10,72 +10,23 @@ import { StorageBar } from "./StorageBar";
 type FolderGroup = { number: string; files: File[] };
 type UploadPhase = "select" | "uploading" | "done";
 type FolderStatus = "pending" | "creating" | "uploading" | "done" | "error";
-
-type FolderProgress = {
-  status: FolderStatus;
-  done: number;
-  total: number;
-  errorMsg?: string;
-};
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+type FolderProgress = { status: FolderStatus; done: number; total: number; errorMsg?: string };
 
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp|heic|heif|tiff?|bmp|avif)$/i;
 
-async function readAllEntries(reader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> {
-  const all: FileSystemEntry[] = [];
-  // readEntries returns ≤100 items per call and must be called repeatedly until empty
-  // IMPORTANT: do NOT interleave readEntries calls with other awaits on the same reader
-  while (true) {
-    const batch = await new Promise<FileSystemEntry[]>((resolve, reject) =>
-      reader.readEntries(resolve, reject),
-    );
-    if (!batch.length) break;
-    all.push(...batch);
-  }
-  return all;
+function isImage(f: File) {
+  return f.type.startsWith("image/") || IMAGE_EXT.test(f.name);
 }
 
-async function readDirEntry(
-  entry: FileSystemDirectoryEntry,
-  prefix = "",
-): Promise<Array<{ file: File; path: string }>> {
-  // Phase 1: read ALL directory entries synchronously (no interleaved awaits)
-  const entries = await readAllEntries(entry.createReader());
-
-  // Phase 2: process entries now that reading is complete
-  const results: Array<{ file: File; path: string }> = [];
-  for (const e of entries) {
-    const p = prefix ? `${prefix}/${e.name}` : e.name;
-    if (e.isFile) {
-      const file = await new Promise<File>((res, rej) =>
-        (e as FileSystemFileEntry).file(res, rej),
-      );
-      // Accept by MIME type OR extension (Windows may omit MIME type)
-      if (file.type.startsWith("image/") || IMAGE_EXT.test(file.name)) {
-        results.push({ file, path: p });
-      }
-    } else if (e.isDirectory) {
-      const sub = await readDirEntry(e as FileSystemDirectoryEntry, p);
-      results.push(...sub);
-    }
-  }
-
-  return results;
-}
-
-function detectNumber(path: string): string | null {
-  const segments = path.split("/").slice(0, -1); // directory parts only
-  return segments.find((s) => /^\d+$/.test(s.trim())) ?? null;
-}
-
-function groupFiles(items: Array<{ file: File; path: string }>): FolderGroup[] {
+function groupByNumber(files: File[]): FolderGroup[] {
   const map = new Map<string, File[]>();
-  for (const { file, path } of items) {
-    const num = detectNumber(path);
+  for (const f of files) {
+    const rel = (f as File & { webkitRelativePath: string }).webkitRelativePath;
+    // find first purely numeric path segment (the dorsal folder)
+    const num = rel.split("/").slice(0, -1).find((s) => /^\d+$/.test(s));
     if (!num) continue;
     if (!map.has(num)) map.set(num, []);
-    map.get(num)!.push(file);
+    map.get(num)!.push(f);
   }
   return Array.from(map.entries())
     .sort(([a], [b]) => Number(a) - Number(b))
@@ -103,25 +54,16 @@ function FolderStatusIcon({ status }: { status: FolderStatus }) {
       </svg>
     </div>
   );
-  return (
-    <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ background: "#1e1e35" }} />
-  );
+  return <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ background: "#1e1e35" }} />;
 }
 
 // ─── Main component ──────────────────────────────────────────────────────────
 
-export function BulkFolderCreate({
-  collectionId,
-  defaultPrice,
-}: {
-  collectionId: string;
-  defaultPrice?: number;
-}) {
+export function BulkFolderCreate({ collectionId, defaultPrice }: { collectionId: string; defaultPrice?: number }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [groups, setGroups] = useState<FolderGroup[]>([]);
   const [progress, setProgress] = useState<Record<string, FolderProgress>>({});
   const [price, setPrice] = useState(defaultPrice?.toString() ?? "3500");
@@ -137,85 +79,16 @@ export function BulkFolderCreate({
     [],
   );
 
-  // Accumulate groups across multiple drops/selections instead of replacing
-  const processFiles = useCallback(
-    (items: Array<{ file: File; path: string }>) => {
-      const detected = groupFiles(items);
-      if (detected.length === 0) {
-        setGlobalError("No se detectaron carpetas numeradas.");
-        return;
-      }
-      setGlobalError("");
-      setGroups((prev) => {
-        const map = new Map(prev.map((g) => [g.number, g]));
-        for (const g of detected) {
-          // Merge files if same number already exists, otherwise add
-          const existing = map.get(g.number);
-          if (existing) {
-            map.set(g.number, { number: g.number, files: [...existing.files, ...g.files] });
-          } else {
-            map.set(g.number, g);
-          }
-        }
-        return Array.from(map.values()).sort((a, b) => Number(a.number) - Number(b.number));
-      });
-    },
-    [],
-  );
-
-  // Set webkitdirectory imperatively — JSX attribute is unreliable across browsers
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.setAttribute("webkitdirectory", "");
-      inputRef.current.setAttribute("directory", "");
-    }
-  }, [open]);
-
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
-
-      // IMPORTANT: capture all FileSystemEntry references synchronously before
-      // any await — dataTransfer.items is cleared after the first async tick.
-      // Use index loop: DataTransferItemList doesn't reliably support Array.from().
-      const fsEntries: FileSystemEntry[] = [];
-      const { items } = e.dataTransfer;
-      for (let i = 0; i < items.length; i++) {
-        const entry = items[i]?.webkitGetAsEntry();
-        if (entry) fsEntries.push(entry);
-      }
-
-      const allFiles: Array<{ file: File; path: string }> = [];
-      for (const entry of fsEntries) {
-        if (entry.isDirectory) {
-          const sub = await readDirEntry(entry as FileSystemDirectoryEntry, entry.name);
-          allFiles.push(...sub);
-        } else if (entry.isFile) {
-          const file = await new Promise<File>((res) =>
-            (entry as FileSystemFileEntry).file(res),
-          );
-          if (file.type.startsWith("image/")) allFiles.push({ file, path: entry.name });
-        }
-      }
-      processFiles(allFiles);
-    },
-    [processFiles],
-  );
-
-  const handleInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files ?? []);
-      const items = files
-        .filter((f) => f.type.startsWith("image/"))
-        .map((f) => ({
-          file: f,
-          path: (f as File & { webkitRelativePath: string }).webkitRelativePath || f.name,
-        }));
-      processFiles(items);
-    },
-    [processFiles],
-  );
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []).filter(isImage);
+    if (!files.length) { setGlobalError("No se encontraron imágenes."); return; }
+    const detected = groupByNumber(files);
+    if (!detected.length) { setGlobalError("No se detectaron carpetas numeradas. Asegurate de seleccionar la carpeta padre (ej: maraton_2024/)."); return; }
+    setGlobalError("");
+    setGroups(detected);
+    // reset so same folder can be re-selected
+    e.target.value = "";
+  };
 
   const handleUpload = async () => {
     const priceNum = Number(price);
@@ -260,7 +133,7 @@ export function BulkFolderCreate({
           const { signedUrl } = await signRes.json() as { signedUrl: string };
           const uploadRes = await fetch(signedUrl, {
             method: "PUT",
-            headers: { "Content-Type": file.type },
+            headers: { "Content-Type": file.type || "image/jpeg" },
             body: file,
           });
           if (uploadRes.ok) uploaded.push({ storageKey: path, filename: file.name, fileSize: file.size });
@@ -268,9 +141,7 @@ export function BulkFolderCreate({
         updateProgress(group.number, { done: uploaded.length });
       }
 
-      if (uploaded.length > 0) {
-        await bulkAdd.mutateAsync({ folderId, photos: uploaded });
-      }
+      if (uploaded.length > 0) await bulkAdd.mutateAsync({ folderId, photos: uploaded });
       updateProgress(group.number, { status: "done", done: uploaded.length });
     }
 
@@ -283,11 +154,6 @@ export function BulkFolderCreate({
     setProgress({});
     setPhase("select");
     setGlobalError("");
-    // Reset input so the same folder can be re-selected
-    if (inputRef.current) {
-      inputRef.current.value = "";
-      inputRef.current.setAttribute("webkitdirectory", "");
-    }
   };
 
   const close = () => {
@@ -310,6 +176,17 @@ export function BulkFolderCreate({
         + Carga masiva
       </button>
 
+      {/* Hidden input — webkitdirectory lets the browser walk the whole folder tree */}
+      <input
+        ref={inputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={handleInput}
+        // @ts-expect-error non-standard but widely supported
+        webkitdirectory=""
+      />
+
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
@@ -327,18 +204,15 @@ export function BulkFolderCreate({
                 <h2 className="font-bold text-white text-sm">Carga masiva de carpetas</h2>
                 <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
                   {phase === "select"
-                    ? "Seleccioná la carpeta del evento con los dorsales adentro"
+                    ? "Seleccioná la carpeta del evento"
                     : phase === "uploading"
                     ? `Subiendo ${groups.length} carpeta${groups.length !== 1 ? "s" : ""}...`
                     : `${doneGroups} creada${doneGroups !== 1 ? "s" : ""} · ${errorGroups} con error`}
                 </p>
               </div>
               {phase !== "uploading" && (
-                <button
-                  onClick={close}
-                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: "#16162a", color: "#64748b" }}
-                >
+                <button onClick={close} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: "#16162a", color: "#64748b" }}>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -349,34 +223,27 @@ export function BulkFolderCreate({
             {/* Body */}
             <div className="overflow-y-auto flex-1 px-5 py-4 flex flex-col gap-4" style={{ scrollbarWidth: "thin" }}>
 
-              {/* ── SELECT phase ────────────────────────────────────── */}
               {phase === "select" && (
                 <>
-                  {/* Drop zone */}
-                  <div
-                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={handleDrop}
+                  {/* Big select button */}
+                  <button
                     onClick={() => inputRef.current?.click()}
-                    className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all"
-                    style={{
-                      borderColor: isDragging ? "#f59e0b80" : "#1e1e35",
-                      background: isDragging ? "#f59e0b08" : "#07070f",
-                    }}
+                    className="border-2 border-dashed rounded-xl p-8 text-center transition-all hover:border-amber-500/40 hover:bg-amber-500/5 w-full"
+                    style={{ borderColor: "#1e1e35", background: "#07070f" }}
                   >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2"
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
                       style={{ background: "#f59e0b15", border: "1px solid #f59e0b30" }}>
-                      <svg className="w-5 h-5" style={{ color: "#f59e0b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <svg className="w-6 h-6" style={{ color: "#f59e0b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                       </svg>
                     </div>
-                    <p className="text-white font-medium text-sm">
-                      {groups.length > 0 ? "Agregar más carpetas" : "Arrastrá una carpeta aquí"}
+                    <p className="text-white font-semibold text-sm">
+                      {groups.length > 0 ? "Cambiar selección" : "Seleccionar carpeta del evento"}
                     </p>
-                    <p className="text-xs mt-1" style={{ color: "#475569" }}>
-                      o hacé clic · podés agregar de a una, se acumulan
+                    <p className="text-xs mt-1.5" style={{ color: "#475569" }}>
+                      Seleccioná la carpeta padre que contiene los dorsales adentro
                     </p>
-                  </div>
+                  </button>
 
                   {/* Structure hint */}
                   {groups.length === 0 && (
@@ -385,40 +252,27 @@ export function BulkFolderCreate({
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <div className="text-xs leading-relaxed" style={{ color: "#475569" }}>
-                        Seleccioná o arrastrá la <span style={{ color: "#94a3b8" }}>carpeta del evento</span> que adentro tiene las carpetas por dorsal:
-                        <div className="mt-1.5 font-mono" style={{ color: "#334155" }}>
-                          <div>📁 <span style={{ color: "#64748b" }}>maraton_2024/</span></div>
-                          <div className="ml-4">📁 <span style={{ color: "#94a3b8" }}>42/</span> → foto1.jpg foto2.jpg</div>
-                          <div className="ml-4">📁 <span style={{ color: "#94a3b8" }}>107/</span> → foto1.jpg</div>
-                          <div className="ml-4">📁 <span style={{ color: "#94a3b8" }}>256/</span> → foto1.jpg foto2.jpg</div>
+                        <span style={{ color: "#94a3b8" }}>Estructura esperada:</span>
+                        <div className="mt-1.5 font-mono space-y-0.5">
+                          <div style={{ color: "#64748b" }}>📁 maraton_2024/ <span className="font-sans" style={{ color: "#334155" }}>← seleccioná esta</span></div>
+                          <div className="ml-4" style={{ color: "#475569" }}>📁 <span style={{ color: "#94a3b8" }}>42/</span> foto1.jpg foto2.jpg</div>
+                          <div className="ml-4" style={{ color: "#475569" }}>📁 <span style={{ color: "#94a3b8" }}>107/</span> foto1.jpg</div>
+                          <div className="ml-4" style={{ color: "#475569" }}>📁 <span style={{ color: "#94a3b8" }}>256/</span> foto1.jpg foto2.jpg</div>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Hidden folder input — webkitdirectory set imperatively in useEffect */}
-                  <input
-                    ref={inputRef}
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleInput}
-                  />
-
-                  {/* Detected folders list */}
+                  {/* Detected folders */}
                   {groups.length > 0 && (
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-medium" style={{ color: "#64748b" }}>
-                          {groups.length} carpeta{groups.length !== 1 ? "s" : ""} · {totalPhotos} foto{totalPhotos !== 1 ? "s" : ""}
+                          {groups.length} carpeta{groups.length !== 1 ? "s" : ""} detectada{groups.length !== 1 ? "s" : ""} · {totalPhotos} foto{totalPhotos !== 1 ? "s" : ""}
                         </p>
-                        <button
-                          onClick={() => setGroups([])}
-                          className="text-xs px-2 py-1 rounded-lg"
-                          style={{ color: "#475569", background: "#1e1e35" }}
-                        >
-                          Limpiar todo
+                        <button onClick={() => setGroups([])} className="text-xs px-2 py-1 rounded-lg"
+                          style={{ color: "#475569", background: "#1e1e35" }}>
+                          Limpiar
                         </button>
                       </div>
                       <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
@@ -435,7 +289,7 @@ export function BulkFolderCreate({
                             <span className="text-xs flex-1" style={{ color: "#475569" }}>{g.files.length} foto{g.files.length !== 1 ? "s" : ""}</span>
                             <button
                               onClick={() => setGroups((prev) => prev.filter((x) => x.number !== g.number))}
-                              className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 hover:opacity-100 opacity-40 transition-opacity"
+                              className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 opacity-40 hover:opacity-100 transition-opacity"
                               style={{ color: "#f87171" }}
                             >
                               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -485,7 +339,7 @@ export function BulkFolderCreate({
                 </>
               )}
 
-              {/* ── UPLOADING / DONE phase ───────────────────────────── */}
+              {/* ── UPLOADING / DONE ─────────────────────────────────── */}
               {(phase === "uploading" || phase === "done") && (
                 <div className="flex flex-col gap-2">
                   {groups.map((g) => {
@@ -502,10 +356,8 @@ export function BulkFolderCreate({
                           <FolderStatusIcon status={p.status} />
                           <span className="font-mono font-semibold text-white text-sm flex-1">#{g.number}</span>
                           <span className="text-xs" style={{
-                            color: p.status === "done" ? "#34d399"
-                              : p.status === "error" ? "#f87171"
-                              : p.status === "creating" ? "#94a3b8"
-                              : "#f59e0b",
+                            color: p.status === "done" ? "#34d399" : p.status === "error" ? "#f87171"
+                              : p.status === "creating" ? "#94a3b8" : "#f59e0b",
                           }}>
                             {p.status === "pending" ? "En cola"
                               : p.status === "creating" ? "Creando carpeta..."
@@ -516,13 +368,8 @@ export function BulkFolderCreate({
                         </div>
                         {(p.status === "uploading" || p.status === "done") && p.total > 0 && (
                           <div className="h-1 rounded-full overflow-hidden" style={{ background: "#1e1e35" }}>
-                            <div
-                              className="h-full rounded-full transition-all duration-300"
-                              style={{
-                                width: `${pct}%`,
-                                background: p.status === "done" ? "#10b981" : "#f59e0b",
-                              }}
-                            />
+                            <div className="h-full rounded-full transition-all duration-300"
+                              style={{ width: `${pct}%`, background: p.status === "done" ? "#10b981" : "#f59e0b" }} />
                           </div>
                         )}
                       </div>
@@ -541,11 +388,9 @@ export function BulkFolderCreate({
                 </div>
               )}
 
-              {/* Storage bar always visible */}
               <div className="pt-1 border-t" style={{ borderColor: "#1e1e35" }}>
                 <StorageBar />
               </div>
-
             </div>
           </div>
         </div>
