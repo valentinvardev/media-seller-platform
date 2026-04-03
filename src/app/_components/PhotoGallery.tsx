@@ -14,12 +14,18 @@ type Props = {
   photos: Photo[];
 };
 
+const PAGE_SIZE = 24;
+
 export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPublicInit, photos }: Props) {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [downloadingAll, setDownloadingAll] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  const visiblePhotos = photos.slice(0, visibleCount);
+  const hasMore = visibleCount < photos.length;
 
   // ── Lightbox keyboard nav ────────────────────────────────────────────────
   const closeLightbox = useCallback(() => setLightboxIdx(null), []);
@@ -65,7 +71,6 @@ export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPubli
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
     } catch {
-      // fallback: open in new tab
       window.open(url, "_blank");
     }
   };
@@ -135,7 +140,8 @@ export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPubli
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
             )}
-            <span className="hidden sm:inline">{shareState === "copied" ? "¡Copiado!" : "Compartir"}</span>
+            {/* Always show label — even on mobile */}
+            <span>{shareState === "copied" ? "¡Copiado!" : "Compartir"}</span>
           </button>
 
           {/* Download all */}
@@ -152,7 +158,8 @@ export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPubli
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             )}
-            <span className="hidden sm:inline">{downloadingAll ? "Descargando..." : "Descargar todo"}</span>
+            {/* Always show label — even on mobile */}
+            <span>{downloadingAll ? "Descargando..." : "Descargar todo"}</span>
           </button>
         </div>
       </header>
@@ -176,7 +183,7 @@ export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPubli
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="hidden sm:inline">Seleccionar</span>
+              Seleccionar
             </button>
           ) : (
             <div className="flex items-center gap-1.5">
@@ -198,7 +205,7 @@ export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPubli
       {/* ── Photo Grid ─────────────────────────────────────────────── */}
       <div className="px-4 sm:px-6 py-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-          {photos.map((photo, i) => {
+          {visiblePhotos.map((photo, i) => {
             const isSelected = selected.has(i);
             return (
               <div
@@ -254,6 +261,22 @@ export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPubli
             );
           })}
         </div>
+
+        {/* Load more */}
+        {hasMore && (
+          <div className="flex flex-col items-center gap-2 mt-8">
+            <button
+              onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+              className="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]"
+              style={{ background: "#1e1e35", color: "#94a3b8", border: "1px solid #2a2a45" }}
+            >
+              Ver más fotos ({photos.length - visibleCount} restantes)
+            </button>
+            <p className="text-xs" style={{ color: "#334155" }}>
+              Mostrando {visibleCount} de {photos.length}
+            </p>
+          </div>
+        )}
 
         <p className="text-center text-xs mt-8 mb-4" style={{ color: "#334155" }}>
           {isPublicInit ? "Este link es público y no tiene expiración." : "Este link expira en 72 hs desde la aprobación del pago."}
