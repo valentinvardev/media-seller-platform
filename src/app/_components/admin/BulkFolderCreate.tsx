@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { StorageBar } from "./StorageBar";
@@ -124,15 +124,39 @@ export function BulkFolderCreate({
     [],
   );
 
+  // Accumulate groups across multiple drops/selections instead of replacing
   const processFiles = useCallback(
     (items: Array<{ file: File; path: string }>) => {
       const detected = groupFiles(items);
-      setGroups(detected);
-      setProgress({});
-      setGlobalError(detected.length === 0 ? "No se detectaron carpetas numeradas." : "");
+      if (detected.length === 0) {
+        setGlobalError("No se detectaron carpetas numeradas.");
+        return;
+      }
+      setGlobalError("");
+      setGroups((prev) => {
+        const map = new Map(prev.map((g) => [g.number, g]));
+        for (const g of detected) {
+          // Merge files if same number already exists, otherwise add
+          const existing = map.get(g.number);
+          if (existing) {
+            map.set(g.number, { number: g.number, files: [...existing.files, ...g.files] });
+          } else {
+            map.set(g.number, g);
+          }
+        }
+        return Array.from(map.values()).sort((a, b) => Number(a.number) - Number(b.number));
+      });
     },
     [],
   );
+
+  // Set webkitdirectory imperatively — JSX attribute is unreliable across browsers
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.setAttribute("webkitdirectory", "");
+      inputRef.current.setAttribute("directory", "");
+    }
+  }, [open]);
 
   const handleDrop = useCallback(
     async (e: React.DragEvent) => {
@@ -246,7 +270,11 @@ export function BulkFolderCreate({
     setProgress({});
     setPhase("select");
     setGlobalError("");
-    if (inputRef.current) inputRef.current.value = "";
+    // Reset input so the same folder can be re-selected
+    if (inputRef.current) {
+      inputRef.current.value = "";
+      inputRef.current.setAttribute("webkitdirectory", "");
+    }
   };
 
   const close = () => {
@@ -330,10 +358,10 @@ export function BulkFolderCreate({
                       </svg>
                     </div>
                     <p className="text-white font-medium text-sm">
-                      {groups.length > 0 ? "Reemplazar selección" : "Arrastrá la carpeta del evento aquí"}
+                      {groups.length > 0 ? "Agregar más carpetas" : "Arrastrá una carpeta aquí"}
                     </p>
                     <p className="text-xs mt-1" style={{ color: "#475569" }}>
-                      o hacé clic para seleccionar
+                      o hacé clic · podés agregar de a una, se acumulan
                     </p>
                   </div>
 
@@ -355,7 +383,7 @@ export function BulkFolderCreate({
                     </div>
                   )}
 
-                  {/* Hidden folder input */}
+                  {/* Hidden folder input — webkitdirectory set imperatively in useEffect */}
                   <input
                     ref={inputRef}
                     type="file"
@@ -363,17 +391,23 @@ export function BulkFolderCreate({
                     accept="image/*"
                     className="hidden"
                     onChange={handleInput}
-                    // @ts-expect-error non-standard attribute
-                    webkitdirectory=""
-                    directory=""
                   />
 
                   {/* Detected folders list */}
                   {groups.length > 0 && (
                     <div className="flex flex-col gap-2">
-                      <p className="text-xs font-medium" style={{ color: "#64748b" }}>
-                        {groups.length} carpeta{groups.length !== 1 ? "s" : ""} detectada{groups.length !== 1 ? "s" : ""} · {totalPhotos} foto{totalPhotos !== 1 ? "s" : ""}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-medium" style={{ color: "#64748b" }}>
+                          {groups.length} carpeta{groups.length !== 1 ? "s" : ""} · {totalPhotos} foto{totalPhotos !== 1 ? "s" : ""}
+                        </p>
+                        <button
+                          onClick={() => setGroups([])}
+                          className="text-xs px-2 py-1 rounded-lg"
+                          style={{ color: "#475569", background: "#1e1e35" }}
+                        >
+                          Limpiar todo
+                        </button>
+                      </div>
                       <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
                         {groups.map((g) => (
                           <div key={g.number} className="flex items-center gap-3 px-3 py-2 rounded-lg"
@@ -386,6 +420,15 @@ export function BulkFolderCreate({
                             </div>
                             <span className="font-mono font-semibold text-white text-sm">#{g.number}</span>
                             <span className="text-xs flex-1" style={{ color: "#475569" }}>{g.files.length} foto{g.files.length !== 1 ? "s" : ""}</span>
+                            <button
+                              onClick={() => setGroups((prev) => prev.filter((x) => x.number !== g.number))}
+                              className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 hover:opacity-100 opacity-40 transition-opacity"
+                              style={{ color: "#f87171" }}
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
                           </div>
                         ))}
                       </div>
