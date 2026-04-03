@@ -81,13 +81,17 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
           <p className="text-center text-slate-500 py-16">Carpeta no encontrada.</p>
         ) : (
           <>
-            {/* Blurred previews */}
+            {/* Previews — blurred for private, clear for public */}
             <div className="relative overflow-hidden" style={{ height: "200px" }}>
               <div className="grid grid-cols-2 w-full h-full gap-px">
                 {folder.previewUrls.length > 0 ? (
                   folder.previewUrls.map((url, i) => (
                     <div key={i} className="overflow-hidden">
-                      <img src={url} alt="" className="w-full h-full object-cover blur-lg scale-110" />
+                      <img
+                        src={url}
+                        alt=""
+                        className={`w-full h-full object-cover ${folder.isPublic ? "" : "blur-lg scale-110"}`}
+                      />
                     </div>
                   ))
                 ) : (
@@ -99,14 +103,26 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
                   </div>
                 )}
               </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: "linear-gradient(to top, rgba(15,15,26,0.97) 0%, rgba(0,0,0,0.45) 100%)" }}>
-                <div className="w-11 h-11 rounded-full flex items-center justify-center mb-2" style={{ background: "#f59e0b18", border: "1px solid #f59e0b35" }}>
-                  <svg className="w-5 h-5" style={{ color: "#f59e0b" }} fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <p className="font-bold text-white text-lg">{folder.photoCount} foto{folder.photoCount !== 1 ? "s" : ""}</p>
-                <p className="text-slate-400 text-xs mt-0.5">Vista bloqueada</p>
+              {/* Overlay — lighter for public so photos are visible, heavy for private */}
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center"
+                style={{
+                  background: folder.isPublic
+                    ? "linear-gradient(to top, rgba(15,15,26,0.7) 0%, rgba(0,0,0,0.1) 100%)"
+                    : "linear-gradient(to top, rgba(15,15,26,0.97) 0%, rgba(0,0,0,0.45) 100%)",
+                }}
+              >
+                {!folder.isPublic && (
+                  <>
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center mb-2" style={{ background: "#f59e0b18", border: "1px solid #f59e0b35" }}>
+                      <svg className="w-5 h-5" style={{ color: "#f59e0b" }} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <p className="font-bold text-white text-lg">{folder.photoCount} foto{folder.photoCount !== 1 ? "s" : ""}</p>
+                    <p className="text-slate-400 text-xs mt-0.5">Vista bloqueada</p>
+                  </>
+                )}
               </div>
             </div>
 
