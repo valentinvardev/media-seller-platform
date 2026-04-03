@@ -189,7 +189,10 @@ export const purchaseRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const where = input.status ? { status: input.status } : {};
+      const where = {
+        buyerEmail: { not: "public@system" },
+        ...(input.status ? { status: input.status } : {}),
+      };
       const [items, total] = await Promise.all([
         ctx.db.purchase.findMany({
           where,
