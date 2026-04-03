@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "~/trpc/react";
+import { ConfirmModal } from "./ConfirmModal";
 
 type Sale = {
   id: string;
@@ -21,6 +22,7 @@ type Sale = {
 export function SalesTable({ items }: { items: Sale[] }) {
   const router = useRouter();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [confirmSale, setConfirmSale] = useState<Sale | null>(null);
 
   const approve = api.purchase.manualApprove.useMutation({
     onSuccess: () => router.refresh(),
@@ -77,11 +79,7 @@ export function SalesTable({ items }: { items: Sale[] }) {
                 <div className="flex items-center gap-2">
                   {sale.status !== "APPROVED" && (
                     <button
-                      onClick={() => {
-                        if (confirm(`¿Aprobar manualmente la compra de ${sale.buyerEmail}?`)) {
-                          approve.mutate({ id: sale.id });
-                        }
-                      }}
+                      onClick={() => setConfirmSale(sale)}
                       disabled={approve.isPending}
                       className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
                       style={{ background: "#10b98120", color: "#34d399" }}
@@ -105,6 +103,16 @@ export function SalesTable({ items }: { items: Sale[] }) {
           ))}
         </tbody>
       </table>
+      {confirmSale && (
+        <ConfirmModal
+          title="Aprobar compra manualmente"
+          message={`¿Aprobar la compra de ${confirmSale.buyerEmail} para la carpeta #${confirmSale.folder.number}?`}
+          confirmLabel="Aprobar"
+          variant="success"
+          onConfirm={() => { approve.mutate({ id: confirmSale.id }); setConfirmSale(null); }}
+          onCancel={() => setConfirmSale(null)}
+        />
+      )}
     </div>
   );
 }
