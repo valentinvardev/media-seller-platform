@@ -8,6 +8,7 @@ export function FolderBrowser({ collectionId }: { collectionId: string }) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [sort, setSort] = useState<"num-asc" | "num-desc" | "recent">("num-asc");
 
   const { data: folders, isLoading } = api.folder.listByCollection.useQuery({
     collectionId,
@@ -87,17 +88,44 @@ export function FolderBrowser({ collectionId }: { collectionId: string }) {
         </div>
       )}
 
-      {/* Results count */}
+      {/* Results count + sort */}
       {!isLoading && folders && folders.length > 0 && (
-        <p className="text-slate-500 text-sm mb-6 text-center">
-          {debouncedSearch ? `${folders.length} resultado${folders.length !== 1 ? "s" : ""} para "${debouncedSearch}"` : `${folders.length} carpeta${folders.length !== 1 ? "s" : ""} disponible${folders.length !== 1 ? "s" : ""}`}
-        </p>
+        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+          <p className="text-slate-500 text-sm">
+            {debouncedSearch
+              ? `${folders.length} resultado${folders.length !== 1 ? "s" : ""} para "${debouncedSearch}"`
+              : `${folders.length} carpeta${folders.length !== 1 ? "s" : ""} disponible${folders.length !== 1 ? "s" : ""}`}
+          </p>
+          <div className="flex items-center gap-1 rounded-xl p-1" style={{ background: "#0f0f1a", border: "1px solid #1e1e35" }}>
+            {([
+              { value: "num-asc",  label: "# Menor" },
+              { value: "num-desc", label: "# Mayor" },
+              { value: "recent",   label: "Recientes" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setSort(opt.value)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                style={{
+                  background: sort === opt.value ? "#1e1e35" : "transparent",
+                  color: sort === opt.value ? "#f1f5f9" : "#475569",
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Grid */}
       {!isLoading && folders && folders.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {folders.map((folder) => (
+          {[...folders].sort((a, b) => {
+            if (sort === "num-asc")  return Number(a.number) - Number(b.number);
+            if (sort === "num-desc") return Number(b.number) - Number(a.number);
+            return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          }).map((folder) => (
             <button
               key={folder.id}
               onClick={() => setSelectedFolderId(folder.id)}

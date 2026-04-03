@@ -50,6 +50,7 @@ export const folderRouter = createTRPCRouter({
             price: folder.price,
             isPublic: folder.isPublic,
             photoCount: folder._count.photos,
+            updatedAt: folder.updatedAt,
             previewUrls: previewUrls.filter(Boolean) as string[],
           };
         }),
