@@ -57,16 +57,6 @@ export default async function CollectionsPage() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="font-semibold text-white">{col.title}</h2>
-                    <span
-                      className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
-                      style={col.isPublished
-                        ? { background: "#10b98120", color: "#34d399" }
-                        : { background: "#ffffff10", color: "#64748b" }
-                      }
-                    >
-                      <span className="w-1 h-1 rounded-full" style={{ background: col.isPublished ? "#34d399" : "#64748b" }} />
-                      {col.isPublished ? "Publicada" : "Oculta"}
-                    </span>
                   </div>
                   <p className="text-slate-500 text-sm mt-0.5 truncate">
                     /colecciones/{col.slug} · <span className="text-slate-400">{col._count.folders} carpeta{col._count.folders !== 1 ? "s" : ""}</span>

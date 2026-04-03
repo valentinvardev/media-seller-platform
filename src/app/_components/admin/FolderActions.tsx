@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { ConfirmModal } from "./ConfirmModal";
+import { PublishToggle } from "./PublishToggle";
 
 export function FolderActions({
   id,
@@ -42,14 +43,13 @@ export function FolderActions({
       </button>
 
       {/* Publish / Hide toggle */}
-      <button
-        onClick={() => toggle.mutate({ id })}
-        disabled={toggle.isPending}
-        className="text-sm px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
-        style={{ color: "#94a3b8" }}
-      >
-        {isPublished ? "Ocultar" : "Publicar"}
-      </button>
+      <PublishToggle
+        isPublished={isPublished}
+        isPending={toggle.isPending}
+        onToggle={() => toggle.mutate({ id })}
+        labelOn="Publicada"
+        labelOff="Oculta"
+      />
 
       {/* Delete */}
       <button
