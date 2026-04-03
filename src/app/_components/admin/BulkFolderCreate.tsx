@@ -20,31 +20,44 @@ type FolderProgress = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-async function readDirEntry(
-  entry: FileSystemDirectoryEntry,
-  prefix = "",
-): Promise<Array<{ file: File; path: string }>> {
-  const results: Array<{ file: File; path: string }> = [];
-  const reader = entry.createReader();
+const IMAGE_EXT = /\.(jpe?g|png|gif|webp|heic|heif|tiff?|bmp|avif)$/i;
 
-  // readEntries returns max 100 items per call — loop until empty
+async function readAllEntries(reader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> {
+  const all: FileSystemEntry[] = [];
+  // readEntries returns ≤100 items per call and must be called repeatedly until empty
+  // IMPORTANT: do NOT interleave readEntries calls with other awaits on the same reader
   while (true) {
     const batch = await new Promise<FileSystemEntry[]>((resolve, reject) =>
       reader.readEntries(resolve, reject),
     );
     if (!batch.length) break;
+    all.push(...batch);
+  }
+  return all;
+}
 
-    for (const e of batch) {
-      const p = prefix ? `${prefix}/${e.name}` : e.name;
-      if (e.isFile) {
-        const file = await new Promise<File>((res, rej) =>
-          (e as FileSystemFileEntry).file(res, rej),
-        );
-        if (file.type.startsWith("image/")) results.push({ file, path: p });
-      } else if (e.isDirectory) {
-        const sub = await readDirEntry(e as FileSystemDirectoryEntry, p);
-        results.push(...sub);
+async function readDirEntry(
+  entry: FileSystemDirectoryEntry,
+  prefix = "",
+): Promise<Array<{ file: File; path: string }>> {
+  // Phase 1: read ALL directory entries synchronously (no interleaved awaits)
+  const entries = await readAllEntries(entry.createReader());
+
+  // Phase 2: process entries now that reading is complete
+  const results: Array<{ file: File; path: string }> = [];
+  for (const e of entries) {
+    const p = prefix ? `${prefix}/${e.name}` : e.name;
+    if (e.isFile) {
+      const file = await new Promise<File>((res, rej) =>
+        (e as FileSystemFileEntry).file(res, rej),
+      );
+      // Accept by MIME type OR extension (Windows may omit MIME type)
+      if (file.type.startsWith("image/") || IMAGE_EXT.test(file.name)) {
+        results.push({ file, path: p });
       }
+    } else if (e.isDirectory) {
+      const sub = await readDirEntry(e as FileSystemDirectoryEntry, p);
+      results.push(...sub);
     }
   }
 
