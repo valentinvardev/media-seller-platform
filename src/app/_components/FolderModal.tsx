@@ -69,32 +69,27 @@ function PreviewSlider({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Slides */}
-      <div
-        className="flex h-full"
-        style={{
-          transform: `translateX(-${idx * (100 / count)}%)`,
-          transition: "transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-          width: `${count * 100}%`,
-        }}
-      >
-        {urls.map((url, i) => (
-          <div
-            key={i}
-            className="h-full flex-shrink-0"
-            style={{ width: `${100 / count}%` }}
-          >
-            <img
-              src={url}
-              alt=""
-              className={`w-full h-full object-cover ${
-                isPrivate && !hasWatermarkedPreviews ? "blur-lg scale-110" : ""
-              }`}
-              draggable={false}
-            />
-          </div>
-        ))}
-      </div>
+      {/* Slides — stacked absolutely, crossfade */}
+      {urls.map((url, i) => (
+        <div
+          key={i}
+          className="absolute inset-0"
+          style={{
+            opacity: i === idx ? 1 : 0,
+            transition: "opacity 0.45s ease",
+            pointerEvents: i === idx ? "auto" : "none",
+          }}
+        >
+          <img
+            src={url}
+            alt=""
+            className={`w-full h-full object-cover ${
+              isPrivate && !hasWatermarkedPreviews ? "blur-lg scale-110" : ""
+            }`}
+            draggable={false}
+          />
+        </div>
+      ))}
 
       {/* Prev / next arrows — only when multiple slides */}
       {count > 1 && (

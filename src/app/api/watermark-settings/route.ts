@@ -1,8 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "~/server/auth";
 import { getAdminClient } from "~/lib/supabase/admin";
-
-export const WATERMARK_KEY = "watermarks/active.png";
+import { WATERMARK_KEY } from "~/lib/watermark";
 
 /** GET — returns a signed URL for the current watermark, or null */
 export async function GET() {

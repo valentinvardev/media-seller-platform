@@ -3,7 +3,7 @@ import sharp from "sharp";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { getAdminClient } from "~/lib/supabase/admin";
-import { WATERMARK_KEY } from "~/app/api/watermark-settings/route";
+import { WATERMARK_KEY } from "~/lib/watermark";
 
 async function getWatermarkBuffer(client: NonNullable<ReturnType<typeof getAdminClient>>): Promise<Buffer | null> {
   const { data, error } = await client.storage.from("photos").download(WATERMARK_KEY);
