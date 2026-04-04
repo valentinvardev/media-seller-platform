@@ -110,8 +110,8 @@ function FolderRow({
   collectionId: string;
 }) {
   const [hovered, setHovered] = useState(false);
+  const [overActions, setOverActions] = useState(false);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  // Delay showing so fast-movers don't trigger flicker
   const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -123,6 +123,7 @@ function FolderRow({
     if (showTimer.current) clearTimeout(showTimer.current);
     setVisible(false);
     setHovered(false);
+    setOverActions(false);
   };
   const handleMouseMove = (e: React.MouseEvent) => {
     setMouse({ x: e.clientX, y: e.clientY });
@@ -168,7 +169,11 @@ function FolderRow({
         <span className="text-slate-500 text-sm">{folder._count.photos} fotos</span>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div
+        className="flex items-center gap-2"
+        onMouseEnter={() => setOverActions(true)}
+        onMouseLeave={() => setOverActions(false)}
+      >
         <Link
           href={`/admin/colecciones/${collectionId}/carpetas/${folder.id}`}
           className="text-sm px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
@@ -179,7 +184,7 @@ function FolderRow({
         <FolderActions id={folder.id} isPublished={folder.isPublished} isPublic={folder.isPublic} />
       </div>
 
-      {visible && folder._count.photos > 0 && (
+      {visible && !overActions && folder._count.photos > 0 && (
         <FolderPreviewTooltip folderId={folder.id} mouseX={mouse.x} mouseY={mouse.y} />
       )}
     </div>
