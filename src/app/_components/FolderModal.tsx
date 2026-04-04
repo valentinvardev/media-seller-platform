@@ -84,7 +84,7 @@ function PreviewSlider({
             src={url}
             alt=""
             className={`w-full h-full object-cover ${
-              isPrivate && !hasWatermarkedPreviews ? "blur-lg scale-110" : ""
+              ""
             }`}
             draggable={false}
           />
