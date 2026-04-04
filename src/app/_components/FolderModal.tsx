@@ -21,22 +21,22 @@ function PreviewSlider({
 }) {
   const [idx, setIdx] = useState(0);
   const [touchX, setTouchX] = useState<number | null>(null);
-  const [paused, setPaused] = useState(false);
-  const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // pauseUntil is a ref — synchronous, no React batching delay, no race with interval
+  const pauseUntil = useRef(0);
   const count = urls.length;
 
-  // Auto-advance every 3.5 s; pauses for 5 s after user interaction
+  // Single stable interval; skips ticks while paused
   useEffect(() => {
-    if (count <= 1 || paused) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % count), 3500);
+    if (count <= 1) return;
+    const t = setInterval(() => {
+      if (Date.now() >= pauseUntil.current) {
+        setIdx((i) => (i + 1) % count);
+      }
+    }, 3500);
     return () => clearInterval(t);
-  }, [count, paused]);
+  }, [count]);
 
-  const interact = () => {
-    setPaused(true);
-    if (pauseTimer.current) clearTimeout(pauseTimer.current);
-    pauseTimer.current = setTimeout(() => setPaused(false), 5000);
-  };
+  const interact = () => { pauseUntil.current = Date.now() + 5000; };
 
   const goPrev = () => { interact(); setIdx((i) => (i - 1 + count) % count); };
   const goNext = () => { interact(); setIdx((i) => (i + 1) % count); };

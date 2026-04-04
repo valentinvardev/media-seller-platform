@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { ConfirmModal } from "./ConfirmModal";
@@ -23,6 +23,11 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [generatingPreview, setGeneratingPreview] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const imgRef = useRef<HTMLImageElement>(null);
+  const dragState = useRef<{ active: boolean; startX: number; startY: number; panX: number; panY: number }>({
+    active: false, startX: 0, startY: 0, panX: 0, panY: 0,
+  });
 
   const del = api.photo.delete.useMutation({ onSuccess: () => router.refresh() });
   const bulkDelete = api.photo.bulkDelete.useMutation({
@@ -61,14 +66,45 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
     }
   };
 
-  const closeLightbox = useCallback(() => setLightboxIdx(null), []);
-  const prev = useCallback(() => { setZoom(1); setLightboxIdx((i) => i !== null ? (i - 1 + photos.length) % photos.length : null); }, [photos.length]);
-  const next = useCallback(() => { setZoom(1); setLightboxIdx((i) => i !== null ? (i + 1) % photos.length : null); }, [photos.length]);
+  const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
+  const closeLightbox = useCallback(() => { resetView(); setLightboxIdx(null); }, []);
+  const prev = useCallback(() => { resetView(); setLightboxIdx((i) => i !== null ? (i - 1 + photos.length) % photos.length : null); }, [photos.length]);
+  const next = useCallback(() => { resetView(); setLightboxIdx((i) => i !== null ? (i + 1) % photos.length : null); }, [photos.length]);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     const factor = e.deltaY > 0 ? 0.88 : 1.12;
-    setZoom((z) => Math.min(5, Math.max(1, z * factor)));
+    setZoom((z) => {
+      const next = Math.min(5, Math.max(1, z * factor));
+      if (next === 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
   }, []);
+
+  const clampPan = (x: number, y: number, z: number) => {
+    const el = imgRef.current;
+    if (!el) return { x, y };
+    const maxX = el.clientWidth  * (z - 1) / 2;
+    const maxY = el.clientHeight * (z - 1) / 2;
+    return {
+      x: Math.min(maxX, Math.max(-maxX, x)),
+      y: Math.min(maxY, Math.max(-maxY, y)),
+    };
+  };
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    e.preventDefault();
+    dragState.current = { active: true, startX: e.clientX, startY: e.clientY, panX: pan.x, panY: pan.y };
+  }, [zoom, pan]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragState.current.active) return;
+    const dx = e.clientX - dragState.current.startX;
+    const dy = e.clientY - dragState.current.startY;
+    setPan(clampPan(dragState.current.panX + dx, dragState.current.panY + dy, zoom));
+  }, [zoom]);
+
+  const handleMouseUp = useCallback(() => { dragState.current.active = false; }, []);
 
   useEffect(() => {
     if (lightboxIdx === null) return;
@@ -336,20 +372,26 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
             className="flex-1 flex items-center justify-center relative px-14 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
             onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ userSelect: "none" }}
           >
             <img
+              ref={imgRef}
               src={currentPhoto.url ?? ""}
               alt={currentPhoto.filename}
               className="max-w-full max-h-full object-contain select-none"
               style={{
                 maxHeight: "calc(100vh - 130px)",
-                transform: `scale(${zoom})`,
+                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                 transformOrigin: "center",
-                transition: zoom === 1 ? "transform 0.2s ease" : "none",
-                cursor: zoom > 1 ? "zoom-out" : "zoom-in",
+                transition: dragState.current.active ? "none" : zoom === 1 ? "transform 0.2s ease" : "none",
+                cursor: zoom > 1 ? "grab" : "zoom-in",
               }}
               draggable={false}
-              onDoubleClick={() => setZoom(1)}
+              onDoubleClick={() => { resetView(); }}
             />
             {zoom > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs px-2.5 py-1 rounded-full pointer-events-none"
