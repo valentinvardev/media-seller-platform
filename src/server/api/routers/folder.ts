@@ -76,8 +76,9 @@ export const folderRouter = createTRPCRouter({
         where: { id: input.folderId, isPublished: true },
         include: {
           collection: { select: { title: true, slug: true } },
+          // Fetch enough: up to 24, previews first so we can filter them
           photos: {
-            take: PREVIEW_PHOTO_COUNT,
+            take: 24,
             orderBy: [{ isPreview: "desc" }, { order: "asc" }],
             select: { storageKey: true, id: true, previewKey: true, isPreview: true },
           },
@@ -87,16 +88,16 @@ export const folderRouter = createTRPCRouter({
 
       if (!folder) return null;
 
-      const hasWatermarkedPreviews = folder.photos.some(
-        (p) => p.isPreview && p.previewKey,
-      );
+      // Use ALL watermarked previews for the slider; fall back to first 4 regular
+      const watermarked = folder.photos.filter((p) => p.isPreview && p.previewKey);
+      const photosToShow =
+        watermarked.length > 0 ? watermarked : folder.photos.slice(0, PREVIEW_PHOTO_COUNT);
+      const hasWatermarkedPreviews = watermarked.length > 0;
 
       const previewUrls = await Promise.all(
-        folder.photos.map((photo) => {
+        photosToShow.map((photo) => {
           const key =
-            photo.isPreview && photo.previewKey
-              ? photo.previewKey
-              : photo.storageKey;
+            photo.isPreview && photo.previewKey ? photo.previewKey : photo.storageKey;
           return createSignedUrl(key, 3600);
         }),
       );

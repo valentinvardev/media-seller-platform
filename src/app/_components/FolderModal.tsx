@@ -1,10 +1,169 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 
 type Step = "preview" | "buy" | "email";
+
+// ─── Preview Slider ───────────────────────────────────────────────────────────
+
+function PreviewSlider({
+  urls,
+  isPrivate,
+  hasWatermarkedPreviews,
+  photoCount,
+}: {
+  urls: string[];
+  isPrivate: boolean;
+  hasWatermarkedPreviews: boolean;
+  photoCount: number;
+}) {
+  const [idx, setIdx] = useState(0);
+  const [touchX, setTouchX] = useState<number | null>(null);
+  const count = urls.length;
+
+  // Auto-advance every 3.5 s — stops when only 1 slide
+  useEffect(() => {
+    if (count <= 1) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % count), 3500);
+    return () => clearInterval(t);
+  }, [count]);
+
+  const goPrev = () => setIdx((i) => (i - 1 + count) % count);
+  const goNext = () => setIdx((i) => (i + 1) % count);
+
+  const handleTouchStart = (e: React.TouchEvent) =>
+    setTouchX(e.touches[0]!.clientX);
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchX === null) return;
+    const diff = touchX - e.changedTouches[0]!.clientX;
+    if (Math.abs(diff) > 40) diff > 0 ? goNext() : goPrev();
+    setTouchX(null);
+  };
+
+  if (urls.length === 0) {
+    return (
+      <div className="flex items-center justify-center" style={{ height: "220px", background: "#0a0a15" }}>
+        <svg className="w-12 h-12 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="relative overflow-hidden select-none"
+      style={{ height: "220px" }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Slides */}
+      <div
+        className="flex h-full"
+        style={{
+          transform: `translateX(-${idx * 100}%)`,
+          transition: "transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          width: `${count * 100}%`,
+        }}
+      >
+        {urls.map((url, i) => (
+          <div
+            key={i}
+            className="h-full flex-shrink-0"
+            style={{ width: `${100 / count}%` }}
+          >
+            <img
+              src={url}
+              alt=""
+              className={`w-full h-full object-cover ${
+                isPrivate && !hasWatermarkedPreviews ? "blur-lg scale-110" : ""
+              }`}
+              draggable={false}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Prev / next arrows — only when multiple slides */}
+      {count > 1 && (
+        <>
+          <button
+            onClick={goPrev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
+            style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={goNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
+            style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+
+      {/* Bottom strip: lock info + dots */}
+      <div
+        className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-2.5"
+        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)" }}
+      >
+        {/* Left: lock badge for private */}
+        {isPrivate ? (
+          <div className="flex items-center gap-1.5">
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center"
+              style={{ background: "#f59e0b1a", border: "1px solid #f59e0b40" }}
+            >
+              <svg className="w-3 h-3" style={{ color: "#f59e0b" }} fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <span className="text-xs font-medium" style={{ color: "#fbbf24" }}>
+              {photoCount} foto{photoCount !== 1 ? "s" : ""}
+            </span>
+          </div>
+        ) : (
+          <div />
+        )}
+
+        {/* Right: dot indicators */}
+        {count > 1 && (
+          <div className="flex items-center gap-1">
+            {count <= 10 ? (
+              Array.from({ length: count }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIdx(i)}
+                  className="rounded-full transition-all"
+                  style={{
+                    width: i === idx ? "16px" : "6px",
+                    height: "6px",
+                    background: i === idx ? "#f59e0b" : "rgba(255,255,255,0.35)",
+                  }}
+                />
+              ))
+            ) : (
+              <span className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
+                {idx + 1} / {count}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Modal ───────────────────────────────────────────────────────────────
 
 export function FolderModal({ folderId, onClose }: { folderId: string; onClose: () => void }) {
   const [step, setStep] = useState<Step>("preview");
@@ -51,8 +210,11 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
       style={{ background: "rgba(0,0,0,0.85)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl overflow-hidden border" style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}>
-        {/* Drag handle mobile */}
+      <div
+        className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl overflow-hidden border"
+        style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}
+      >
+        {/* Drag handle — mobile only */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="w-10 h-1 rounded-full" style={{ background: "#2a2a45" }} />
         </div>
@@ -68,7 +230,11 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
             )}
             {isLoading && <div className="h-6 w-32 rounded animate-pulse" style={{ background: "#1e1e35" }} />}
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors" style={{ background: "#16162a" }}>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+            style={{ background: "#16162a" }}
+          >
             ✕
           </button>
         </div>
@@ -81,62 +247,19 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
           <p className="text-center text-slate-500 py-16">Carpeta no encontrada.</p>
         ) : (
           <>
-            {/* Photo previews */}
-            <div className="relative overflow-hidden" style={{ height: "200px" }}>
-              <div className="grid grid-cols-2 w-full h-full gap-px">
-                {folder.previewUrls.length > 0 ? (
-                  folder.previewUrls.map((url, i) => (
-                    <div key={i} className="overflow-hidden">
-                      <img
-                        src={url}
-                        alt=""
-                        className={`w-full h-full object-cover ${
-                          !folder.isPublic && !folder.hasWatermarkedPreviews
-                            ? "blur-lg scale-110"
-                            : ""
-                        }`}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-2 flex items-center justify-center" style={{ background: "#16162a" }}>
-                    <svg className="w-12 h-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
+            {/* Slider */}
+            <PreviewSlider
+              urls={folder.previewUrls}
+              isPrivate={!folder.isPublic}
+              hasWatermarkedPreviews={folder.hasWatermarkedPreviews}
+              photoCount={folder.photoCount}
+            />
 
-              {/* Bottom strip for private folders — replaces center overlay */}
-              {!folder.isPublic ? (
-                <div
-                  className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-4 py-3"
-                  style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 100%)" }}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#f59e0b1a", border: "1px solid #f59e0b40" }}>
-                      <svg className="w-3.5 h-3.5" style={{ color: "#f59e0b" }} fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span className="text-white text-sm font-semibold">Carpeta privada</span>
-                  </div>
-                  <span className="text-slate-300 text-sm">
-                    {folder.photoCount} foto{folder.photoCount !== 1 ? "s" : ""}
-                  </span>
-                </div>
-              ) : (
-                /* Subtle gradient for public — just to polish edges */
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-10 pointer-events-none"
-                  style={{ background: "linear-gradient(to top, rgba(15,15,26,0.6) 0%, transparent 100%)" }}
-                />
-              )}
-            </div>
-
-            {/* Price */}
-            <div className="px-5 py-3 flex items-center justify-between" style={{ background: "#f59e0b0e", borderTop: "1px solid #f59e0b20" }}>
+            {/* Price row */}
+            <div
+              className="px-5 py-3 flex items-center justify-between"
+              style={{ background: "#f59e0b0e", borderTop: "1px solid #f59e0b20" }}
+            >
               <span className="text-sm text-slate-400">Precio de la carpeta</span>
               <span className="font-bold text-lg" style={{ color: "#fbbf24" }}>
                 $ {Number(folder.price).toLocaleString("es-AR")}
@@ -145,7 +268,6 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
 
             {/* Steps */}
             <div className="px-5 py-5">
-              {/* PREVIEW: two CTAs */}
               {step === "preview" && (
                 <div className="flex flex-col gap-3">
                   {folder.isPublic ? (
@@ -178,7 +300,6 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
                 </div>
               )}
 
-              {/* BUY: payment form */}
               {step === "buy" && (
                 <div className="flex flex-col gap-3">
                   <p className="text-slate-400 text-sm text-center mb-1">Completá tus datos para continuar</p>
@@ -205,23 +326,29 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
                     className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all disabled:opacity-40"
                     style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
                   >
-                    {createPreference.isPending ? "Redirigiendo a MercadoPago..." : `Pagar $ ${Number(folder.price).toLocaleString("es-AR")}`}
+                    {createPreference.isPending
+                      ? "Redirigiendo a MercadoPago..."
+                      : `Pagar $ ${Number(folder.price).toLocaleString("es-AR")}`}
                   </button>
                   {createPreference.isError && (
                     <p className="text-red-400 text-xs text-center">Ocurrió un error. Intentá de nuevo.</p>
                   )}
-                  <button onClick={() => setStep("preview")} className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors">
+                  <button
+                    onClick={() => setStep("preview")}
+                    className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors"
+                  >
                     Volver
                   </button>
                 </div>
               )}
 
-              {/* EMAIL ACCESS */}
               {step === "email" && (
                 <div className="flex flex-col gap-3">
                   <div className="text-center mb-1">
                     <p className="text-white font-medium text-sm">Acceder a tus fotos</p>
-                    <p className="text-slate-500 text-xs mt-1">Ingresá el email con el que compraste esta carpeta</p>
+                    <p className="text-slate-500 text-xs mt-1">
+                      Ingresá el email con el que compraste esta carpeta
+                    </p>
                   </div>
                   <input
                     type="email"
@@ -233,9 +360,7 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
                     onKeyDown={(e) => { if (e.key === "Enter") handleEmailAccess(); }}
                     autoFocus
                   />
-                  {emailError && (
-                    <p className="text-red-400 text-xs text-center">{emailError}</p>
-                  )}
+                  {emailError && <p className="text-red-400 text-xs text-center">{emailError}</p>}
                   <button
                     onClick={handleEmailAccess}
                     disabled={!emailInput || accessByEmail.isPending}
@@ -244,7 +369,10 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
                   >
                     {accessByEmail.isPending ? "Buscando..." : "Acceder a mis fotos"}
                   </button>
-                  <button onClick={() => setStep("preview")} className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors">
+                  <button
+                    onClick={() => setStep("preview")}
+                    className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors"
+                  >
                     Volver
                   </button>
                 </div>
