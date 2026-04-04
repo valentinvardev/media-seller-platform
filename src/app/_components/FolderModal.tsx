@@ -21,17 +21,26 @@ function PreviewSlider({
 }) {
   const [idx, setIdx] = useState(0);
   const [touchX, setTouchX] = useState<number | null>(null);
+  const [paused, setPaused] = useState(false);
+  const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const count = urls.length;
 
-  // Auto-advance every 3.5 s — stops when only 1 slide
+  // Auto-advance every 3.5 s; pauses for 5 s after user interaction
   useEffect(() => {
-    if (count <= 1) return;
+    if (count <= 1 || paused) return;
     const t = setInterval(() => setIdx((i) => (i + 1) % count), 3500);
     return () => clearInterval(t);
-  }, [count]);
+  }, [count, paused]);
 
-  const goPrev = () => setIdx((i) => (i - 1 + count) % count);
-  const goNext = () => setIdx((i) => (i + 1) % count);
+  const interact = () => {
+    setPaused(true);
+    if (pauseTimer.current) clearTimeout(pauseTimer.current);
+    pauseTimer.current = setTimeout(() => setPaused(false), 5000);
+  };
+
+  const goPrev = () => { interact(); setIdx((i) => (i - 1 + count) % count); };
+  const goNext = () => { interact(); setIdx((i) => (i + 1) % count); };
+  const goTo   = (i: number) => { interact(); setIdx(i); };
 
   const handleTouchStart = (e: React.TouchEvent) =>
     setTouchX(e.touches[0]!.clientX);
@@ -64,7 +73,7 @@ function PreviewSlider({
       <div
         className="flex h-full"
         style={{
-          transform: `translateX(-${idx * 100}%)`,
+          transform: `translateX(-${idx * (100 / count)}%)`,
           transition: "transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           width: `${count * 100}%`,
         }}
@@ -142,7 +151,7 @@ function PreviewSlider({
               Array.from({ length: count }).map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setIdx(i)}
+                  onClick={() => goTo(i)}
                   className="rounded-full transition-all"
                   style={{
                     width: i === idx ? "16px" : "6px",
