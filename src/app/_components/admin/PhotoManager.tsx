@@ -22,6 +22,7 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
   const [singleConfirm, setSingleConfirm] = useState<string | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [generatingPreview, setGeneratingPreview] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
 
   const del = api.photo.delete.useMutation({ onSuccess: () => router.refresh() });
   const bulkDelete = api.photo.bulkDelete.useMutation({
@@ -61,8 +62,13 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
   };
 
   const closeLightbox = useCallback(() => setLightboxIdx(null), []);
-  const prev = useCallback(() => setLightboxIdx((i) => i !== null ? (i - 1 + photos.length) % photos.length : null), [photos.length]);
-  const next = useCallback(() => setLightboxIdx((i) => i !== null ? (i + 1) % photos.length : null), [photos.length]);
+  const prev = useCallback(() => { setZoom(1); setLightboxIdx((i) => i !== null ? (i - 1 + photos.length) % photos.length : null); }, [photos.length]);
+  const next = useCallback(() => { setZoom(1); setLightboxIdx((i) => i !== null ? (i + 1) % photos.length : null); }, [photos.length]);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    const factor = e.deltaY > 0 ? 0.88 : 1.12;
+    setZoom((z) => Math.min(5, Math.max(1, z * factor)));
+  }, []);
 
   useEffect(() => {
     if (lightboxIdx === null) return;
@@ -329,14 +335,28 @@ export function PhotoManager({ folderId, photos }: { folderId: string; photos: P
           <div
             className="flex-1 flex items-center justify-center relative px-14 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
+            onWheel={handleWheel}
           >
             <img
               src={currentPhoto.url ?? ""}
               alt={currentPhoto.filename}
               className="max-w-full max-h-full object-contain select-none"
-              style={{ maxHeight: "calc(100vh - 130px)" }}
+              style={{
+                maxHeight: "calc(100vh - 130px)",
+                transform: `scale(${zoom})`,
+                transformOrigin: "center",
+                transition: zoom === 1 ? "transform 0.2s ease" : "none",
+                cursor: zoom > 1 ? "zoom-out" : "zoom-in",
+              }}
               draggable={false}
+              onDoubleClick={() => setZoom(1)}
             />
+            {zoom > 1 && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs px-2.5 py-1 rounded-full pointer-events-none"
+                style={{ background: "rgba(0,0,0,0.6)", color: "#94a3b8" }}>
+                {Math.round(zoom * 10) / 10}× · doble clic para restablecer
+              </div>
+            )}
             {photos.length > 1 && (
               <>
                 <button onClick={prev}

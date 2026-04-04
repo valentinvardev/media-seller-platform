@@ -97,4 +97,31 @@ export const photoRouter = createTRPCRouter({
       }
       await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });
     }),
+
+  cleanupHeic: protectedProcedure.mutation(async ({ ctx }) => {
+    const heicPhotos = await ctx.db.photo.findMany({
+      where: {
+        OR: [
+          { filename: { endsWith: ".heic", mode: "insensitive" } },
+          { filename: { endsWith: ".heif", mode: "insensitive" } },
+        ],
+      },
+      select: { id: true, storageKey: true, previewKey: true },
+    });
+
+    if (heicPhotos.length === 0) return { deleted: 0 };
+
+    const client = getAdminClient();
+    if (client) {
+      const keys: string[] = [];
+      for (const p of heicPhotos) {
+        if (!p.storageKey.startsWith("http")) keys.push(p.storageKey);
+        if (p.previewKey) keys.push(p.previewKey);
+      }
+      if (keys.length) await client.storage.from("photos").remove(keys);
+    }
+
+    await ctx.db.photo.deleteMany({ where: { id: { in: heicPhotos.map((p) => p.id) } } });
+    return { deleted: heicPhotos.length };
+  }),
 });

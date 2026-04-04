@@ -99,7 +99,22 @@ export function PhotoUploader({ folderId, collectionId }: { folderId: string; co
     if (!files.length) return;
     setGlobalError(null);
 
-    const newEntries: FileEntry[] = Array.from(files).map((file, i) => ({
+    const HEIC_RE = /\.(heic|heif)$/i;
+    const allFiles = Array.from(files);
+    const heicCount = allFiles.filter((f) => HEIC_RE.test(f.name) || f.type === "image/heic" || f.type === "image/heif").length;
+    const validFiles = allFiles.filter((f) => !HEIC_RE.test(f.name) && f.type !== "image/heic" && f.type !== "image/heif");
+
+    if (heicCount > 0 && validFiles.length === 0) {
+      setGlobalError(`Las fotos HEIC no son compatibles con navegadores web. Convertí las imágenes a JPG antes de subirlas.`);
+      return;
+    }
+    if (heicCount > 0) {
+      setGlobalError(`Se ignoraron ${heicCount} foto${heicCount !== 1 ? "s" : ""} HEIC. Convertí a JPG para subirlas.`);
+    }
+
+    if (!validFiles.length) return;
+
+    const newEntries: FileEntry[] = validFiles.map((file, i) => ({
       id: `${Date.now()}-${i}`,
       file,
       status: "pending",

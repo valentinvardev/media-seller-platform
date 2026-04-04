@@ -1,5 +1,6 @@
 import { api } from "~/trpc/server";
 import Link from "next/link";
+import { HeicCleanupButton } from "~/app/_components/admin/HeicCleanupButton";
 
 export default async function AdminDashboard() {
   const [collections, sales] = await Promise.all([
@@ -49,6 +50,12 @@ export default async function AdminDashboard() {
           accent="#f59e0b"
           isText
         />
+      </div>
+
+      {/* Utilities */}
+      <div className="mb-10 flex items-center justify-between">
+        <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider">Mantenimiento</h2>
+        <HeicCleanupButton />
       </div>
 
       {/* Quick actions */}

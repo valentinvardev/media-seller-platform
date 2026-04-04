@@ -12,9 +12,12 @@ type UploadPhase = "select" | "uploading" | "done";
 type FolderStatus = "pending" | "creating" | "uploading" | "done" | "error";
 type FolderProgress = { status: FolderStatus; done: number; total: number; errorMsg?: string };
 
-const IMAGE_EXT = /\.(jpe?g|png|gif|webp|heic|heif|tiff?|bmp|avif)$/i;
+const IMAGE_EXT = /\.(jpe?g|png|gif|webp|bmp|avif)$/i;
+const HEIC_EXT = /\.(heic|heif)$/i;
 
 function isImage(f: File) {
+  const isHeic = HEIC_EXT.test(f.name) || f.type === "image/heic" || f.type === "image/heif";
+  if (isHeic) return false;
   return f.type.startsWith("image/") || IMAGE_EXT.test(f.name);
 }
 
@@ -80,13 +83,21 @@ export function BulkFolderCreate({ collectionId, defaultPrice }: { collectionId:
   );
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []).filter(isImage);
-    if (!files.length) { setGlobalError("No se encontraron imágenes."); return; }
+    const allFiles = Array.from(e.target.files ?? []);
+    const heicCount = allFiles.filter((f) => HEIC_EXT.test(f.name) || f.type === "image/heic" || f.type === "image/heif").length;
+    const files = allFiles.filter(isImage);
+    if (!files.length) {
+      setGlobalError(heicCount > 0
+        ? `Solo se encontraron fotos HEIC (${heicCount}). Los navegadores no pueden mostrar HEIC. Convertí las imágenes a JPG.`
+        : "No se encontraron imágenes.");
+      return;
+    }
     const detected = groupByNumber(files);
     if (!detected.length) { setGlobalError("No se detectaron carpetas numeradas. Asegurate de seleccionar la carpeta padre (ej: maraton_2024/)."); return; }
-    setGlobalError("");
+    setGlobalError(heicCount > 0
+      ? `Se ignoraron ${heicCount} foto${heicCount !== 1 ? "s" : ""} HEIC. Convertí a JPG para incluirlas.`
+      : "");
     setGroups(detected);
-    // reset so same folder can be re-selected
     e.target.value = "";
   };
 
