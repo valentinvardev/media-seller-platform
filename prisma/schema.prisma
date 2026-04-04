@@ -103,9 +103,10 @@ model Photo {
     width      Int?
     height     Int?
     order      Int      @default(0)
-    isPreview  Boolean  @default(false)
-    previewKey String?
-    createdAt  DateTime @default(now())
+    isPreview          Boolean   @default(false)
+    previewKey         String?
+    previewGeneratedAt DateTime?
+    createdAt          DateTime  @default(now())
 
     folder Folder @relation(fields: [folderId], references: [id], onDelete: Cascade)
 

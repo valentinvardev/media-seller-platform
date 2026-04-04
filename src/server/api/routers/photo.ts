@@ -98,12 +98,27 @@ export const photoRouter = createTRPCRouter({
       await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });
     }),
 
-  getPreviewIds: protectedProcedure.query(async ({ ctx }) => {
+  previewStatus: protectedProcedure.query(async ({ ctx }) => {
     const photos = await ctx.db.photo.findMany({
       where: { isPreview: true, previewKey: { not: null } },
-      select: { id: true },
+      select: { id: true, previewGeneratedAt: true },
     });
-    return photos.map((p) => p.id);
+
+    // Get watermark last-modified from Supabase storage
+    const client = getAdminClient();
+    let wmUpdatedAt: Date | null = null;
+    if (client) {
+      const { data } = await client.storage.from("photos").list("watermarks");
+      const entry = data?.find((f) => f.name === "active.png");
+      if (entry?.updated_at) wmUpdatedAt = new Date(entry.updated_at);
+    }
+
+    const ids = photos.map((p) => p.id);
+    const stale = photos.filter((p) =>
+      !p.previewGeneratedAt || (wmUpdatedAt && p.previewGeneratedAt < wmUpdatedAt),
+    ).length;
+
+    return { ids, total: ids.length, stale, fresh: ids.length - stale, wmUpdatedAt };
   }),
 
   cleanupHeic: protectedProcedure.mutation(async ({ ctx }) => {

@@ -12,7 +12,7 @@ export function WatermarkSettings() {
   const [regenProgress, setRegenProgress] = useState<{ done: number; total: number } | null>(null);
   const [regenMsg, setRegenMsg] = useState("");
 
-  const { data: previewIds } = api.photo.getPreviewIds.useQuery();
+  const { data: previewStatus, refetch: refetchStatus } = api.photo.previewStatus.useQuery();
   const [status, setStatus] = useState<Status>("loading");
   const [msg, setMsg] = useState("");
 
@@ -71,21 +71,23 @@ export function WatermarkSettings() {
   };
 
   const handleRegen = async () => {
-    if (!previewIds?.length) { setRegenMsg("No hay previews generadas aún."); return; }
+    const ids = previewStatus?.ids;
+    if (!ids?.length) { setRegenMsg("No hay previews generadas aún."); return; }
     setRegenMsg("");
-    setRegenProgress({ done: 0, total: previewIds.length });
+    setRegenProgress({ done: 0, total: ids.length });
     let done = 0;
-    for (const id of previewIds) {
+    for (const id of ids) {
       await fetch("/api/watermark", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ photoId: id }),
       });
       done++;
-      setRegenProgress({ done, total: previewIds.length });
+      setRegenProgress({ done, total: ids.length });
     }
     setRegenProgress(null);
     setRegenMsg(`${done} preview${done !== 1 ? "s" : ""} regenerada${done !== 1 ? "s" : ""}.`);
+    void refetchStatus();
   };
 
   const displayed = preview ?? currentUrl;
@@ -193,17 +195,42 @@ export function WatermarkSettings() {
 
       {/* Regenerate previews */}
       <div className="pt-4 border-t flex flex-col gap-3" style={{ borderColor: "#1e1e35" }}>
-        <div>
-          <p className="text-xs font-medium text-white mb-0.5">Regenerar previews</p>
-          <p className="text-xs" style={{ color: "#475569" }}>
-            Vuelve a generar todas las previews existentes con la marca de agua actual.
-          </p>
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <p className="text-xs font-medium text-white mb-0.5">Estado de previews</p>
+            <p className="text-xs" style={{ color: "#475569" }}>
+              Regenera todas las previews con la marca de agua actual.
+            </p>
+          </div>
+
+          {/* Status badges */}
+          {previewStatus && previewStatus.total > 0 && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {previewStatus.fresh > 0 && (
+                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
+                  style={{ background: "#10b98120", color: "#34d399" }}>
+                  <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: "#34d399" }} />
+                  {previewStatus.fresh} actualizada{previewStatus.fresh !== 1 ? "s" : ""}
+                </span>
+              )}
+              {previewStatus.stale > 0 && (
+                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
+                  style={{ background: "#f59e0b20", color: "#fbbf24" }}>
+                  <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: "#fbbf24" }} />
+                  {previewStatus.stale} desactualizada{previewStatus.stale !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+          )}
+          {previewStatus && previewStatus.total === 0 && (
+            <span className="text-xs" style={{ color: "#475569" }}>Sin previews generadas</span>
+          )}
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={() => void handleRegen()}
-            disabled={busy || regenerating || !currentUrl}
+            disabled={busy || regenerating || !currentUrl || !previewStatus?.total}
             className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl font-medium disabled:opacity-40 transition-all"
             style={{ background: "#6366f120", color: "#818cf8", border: "1px solid #6366f130" }}
           >
@@ -220,7 +247,7 @@ export function WatermarkSettings() {
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Regenerar {previewIds?.length ? `(${previewIds.length})` : "previews"}
+                Regenerar todas{previewStatus?.total ? ` (${previewStatus.total})` : ""}
               </>
             )}
           </button>
