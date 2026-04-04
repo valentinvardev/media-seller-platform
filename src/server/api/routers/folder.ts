@@ -117,6 +117,21 @@ export const folderRouter = createTRPCRouter({
 
   // ─── Admin ─────────────────────────────────────────────────────────────────
 
+  adminGetPreviews: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const photos = await ctx.db.photo.findMany({
+        where: { folderId: input.id },
+        orderBy: { order: "asc" },
+        take: 9,
+        select: { storageKey: true },
+      });
+      const urls = await Promise.all(
+        photos.map((p) => createSignedUrl(p.storageKey, 1800)),
+      );
+      return urls.filter(Boolean) as string[];
+    }),
+
   adminGetById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) =>

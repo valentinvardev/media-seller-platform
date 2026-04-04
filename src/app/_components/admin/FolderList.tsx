@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { api } from "~/trpc/react";
 import { FolderActions } from "./FolderActions";
 
 type Folder = {
@@ -22,6 +23,171 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "oldest",   label: "Modificadas: antiguas" },
 ];
 
+// ─── Hover preview tooltip ────────────────────────────────────────────────────
+
+function FolderPreviewTooltip({
+  folderId,
+  mouseX,
+  mouseY,
+}: {
+  folderId: string;
+  mouseX: number;
+  mouseY: number;
+}) {
+  const { data: urls, isLoading } = api.folder.adminGetPreviews.useQuery(
+    { id: folderId },
+    { staleTime: 5 * 60 * 1000 }, // cache 5 min — avoids refetch on every hover
+  );
+
+  // Offset so the box doesn't sit under the cursor
+  const offsetX = 16;
+  const offsetY = -20;
+  const boxW = 220;
+  const boxH = 220;
+
+  // Keep inside viewport
+  const vw = typeof window !== "undefined" ? window.innerWidth : 1200;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  let left = mouseX + offsetX;
+  let top  = mouseY + offsetY;
+  if (left + boxW > vw - 8) left = mouseX - boxW - offsetX;
+  if (top  + boxH > vh - 8) top  = vh - boxH - 8;
+  if (top < 8) top = 8;
+
+  return (
+    <div
+      className="fixed z-50 rounded-xl overflow-hidden shadow-2xl pointer-events-none"
+      style={{
+        left,
+        top,
+        width: boxW,
+        height: boxH,
+        background: "#0f0f1a",
+        border: "1px solid #2a2a45",
+      }}
+    >
+      {isLoading || !urls ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: "#f59e0b30", borderTopColor: "#f59e0b" }} />
+        </div>
+      ) : urls.length === 0 ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <svg className="w-8 h-8" style={{ color: "#334155" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          </svg>
+        </div>
+      ) : (
+        <div
+          className="w-full h-full grid gap-px"
+          style={{ gridTemplateColumns: `repeat(${urls.length === 1 ? 1 : urls.length <= 4 ? 2 : 3}, 1fr)` }}
+        >
+          {urls.map((url, i) => (
+            <div key={i} className="overflow-hidden">
+              <img
+                src={url}
+                alt=""
+                className="w-full h-full object-cover"
+                // load smaller decoded image — browser fetches full but renders tiny
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Folder row ───────────────────────────────────────────────────────────────
+
+function FolderRow({
+  folder,
+  collectionId,
+}: {
+  folder: Folder;
+  collectionId: string;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  // Delay showing so fast-movers don't trigger flicker
+  const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  const handleMouseEnter = () => {
+    showTimer.current = setTimeout(() => setVisible(true), 120);
+    setHovered(true);
+  };
+  const handleMouseLeave = () => {
+    if (showTimer.current) clearTimeout(showTimer.current);
+    setVisible(false);
+    setHovered(false);
+  };
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMouse({ x: e.clientX, y: e.clientY });
+  };
+
+  return (
+    <div
+      className="rounded-xl px-4 py-3 flex items-center justify-between transition-all"
+      style={{
+        background: hovered ? "#131325" : "#0f0f1a",
+        border: `1px solid ${hovered ? "#2a2a45" : "#1e1e35"}`,
+      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseMove={handleMouseMove}
+    >
+      <div className="flex items-center gap-3">
+        {/* Lock / unlock icon */}
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={folder.isPublic
+            ? { background: "#6366f120", color: "#818cf8" }
+            : { background: "#f59e0b15", color: "#f59e0b" }}
+          title={folder.isPublic ? "Carpeta pública" : "Carpeta privada"}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            {folder.isPublic ? (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            )}
+          </svg>
+        </div>
+        <span className="font-mono text-white font-semibold">#{folder.number}</span>
+        <span
+          className="text-xs px-2 py-0.5 rounded-full font-medium"
+          style={folder.isPublished
+            ? { background: "#10b98120", color: "#34d399" }
+            : { background: "#ffffff10", color: "#64748b" }}
+        >
+          {folder.isPublished ? "Publicada" : "Oculta"}
+        </span>
+        <span className="text-slate-500 text-sm">{folder._count.photos} fotos</span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/admin/colecciones/${collectionId}/carpetas/${folder.id}`}
+          className="text-sm px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
+          style={{ color: "#f59e0b" }}
+        >
+          Editar
+        </Link>
+        <FolderActions id={folder.id} isPublished={folder.isPublished} isPublic={folder.isPublic} />
+      </div>
+
+      {visible && folder._count.photos > 0 && (
+        <FolderPreviewTooltip folderId={folder.id} mouseX={mouse.x} mouseY={mouse.y} />
+      )}
+    </div>
+  );
+}
+
+// ─── List ─────────────────────────────────────────────────────────────────────
+
 export function FolderList({ folders, collectionId }: { folders: Folder[]; collectionId: string }) {
   const [sort, setSort] = useState<SortKey>("num-asc");
 
@@ -38,7 +204,6 @@ export function FolderList({ folders, collectionId }: { folders: Folder[]; colle
 
   return (
     <div>
-      {/* Sort dropdown */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs" style={{ color: "#475569" }}>
           {folders.length} carpeta{folders.length !== 1 ? "s" : ""}
@@ -47,7 +212,7 @@ export function FolderList({ folders, collectionId }: { folders: Folder[]; colle
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
-            className="appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs outline-none cursor-pointer transition-colors"
+            className="appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs outline-none cursor-pointer"
             style={{ background: "#1e1e35", color: "#94a3b8", border: "1px solid #2a2a45" }}
           >
             {SORT_OPTIONS.map((o) => (
@@ -60,53 +225,9 @@ export function FolderList({ folders, collectionId }: { folders: Folder[]; colle
         </div>
       </div>
 
-      {/* List */}
       <div className="flex flex-col gap-2">
         {sorted.map((folder) => (
-          <div
-            key={folder.id}
-            className="rounded-xl px-4 py-3 flex items-center justify-between transition-all hover:border-white/10"
-            style={{ background: "#0f0f1a", border: "1px solid #1e1e35" }}
-          >
-            <div className="flex items-center gap-3">
-              {/* Lock / unlock icon */}
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={folder.isPublic
-                  ? { background: "#6366f120", color: "#818cf8" }
-                  : { background: "#f59e0b15", color: "#f59e0b" }}
-                title={folder.isPublic ? "Carpeta pública" : "Carpeta privada"}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  {folder.isPublic ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  )}
-                </svg>
-              </div>
-              <span className="font-mono text-white font-semibold">#{folder.number}</span>
-              <span
-                className="text-xs px-2 py-0.5 rounded-full font-medium"
-                style={folder.isPublished
-                  ? { background: "#10b98120", color: "#34d399" }
-                  : { background: "#ffffff10", color: "#64748b" }}
-              >
-                {folder.isPublished ? "Publicada" : "Oculta"}
-              </span>
-              <span className="text-slate-500 text-sm">{folder._count.photos} fotos</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link
-                href={`/admin/colecciones/${collectionId}/carpetas/${folder.id}`}
-                className="text-sm px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
-                style={{ color: "#f59e0b" }}
-              >
-                Editar
-              </Link>
-              <FolderActions id={folder.id} isPublished={folder.isPublished} isPublic={folder.isPublic} />
-            </div>
-          </div>
+          <FolderRow key={folder.id} folder={folder} collectionId={collectionId} />
         ))}
       </div>
     </div>
