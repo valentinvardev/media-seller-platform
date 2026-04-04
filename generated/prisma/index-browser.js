@@ -176,6 +176,7 @@ exports.Prisma.FolderScalarFieldEnum = {
   collectionId: 'collectionId',
   price: 'price',
   isPublished: 'isPublished',
+  isPublic: 'isPublic',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -185,9 +186,12 @@ exports.Prisma.PhotoScalarFieldEnum = {
   folderId: 'folderId',
   storageKey: 'storageKey',
   filename: 'filename',
+  fileSize: 'fileSize',
   width: 'width',
   height: 'height',
   order: 'order',
+  isPreview: 'isPreview',
+  previewKey: 'previewKey',
   createdAt: 'createdAt'
 };
 

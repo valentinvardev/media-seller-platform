@@ -7087,6 +7087,7 @@ export namespace Prisma {
     collectionId: string | null
     price: Decimal | null
     isPublished: boolean | null
+    isPublic: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -7097,6 +7098,7 @@ export namespace Prisma {
     collectionId: string | null
     price: Decimal | null
     isPublished: boolean | null
+    isPublic: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -7107,6 +7109,7 @@ export namespace Prisma {
     collectionId: number
     price: number
     isPublished: number
+    isPublic: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -7127,6 +7130,7 @@ export namespace Prisma {
     collectionId?: true
     price?: true
     isPublished?: true
+    isPublic?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -7137,6 +7141,7 @@ export namespace Prisma {
     collectionId?: true
     price?: true
     isPublished?: true
+    isPublic?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -7147,6 +7152,7 @@ export namespace Prisma {
     collectionId?: true
     price?: true
     isPublished?: true
+    isPublic?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -7244,6 +7250,7 @@ export namespace Prisma {
     collectionId: string
     price: Decimal
     isPublished: boolean
+    isPublic: boolean
     createdAt: Date
     updatedAt: Date
     _count: FolderCountAggregateOutputType | null
@@ -7273,6 +7280,7 @@ export namespace Prisma {
     collectionId?: boolean
     price?: boolean
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
@@ -7287,6 +7295,7 @@ export namespace Prisma {
     collectionId?: boolean
     price?: boolean
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
@@ -7298,6 +7307,7 @@ export namespace Prisma {
     collectionId?: boolean
     price?: boolean
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
@@ -7309,11 +7319,12 @@ export namespace Prisma {
     collectionId?: boolean
     price?: boolean
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type FolderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "number" | "collectionId" | "price" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["folder"]>
+  export type FolderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "number" | "collectionId" | "price" | "isPublished" | "isPublic" | "createdAt" | "updatedAt", ExtArgs["result"]["folder"]>
   export type FolderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
     photos?: boolean | Folder$photosArgs<ExtArgs>
@@ -7340,6 +7351,7 @@ export namespace Prisma {
       collectionId: string
       price: Prisma.Decimal
       isPublished: boolean
+      isPublic: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["folder"]>
@@ -7773,6 +7785,7 @@ export namespace Prisma {
     readonly collectionId: FieldRef<"Folder", 'String'>
     readonly price: FieldRef<"Folder", 'Decimal'>
     readonly isPublished: FieldRef<"Folder", 'Boolean'>
+    readonly isPublic: FieldRef<"Folder", 'Boolean'>
     readonly createdAt: FieldRef<"Folder", 'DateTime'>
     readonly updatedAt: FieldRef<"Folder", 'DateTime'>
   }
@@ -8250,12 +8263,14 @@ export namespace Prisma {
   }
 
   export type PhotoAvgAggregateOutputType = {
+    fileSize: number | null
     width: number | null
     height: number | null
     order: number | null
   }
 
   export type PhotoSumAggregateOutputType = {
+    fileSize: number | null
     width: number | null
     height: number | null
     order: number | null
@@ -8266,9 +8281,12 @@ export namespace Prisma {
     folderId: string | null
     storageKey: string | null
     filename: string | null
+    fileSize: number | null
     width: number | null
     height: number | null
     order: number | null
+    isPreview: boolean | null
+    previewKey: string | null
     createdAt: Date | null
   }
 
@@ -8277,9 +8295,12 @@ export namespace Prisma {
     folderId: string | null
     storageKey: string | null
     filename: string | null
+    fileSize: number | null
     width: number | null
     height: number | null
     order: number | null
+    isPreview: boolean | null
+    previewKey: string | null
     createdAt: Date | null
   }
 
@@ -8288,21 +8309,26 @@ export namespace Prisma {
     folderId: number
     storageKey: number
     filename: number
+    fileSize: number
     width: number
     height: number
     order: number
+    isPreview: number
+    previewKey: number
     createdAt: number
     _all: number
   }
 
 
   export type PhotoAvgAggregateInputType = {
+    fileSize?: true
     width?: true
     height?: true
     order?: true
   }
 
   export type PhotoSumAggregateInputType = {
+    fileSize?: true
     width?: true
     height?: true
     order?: true
@@ -8313,9 +8339,12 @@ export namespace Prisma {
     folderId?: true
     storageKey?: true
     filename?: true
+    fileSize?: true
     width?: true
     height?: true
     order?: true
+    isPreview?: true
+    previewKey?: true
     createdAt?: true
   }
 
@@ -8324,9 +8353,12 @@ export namespace Prisma {
     folderId?: true
     storageKey?: true
     filename?: true
+    fileSize?: true
     width?: true
     height?: true
     order?: true
+    isPreview?: true
+    previewKey?: true
     createdAt?: true
   }
 
@@ -8335,9 +8367,12 @@ export namespace Prisma {
     folderId?: true
     storageKey?: true
     filename?: true
+    fileSize?: true
     width?: true
     height?: true
     order?: true
+    isPreview?: true
+    previewKey?: true
     createdAt?: true
     _all?: true
   }
@@ -8433,9 +8468,12 @@ export namespace Prisma {
     folderId: string
     storageKey: string
     filename: string
+    fileSize: number | null
     width: number | null
     height: number | null
     order: number
+    isPreview: boolean
+    previewKey: string | null
     createdAt: Date
     _count: PhotoCountAggregateOutputType | null
     _avg: PhotoAvgAggregateOutputType | null
@@ -8463,9 +8501,12 @@ export namespace Prisma {
     folderId?: boolean
     storageKey?: boolean
     filename?: boolean
+    fileSize?: boolean
     width?: boolean
     height?: boolean
     order?: boolean
+    isPreview?: boolean
+    previewKey?: boolean
     createdAt?: boolean
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
@@ -8475,9 +8516,12 @@ export namespace Prisma {
     folderId?: boolean
     storageKey?: boolean
     filename?: boolean
+    fileSize?: boolean
     width?: boolean
     height?: boolean
     order?: boolean
+    isPreview?: boolean
+    previewKey?: boolean
     createdAt?: boolean
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
@@ -8487,9 +8531,12 @@ export namespace Prisma {
     folderId?: boolean
     storageKey?: boolean
     filename?: boolean
+    fileSize?: boolean
     width?: boolean
     height?: boolean
     order?: boolean
+    isPreview?: boolean
+    previewKey?: boolean
     createdAt?: boolean
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
@@ -8499,13 +8546,16 @@ export namespace Prisma {
     folderId?: boolean
     storageKey?: boolean
     filename?: boolean
+    fileSize?: boolean
     width?: boolean
     height?: boolean
     order?: boolean
+    isPreview?: boolean
+    previewKey?: boolean
     createdAt?: boolean
   }
 
-  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "folderId" | "storageKey" | "filename" | "width" | "height" | "order" | "createdAt", ExtArgs["result"]["photo"]>
+  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "folderId" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "isPreview" | "previewKey" | "createdAt", ExtArgs["result"]["photo"]>
   export type PhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }
@@ -8526,9 +8576,12 @@ export namespace Prisma {
       folderId: string
       storageKey: string
       filename: string
+      fileSize: number | null
       width: number | null
       height: number | null
       order: number
+      isPreview: boolean
+      previewKey: string | null
       createdAt: Date
     }, ExtArgs["result"]["photo"]>
     composites: {}
@@ -8958,9 +9011,12 @@ export namespace Prisma {
     readonly folderId: FieldRef<"Photo", 'String'>
     readonly storageKey: FieldRef<"Photo", 'String'>
     readonly filename: FieldRef<"Photo", 'String'>
+    readonly fileSize: FieldRef<"Photo", 'Int'>
     readonly width: FieldRef<"Photo", 'Int'>
     readonly height: FieldRef<"Photo", 'Int'>
     readonly order: FieldRef<"Photo", 'Int'>
+    readonly isPreview: FieldRef<"Photo", 'Boolean'>
+    readonly previewKey: FieldRef<"Photo", 'String'>
     readonly createdAt: FieldRef<"Photo", 'DateTime'>
   }
     
@@ -10682,6 +10738,7 @@ export namespace Prisma {
     collectionId: 'collectionId',
     price: 'price',
     isPublished: 'isPublished',
+    isPublic: 'isPublic',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -10694,9 +10751,12 @@ export namespace Prisma {
     folderId: 'folderId',
     storageKey: 'storageKey',
     filename: 'filename',
+    fileSize: 'fileSize',
     width: 'width',
     height: 'height',
     order: 'order',
+    isPreview: 'isPreview',
+    previewKey: 'previewKey',
     createdAt: 'createdAt'
   };
 
@@ -11180,6 +11240,7 @@ export namespace Prisma {
     collectionId?: StringFilter<"Folder"> | string
     price?: DecimalFilter<"Folder"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Folder"> | boolean
+    isPublic?: BoolFilter<"Folder"> | boolean
     createdAt?: DateTimeFilter<"Folder"> | Date | string
     updatedAt?: DateTimeFilter<"Folder"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
@@ -11193,6 +11254,7 @@ export namespace Prisma {
     collectionId?: SortOrder
     price?: SortOrder
     isPublished?: SortOrder
+    isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     collection?: CollectionOrderByWithRelationInput
@@ -11210,6 +11272,7 @@ export namespace Prisma {
     collectionId?: StringFilter<"Folder"> | string
     price?: DecimalFilter<"Folder"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Folder"> | boolean
+    isPublic?: BoolFilter<"Folder"> | boolean
     createdAt?: DateTimeFilter<"Folder"> | Date | string
     updatedAt?: DateTimeFilter<"Folder"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
@@ -11223,6 +11286,7 @@ export namespace Prisma {
     collectionId?: SortOrder
     price?: SortOrder
     isPublished?: SortOrder
+    isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: FolderCountOrderByAggregateInput
@@ -11241,6 +11305,7 @@ export namespace Prisma {
     collectionId?: StringWithAggregatesFilter<"Folder"> | string
     price?: DecimalWithAggregatesFilter<"Folder"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolWithAggregatesFilter<"Folder"> | boolean
+    isPublic?: BoolWithAggregatesFilter<"Folder"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Folder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Folder"> | Date | string
   }
@@ -11253,9 +11318,12 @@ export namespace Prisma {
     folderId?: StringFilter<"Photo"> | string
     storageKey?: StringFilter<"Photo"> | string
     filename?: StringFilter<"Photo"> | string
+    fileSize?: IntNullableFilter<"Photo"> | number | null
     width?: IntNullableFilter<"Photo"> | number | null
     height?: IntNullableFilter<"Photo"> | number | null
     order?: IntFilter<"Photo"> | number
+    isPreview?: BoolFilter<"Photo"> | boolean
+    previewKey?: StringNullableFilter<"Photo"> | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     folder?: XOR<FolderScalarRelationFilter, FolderWhereInput>
   }
@@ -11265,9 +11333,12 @@ export namespace Prisma {
     folderId?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
+    fileSize?: SortOrderInput | SortOrder
     width?: SortOrderInput | SortOrder
     height?: SortOrderInput | SortOrder
     order?: SortOrder
+    isPreview?: SortOrder
+    previewKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     folder?: FolderOrderByWithRelationInput
   }
@@ -11280,9 +11351,12 @@ export namespace Prisma {
     folderId?: StringFilter<"Photo"> | string
     storageKey?: StringFilter<"Photo"> | string
     filename?: StringFilter<"Photo"> | string
+    fileSize?: IntNullableFilter<"Photo"> | number | null
     width?: IntNullableFilter<"Photo"> | number | null
     height?: IntNullableFilter<"Photo"> | number | null
     order?: IntFilter<"Photo"> | number
+    isPreview?: BoolFilter<"Photo"> | boolean
+    previewKey?: StringNullableFilter<"Photo"> | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     folder?: XOR<FolderScalarRelationFilter, FolderWhereInput>
   }, "id">
@@ -11292,9 +11366,12 @@ export namespace Prisma {
     folderId?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
+    fileSize?: SortOrderInput | SortOrder
     width?: SortOrderInput | SortOrder
     height?: SortOrderInput | SortOrder
     order?: SortOrder
+    isPreview?: SortOrder
+    previewKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: PhotoCountOrderByAggregateInput
     _avg?: PhotoAvgOrderByAggregateInput
@@ -11311,9 +11388,12 @@ export namespace Prisma {
     folderId?: StringWithAggregatesFilter<"Photo"> | string
     storageKey?: StringWithAggregatesFilter<"Photo"> | string
     filename?: StringWithAggregatesFilter<"Photo"> | string
+    fileSize?: IntNullableWithAggregatesFilter<"Photo"> | number | null
     width?: IntNullableWithAggregatesFilter<"Photo"> | number | null
     height?: IntNullableWithAggregatesFilter<"Photo"> | number | null
     order?: IntWithAggregatesFilter<"Photo"> | number
+    isPreview?: BoolWithAggregatesFilter<"Photo"> | boolean
+    previewKey?: StringNullableWithAggregatesFilter<"Photo"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Photo"> | Date | string
   }
 
@@ -11782,6 +11862,7 @@ export namespace Prisma {
     number: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     collection: CollectionCreateNestedOneWithoutFoldersInput
@@ -11795,6 +11876,7 @@ export namespace Prisma {
     collectionId: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutFolderInput
@@ -11806,6 +11888,7 @@ export namespace Prisma {
     number?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutFoldersNestedInput
@@ -11819,6 +11902,7 @@ export namespace Prisma {
     collectionId?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutFolderNestedInput
@@ -11831,6 +11915,7 @@ export namespace Prisma {
     collectionId: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -11840,6 +11925,7 @@ export namespace Prisma {
     number?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -11850,6 +11936,7 @@ export namespace Prisma {
     collectionId?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -11858,9 +11945,12 @@ export namespace Prisma {
     id?: string
     storageKey: string
     filename: string
+    fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
+    isPreview?: boolean
+    previewKey?: string | null
     createdAt?: Date | string
     folder: FolderCreateNestedOneWithoutPhotosInput
   }
@@ -11870,9 +11960,12 @@ export namespace Prisma {
     folderId: string
     storageKey: string
     filename: string
+    fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
+    isPreview?: boolean
+    previewKey?: string | null
     createdAt?: Date | string
   }
 
@@ -11880,9 +11973,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
+    isPreview?: BoolFieldUpdateOperationsInput | boolean
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     folder?: FolderUpdateOneRequiredWithoutPhotosNestedInput
   }
@@ -11892,9 +11988,12 @@ export namespace Prisma {
     folderId?: StringFieldUpdateOperationsInput | string
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
+    isPreview?: BoolFieldUpdateOperationsInput | boolean
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -11903,9 +12002,12 @@ export namespace Prisma {
     folderId: string
     storageKey: string
     filename: string
+    fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
+    isPreview?: boolean
+    previewKey?: string | null
     createdAt?: Date | string
   }
 
@@ -11913,9 +12015,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
+    isPreview?: BoolFieldUpdateOperationsInput | boolean
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -11924,9 +12029,12 @@ export namespace Prisma {
     folderId?: StringFieldUpdateOperationsInput | string
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
+    isPreview?: BoolFieldUpdateOperationsInput | boolean
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12465,6 +12573,7 @@ export namespace Prisma {
     collectionId?: SortOrder
     price?: SortOrder
     isPublished?: SortOrder
+    isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -12479,6 +12588,7 @@ export namespace Prisma {
     collectionId?: SortOrder
     price?: SortOrder
     isPublished?: SortOrder
+    isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -12489,6 +12599,7 @@ export namespace Prisma {
     collectionId?: SortOrder
     price?: SortOrder
     isPublished?: SortOrder
+    isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -12534,13 +12645,17 @@ export namespace Prisma {
     folderId?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
+    fileSize?: SortOrder
     width?: SortOrder
     height?: SortOrder
     order?: SortOrder
+    isPreview?: SortOrder
+    previewKey?: SortOrder
     createdAt?: SortOrder
   }
 
   export type PhotoAvgOrderByAggregateInput = {
+    fileSize?: SortOrder
     width?: SortOrder
     height?: SortOrder
     order?: SortOrder
@@ -12551,9 +12666,12 @@ export namespace Prisma {
     folderId?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
+    fileSize?: SortOrder
     width?: SortOrder
     height?: SortOrder
     order?: SortOrder
+    isPreview?: SortOrder
+    previewKey?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12562,13 +12680,17 @@ export namespace Prisma {
     folderId?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
+    fileSize?: SortOrder
     width?: SortOrder
     height?: SortOrder
     order?: SortOrder
+    isPreview?: SortOrder
+    previewKey?: SortOrder
     createdAt?: SortOrder
   }
 
   export type PhotoSumOrderByAggregateInput = {
+    fileSize?: SortOrder
     width?: SortOrder
     height?: SortOrder
     order?: SortOrder
@@ -13482,6 +13604,7 @@ export namespace Prisma {
     number: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoCreateNestedManyWithoutFolderInput
@@ -13493,6 +13616,7 @@ export namespace Prisma {
     number: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutFolderInput
@@ -13534,6 +13658,7 @@ export namespace Prisma {
     collectionId?: StringFilter<"Folder"> | string
     price?: DecimalFilter<"Folder"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Folder"> | boolean
+    isPublic?: BoolFilter<"Folder"> | boolean
     createdAt?: DateTimeFilter<"Folder"> | Date | string
     updatedAt?: DateTimeFilter<"Folder"> | Date | string
   }
@@ -13569,9 +13694,12 @@ export namespace Prisma {
     id?: string
     storageKey: string
     filename: string
+    fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
+    isPreview?: boolean
+    previewKey?: string | null
     createdAt?: Date | string
   }
 
@@ -13579,9 +13707,12 @@ export namespace Prisma {
     id?: string
     storageKey: string
     filename: string
+    fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
+    isPreview?: boolean
+    previewKey?: string | null
     createdAt?: Date | string
   }
 
@@ -13696,9 +13827,12 @@ export namespace Prisma {
     folderId?: StringFilter<"Photo"> | string
     storageKey?: StringFilter<"Photo"> | string
     filename?: StringFilter<"Photo"> | string
+    fileSize?: IntNullableFilter<"Photo"> | number | null
     width?: IntNullableFilter<"Photo"> | number | null
     height?: IntNullableFilter<"Photo"> | number | null
     order?: IntFilter<"Photo"> | number
+    isPreview?: BoolFilter<"Photo"> | boolean
+    previewKey?: StringNullableFilter<"Photo"> | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
   }
 
@@ -13744,6 +13878,7 @@ export namespace Prisma {
     number: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     collection: CollectionCreateNestedOneWithoutFoldersInput
@@ -13756,6 +13891,7 @@ export namespace Prisma {
     collectionId: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     purchases?: PurchaseUncheckedCreateNestedManyWithoutFolderInput
@@ -13782,6 +13918,7 @@ export namespace Prisma {
     number?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutFoldersNestedInput
@@ -13794,6 +13931,7 @@ export namespace Prisma {
     collectionId?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     purchases?: PurchaseUncheckedUpdateManyWithoutFolderNestedInput
@@ -13804,6 +13942,7 @@ export namespace Prisma {
     number: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     collection: CollectionCreateNestedOneWithoutFoldersInput
@@ -13816,6 +13955,7 @@ export namespace Prisma {
     collectionId: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutFolderInput
@@ -13842,6 +13982,7 @@ export namespace Prisma {
     number?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutFoldersNestedInput
@@ -13854,6 +13995,7 @@ export namespace Prisma {
     collectionId?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutFolderNestedInput
@@ -13948,6 +14090,7 @@ export namespace Prisma {
     number: string
     price: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13957,6 +14100,7 @@ export namespace Prisma {
     number?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUpdateManyWithoutFolderNestedInput
@@ -13968,6 +14112,7 @@ export namespace Prisma {
     number?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutFolderNestedInput
@@ -13979,6 +14124,7 @@ export namespace Prisma {
     number?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13987,9 +14133,12 @@ export namespace Prisma {
     id?: string
     storageKey: string
     filename: string
+    fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
+    isPreview?: boolean
+    previewKey?: string | null
     createdAt?: Date | string
   }
 
@@ -14014,9 +14163,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
+    isPreview?: BoolFieldUpdateOperationsInput | boolean
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14024,9 +14176,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
+    isPreview?: BoolFieldUpdateOperationsInput | boolean
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14034,9 +14189,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
+    isPreview?: BoolFieldUpdateOperationsInput | boolean
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

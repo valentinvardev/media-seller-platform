@@ -43,13 +43,41 @@ export const photoRouter = createTRPCRouter({
     };
   }),
 
+  setPreview: protectedProcedure
+    .input(z.object({ id: z.string(), isPreview: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!input.isPreview) {
+        // Turning OFF: remove watermarked file from storage
+        const photo = await ctx.db.photo.findUniqueOrThrow({
+          where: { id: input.id },
+          select: { previewKey: true },
+        });
+        if (photo.previewKey) {
+          const client = getAdminClient();
+          if (client) await client.storage.from("photos").remove([photo.previewKey]);
+        }
+        return ctx.db.photo.update({
+          where: { id: input.id },
+          data: { isPreview: false, previewKey: null },
+        });
+      }
+      // Turning ON: just mark it — the watermark API route handles file generation
+      return ctx.db.photo.update({
+        where: { id: input.id },
+        data: { isPreview: true },
+      });
+    }),
+
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const photo = await ctx.db.photo.findUniqueOrThrow({ where: { id: input.id } });
       const client = getAdminClient();
-      if (client && !photo.storageKey.startsWith("http")) {
-        await client.storage.from("photos").remove([photo.storageKey]);
+      if (client) {
+        const toRemove: string[] = [];
+        if (!photo.storageKey.startsWith("http")) toRemove.push(photo.storageKey);
+        if (photo.previewKey) toRemove.push(photo.previewKey);
+        if (toRemove.length) await client.storage.from("photos").remove(toRemove);
       }
       return ctx.db.photo.delete({ where: { id: input.id } });
     }),
@@ -60,7 +88,11 @@ export const photoRouter = createTRPCRouter({
       const photos = await ctx.db.photo.findMany({ where: { id: { in: input.ids } } });
       const client = getAdminClient();
       if (client) {
-        const keys = photos.map((p) => p.storageKey).filter((k) => !k.startsWith("http"));
+        const keys: string[] = [];
+        for (const p of photos) {
+          if (!p.storageKey.startsWith("http")) keys.push(p.storageKey);
+          if (p.previewKey) keys.push(p.previewKey);
+        }
         if (keys.length) await client.storage.from("photos").remove(keys);
       }
       await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });

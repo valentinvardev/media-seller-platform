@@ -141,7 +141,11 @@ export function FolderBrowser({ collectionId }: { collectionId: string }) {
                         <img
                           src={url}
                           alt=""
-                          className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${folder.isPublic ? "" : "blur-sm scale-110 brightness-75"}`}
+                          className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                            !folder.isPublic && !folder.hasWatermarkedPreviews
+                              ? "blur-sm scale-110 brightness-75"
+                              : ""
+                          }`}
                         />
                       </div>
                     ))}

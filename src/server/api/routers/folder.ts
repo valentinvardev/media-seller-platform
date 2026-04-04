@@ -32,16 +32,27 @@ export const folderRouter = createTRPCRouter({
           _count: { select: { photos: true } },
           photos: {
             take: PREVIEW_PHOTO_COUNT,
-            orderBy: { order: "asc" },
-            select: { storageKey: true, id: true },
+            // Previews first, then by order
+            orderBy: [{ isPreview: "desc" }, { order: "asc" }],
+            select: { storageKey: true, id: true, previewKey: true, isPreview: true },
           },
         },
       });
 
       return Promise.all(
         folders.map(async (folder) => {
+          const hasWatermarkedPreviews = folder.photos.some(
+            (p) => p.isPreview && p.previewKey,
+          );
+
           const previewUrls = await Promise.all(
-            folder.photos.map((photo) => createSignedUrl(photo.storageKey, 3600)),
+            folder.photos.map((photo) => {
+              const key =
+                photo.isPreview && photo.previewKey
+                  ? photo.previewKey
+                  : photo.storageKey;
+              return createSignedUrl(key, 3600);
+            }),
           );
 
           return {
@@ -51,6 +62,7 @@ export const folderRouter = createTRPCRouter({
             isPublic: folder.isPublic,
             photoCount: folder._count.photos,
             updatedAt: folder.updatedAt,
+            hasWatermarkedPreviews,
             previewUrls: previewUrls.filter(Boolean) as string[],
           };
         }),
@@ -66,8 +78,8 @@ export const folderRouter = createTRPCRouter({
           collection: { select: { title: true, slug: true } },
           photos: {
             take: PREVIEW_PHOTO_COUNT,
-            orderBy: { order: "asc" },
-            select: { storageKey: true, id: true },
+            orderBy: [{ isPreview: "desc" }, { order: "asc" }],
+            select: { storageKey: true, id: true, previewKey: true, isPreview: true },
           },
           _count: { select: { photos: true } },
         },
@@ -75,8 +87,18 @@ export const folderRouter = createTRPCRouter({
 
       if (!folder) return null;
 
+      const hasWatermarkedPreviews = folder.photos.some(
+        (p) => p.isPreview && p.previewKey,
+      );
+
       const previewUrls = await Promise.all(
-        folder.photos.map((photo) => createSignedUrl(photo.storageKey, 3600)),
+        folder.photos.map((photo) => {
+          const key =
+            photo.isPreview && photo.previewKey
+              ? photo.previewKey
+              : photo.storageKey;
+          return createSignedUrl(key, 3600);
+        }),
       );
 
       return {
@@ -87,6 +109,7 @@ export const folderRouter = createTRPCRouter({
         collectionSlug: folder.collection.slug,
         isPublic: folder.isPublic,
         photoCount: folder._count.photos,
+        hasWatermarkedPreviews,
         previewUrls: previewUrls.filter(Boolean) as string[],
       };
     }),
