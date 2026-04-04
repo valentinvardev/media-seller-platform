@@ -98,6 +98,14 @@ export const photoRouter = createTRPCRouter({
       await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });
     }),
 
+  getPreviewIds: protectedProcedure.query(async ({ ctx }) => {
+    const photos = await ctx.db.photo.findMany({
+      where: { isPreview: true, previewKey: { not: null } },
+      select: { id: true },
+    });
+    return photos.map((p) => p.id);
+  }),
+
   cleanupHeic: protectedProcedure.mutation(async ({ ctx }) => {
     const heicPhotos = await ctx.db.photo.findMany({
       where: {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { api } from "~/trpc/react";
 
 type Status = "idle" | "loading" | "uploading" | "deleting" | "done" | "error";
 
@@ -8,6 +9,10 @@ export function WatermarkSettings() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [regenProgress, setRegenProgress] = useState<{ done: number; total: number } | null>(null);
+  const [regenMsg, setRegenMsg] = useState("");
+
+  const { data: previewIds } = api.photo.getPreviewIds.useQuery();
   const [status, setStatus] = useState<Status>("loading");
   const [msg, setMsg] = useState("");
 
@@ -65,8 +70,27 @@ export function WatermarkSettings() {
     }
   };
 
+  const handleRegen = async () => {
+    if (!previewIds?.length) { setRegenMsg("No hay previews generadas aún."); return; }
+    setRegenMsg("");
+    setRegenProgress({ done: 0, total: previewIds.length });
+    let done = 0;
+    for (const id of previewIds) {
+      await fetch("/api/watermark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photoId: id }),
+      });
+      done++;
+      setRegenProgress({ done, total: previewIds.length });
+    }
+    setRegenProgress(null);
+    setRegenMsg(`${done} preview${done !== 1 ? "s" : ""} regenerada${done !== 1 ? "s" : ""}.`);
+  };
+
   const displayed = preview ?? currentUrl;
   const busy = status === "loading" || status === "uploading" || status === "deleting";
+  const regenerating = regenProgress !== null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -167,15 +191,66 @@ export function WatermarkSettings() {
         <p className="text-xs" style={{ color: status === "error" ? "#f87171" : "#34d399" }}>{msg}</p>
       )}
 
+      {/* Regenerate previews */}
+      <div className="pt-4 border-t flex flex-col gap-3" style={{ borderColor: "#1e1e35" }}>
+        <div>
+          <p className="text-xs font-medium text-white mb-0.5">Regenerar previews</p>
+          <p className="text-xs" style={{ color: "#475569" }}>
+            Vuelve a generar todas las previews existentes con la marca de agua actual.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={() => void handleRegen()}
+            disabled={busy || regenerating || !currentUrl}
+            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl font-medium disabled:opacity-40 transition-all"
+            style={{ background: "#6366f120", color: "#818cf8", border: "1px solid #6366f130" }}
+          >
+            {regenerating ? (
+              <>
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                {regenProgress!.done} / {regenProgress!.total}
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Regenerar {previewIds?.length ? `(${previewIds.length})` : "previews"}
+              </>
+            )}
+          </button>
+          {!currentUrl && (
+            <p className="text-xs" style={{ color: "#475569" }}>Subí una marca de agua primero.</p>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        {regenerating && (
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: "#1e1e35" }}>
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{ width: `${(regenProgress!.done / regenProgress!.total) * 100}%`, background: "#6366f1" }}
+            />
+          </div>
+        )}
+
+        {regenMsg && (
+          <p className="text-xs" style={{ color: "#34d399" }}>{regenMsg}</p>
+        )}
+      </div>
+
       {/* Note */}
       <div className="rounded-xl px-4 py-3 flex gap-3" style={{ background: "#07070f", border: "1px solid #1e1e35" }}>
         <svg className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#6366f1" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <p className="text-xs leading-relaxed" style={{ color: "#475569" }}>
-          Al cambiar la marca de agua, las previews ya generadas{" "}
-          <span style={{ color: "#94a3b8" }}>no se actualizan automáticamente</span>.
-          Para regenerarlas, abrí la carpeta correspondiente, desactivá y volvé a activar la estrella en cada foto preview.
+          La marca de agua se bake en los píxeles de la imagen — no es un elemento CSS superpuesto, no se puede quitar con DevTools.
         </p>
       </div>
     </div>
