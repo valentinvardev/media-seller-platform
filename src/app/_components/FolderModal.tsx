@@ -1,10 +1,214 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 
 type Step = "preview" | "buy" | "email";
+
+// ─── Lightbox ─────────────────────────────────────────────────────────────────
+
+function PreviewLightbox({
+  urls,
+  startIdx,
+  onClose,
+}: {
+  urls: string[];
+  startIdx: number;
+  onClose: () => void;
+}) {
+  const [idx, setIdx] = useState(startIdx);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const imgRef = useRef<HTMLImageElement>(null);
+  const count = urls.length;
+
+  // Mouse drag
+  const drag = useRef({ active: false, startX: 0, startY: 0, px: 0, py: 0 });
+
+  const resetView = useCallback(() => { setZoom(1); setPan({ x: 0, y: 0 }); }, []);
+  const goPrev = useCallback(() => { resetView(); setIdx((i) => (i - 1 + count) % count); }, [count, resetView]);
+  const goNext = useCallback(() => { resetView(); setIdx((i) => (i + 1) % count); }, [count, resetView]);
+
+  // Keyboard
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose, goPrev, goNext]);
+
+  // Prevent body scroll while open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  const clamp = (x: number, y: number, z: number) => {
+    const el = imgRef.current;
+    if (!el) return { x, y };
+    const maxX = (el.clientWidth  * (z - 1)) / 2;
+    const maxY = (el.clientHeight * (z - 1)) / 2;
+    return { x: Math.min(maxX, Math.max(-maxX, x)), y: Math.min(maxY, Math.max(-maxY, y)) };
+  };
+
+  // Wheel zoom
+  const onWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const factor = e.deltaY > 0 ? 0.88 : 1.14;
+    setZoom((z) => {
+      const nz = Math.min(6, Math.max(1, z * factor));
+      if (nz === 1) setPan({ x: 0, y: 0 });
+      return nz;
+    });
+  };
+
+  // Mouse pan
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    e.preventDefault();
+    drag.current = { active: true, startX: e.clientX, startY: e.clientY, px: pan.x, py: pan.y };
+  };
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!drag.current.active) return;
+    const np = clamp(drag.current.px + e.clientX - drag.current.startX, drag.current.py + e.clientY - drag.current.startY, zoom);
+    setPan(np);
+  };
+  const onMouseUp = () => { drag.current.active = false; };
+
+  // Touch: swipe to navigate (zoom=1) or pan (zoom>1) + pinch zoom
+  const touch = useRef({ x0: 0, y0: 0, px: 0, py: 0, dist0: 0, z0: 1, pinching: false });
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0]!.clientX - e.touches[1]!.clientX;
+      const dy = e.touches[0]!.clientY - e.touches[1]!.clientY;
+      touch.current = { ...touch.current, dist0: Math.hypot(dx, dy), z0: zoom, pinching: true };
+    } else {
+      touch.current = { x0: e.touches[0]!.clientX, y0: e.touches[0]!.clientY, px: pan.x, py: pan.y, dist0: 0, z0: zoom, pinching: false };
+    }
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0]!.clientX - e.touches[1]!.clientX;
+      const dy = e.touches[0]!.clientY - e.touches[1]!.clientY;
+      const dist = Math.hypot(dx, dy);
+      const nz = Math.min(6, Math.max(1, touch.current.z0 * (dist / touch.current.dist0)));
+      setZoom(nz);
+      if (nz === 1) setPan({ x: 0, y: 0 });
+    } else if (!touch.current.pinching && zoom > 1) {
+      const np = clamp(touch.current.px + e.touches[0]!.clientX - touch.current.x0, touch.current.py + e.touches[0]!.clientY - touch.current.y0, zoom);
+      setPan(np);
+    }
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touch.current.pinching) { touch.current.pinching = false; return; }
+    if (zoom > 1) return; // don't swipe while zoomed
+    const dx = (e.changedTouches[0]?.clientX ?? 0) - touch.current.x0;
+    if (Math.abs(dx) > 50) dx < 0 ? goNext() : goPrev();
+  };
+
+  const url = urls[idx] ?? "";
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex flex-col"
+      style={{ background: "rgba(0,0,0,0.97)" }}
+    >
+      {/* Top bar */}
+      <div
+        className="flex items-center justify-between px-4 py-3 flex-shrink-0"
+        style={{ background: "rgba(0,0,0,0.5)" }}
+      >
+        <span className="text-xs" style={{ color: "#64748b" }}>
+          {count > 1 ? `${idx + 1} / ${count}` : "Preview"}
+        </span>
+        <button
+          onClick={onClose}
+          className="w-8 h-8 rounded-full flex items-center justify-center"
+          style={{ background: "#1e1e35", color: "#64748b" }}
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Image area */}
+      <div
+        className="flex-1 relative flex items-center justify-center overflow-hidden"
+        style={{ userSelect: "none", touchAction: "none" }}
+        onWheel={onWheel}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        <img
+          ref={imgRef}
+          src={url}
+          alt=""
+          draggable={false}
+          className="max-w-full max-h-full object-contain select-none"
+          style={{
+            maxHeight: "calc(100vh - 110px)",
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: "center",
+            transition: drag.current.active ? "none" : "transform 0.15s ease",
+            cursor: zoom > 1 ? "grab" : "default",
+          }}
+          onDoubleClick={resetView}
+        />
+
+        {/* Nav arrows */}
+        {count > 1 && zoom === 1 && (
+          <>
+            <button onClick={goPrev}
+              className="absolute left-3 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ background: "rgba(255,255,255,0.08)", color: "#fff" }}>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button onClick={goNext}
+              className="absolute right-3 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ background: "rgba(255,255,255,0.08)", color: "#fff" }}>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
+
+        {/* Zoom hint */}
+        {zoom > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs px-2.5 py-1 rounded-full pointer-events-none"
+            style={{ background: "rgba(0,0,0,0.65)", color: "#94a3b8" }}>
+            {Math.round(zoom * 10) / 10}× · doble toque para restablecer
+          </div>
+        )}
+      </div>
+
+      {/* Dot strip */}
+      {count > 1 && (
+        <div className="flex-shrink-0 flex justify-center gap-1.5 pb-4 pt-2">
+          {count <= 12 ? Array.from({ length: count }).map((_, i) => (
+            <button key={i} onClick={() => { resetView(); setIdx(i); }}
+              className="rounded-full transition-all"
+              style={{ width: i === idx ? 16 : 6, height: 6, background: i === idx ? "#f59e0b" : "rgba(255,255,255,0.25)" }} />
+          )) : (
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{idx + 1} / {count}</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Preview Slider ───────────────────────────────────────────────────────────
 
@@ -21,29 +225,24 @@ function PreviewSlider({
 }) {
   const [idx, setIdx] = useState(0);
   const [touchX, setTouchX] = useState<number | null>(null);
-  // pauseUntil is a ref — synchronous, no React batching delay, no race with interval
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const pauseUntil = useRef(0);
   const count = urls.length;
 
-  // Single stable interval; skips ticks while paused
   useEffect(() => {
     if (count <= 1) return;
     const t = setInterval(() => {
-      if (Date.now() >= pauseUntil.current) {
-        setIdx((i) => (i + 1) % count);
-      }
+      if (Date.now() >= pauseUntil.current) setIdx((i) => (i + 1) % count);
     }, 3500);
     return () => clearInterval(t);
   }, [count]);
 
   const interact = () => { pauseUntil.current = Date.now() + 5000; };
-
   const goPrev = () => { interact(); setIdx((i) => (i - 1 + count) % count); };
   const goNext = () => { interact(); setIdx((i) => (i + 1) % count); };
   const goTo   = (i: number) => { interact(); setIdx(i); };
 
-  const handleTouchStart = (e: React.TouchEvent) =>
-    setTouchX(e.touches[0]!.clientX);
+  const handleTouchStart = (e: React.TouchEvent) => setTouchX(e.touches[0]!.clientX);
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchX === null) return;
     const diff = touchX - e.changedTouches[0]!.clientX;
@@ -63,107 +262,90 @@ function PreviewSlider({
   }
 
   return (
-    <div
-      className="relative overflow-hidden select-none"
-      style={{ height: "220px" }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Slides — stacked absolutely, crossfade */}
-      {urls.map((url, i) => (
-        <div
-          key={i}
-          className="absolute inset-0"
-          style={{
-            opacity: i === idx ? 1 : 0,
-            transition: "opacity 0.45s ease",
-            pointerEvents: i === idx ? "auto" : "none",
-          }}
-        >
-          <img
-            src={url}
-            alt=""
-            className={`w-full h-full object-cover ${
-              ""
-            }`}
-            draggable={false}
-          />
-        </div>
-      ))}
-
-      {/* Prev / next arrows — only when multiple slides */}
-      {count > 1 && (
-        <>
-          <button
-            onClick={goPrev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
-            style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={goNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
-            style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </>
-      )}
-
-      {/* Bottom strip: lock info + dots */}
+    <>
       <div
-        className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-2.5"
-        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)" }}
+        className="relative overflow-hidden select-none"
+        style={{ height: "220px" }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Left: lock badge for private */}
-        {isPrivate ? (
-          <div className="flex items-center gap-1.5">
-            <div
-              className="w-6 h-6 rounded-full flex items-center justify-center"
-              style={{ background: "#f59e0b1a", border: "1px solid #f59e0b40" }}
-            >
-              <svg className="w-3 h-3" style={{ color: "#f59e0b" }} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <span className="text-xs font-medium" style={{ color: "#fbbf24" }}>
-              {photoCount} foto{photoCount !== 1 ? "s" : ""}
-            </span>
+        {/* Slides */}
+        {urls.map((url, i) => (
+          <div key={i} className="absolute inset-0"
+            style={{ opacity: i === idx ? 1 : 0, transition: "opacity 0.45s ease", pointerEvents: i === idx ? "auto" : "none" }}>
+            <img src={url} alt="" className="w-full h-full object-cover" draggable={false} />
           </div>
-        ) : (
-          <div />
+        ))}
+
+        {/* Expand button — top right */}
+        <button
+          onClick={() => setLightboxOpen(true)}
+          className="absolute top-2 right-2 w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110 z-10"
+          style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
+          title="Ver en pantalla completa"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+          </svg>
+        </button>
+
+        {/* Prev / next arrows */}
+        {count > 1 && (
+          <>
+            <button onClick={goPrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button onClick={goNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
         )}
 
-        {/* Right: dot indicators */}
-        {count > 1 && (
-          <div className="flex items-center gap-1">
-            {count <= 10 ? (
-              Array.from({ length: count }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => goTo(i)}
-                  className="rounded-full transition-all"
-                  style={{
-                    width: i === idx ? "16px" : "6px",
-                    height: "6px",
-                    background: i === idx ? "#f59e0b" : "rgba(255,255,255,0.35)",
-                  }}
-                />
-              ))
-            ) : (
-              <span className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
-                {idx + 1} / {count}
+        {/* Bottom strip */}
+        <div
+          className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-2.5"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)" }}
+        >
+          {isPrivate ? (
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center"
+                style={{ background: "#f59e0b1a", border: "1px solid #f59e0b40" }}>
+                <svg className="w-3 h-3" style={{ color: "#f59e0b" }} fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <span className="text-xs font-medium" style={{ color: "#fbbf24" }}>
+                {photoCount} foto{photoCount !== 1 ? "s" : ""}
               </span>
-            )}
-          </div>
-        )}
+            </div>
+          ) : <div />}
+
+          {count > 1 && (
+            <div className="flex items-center gap-1">
+              {count <= 10 ? Array.from({ length: count }).map((_, i) => (
+                <button key={i} onClick={() => goTo(i)}
+                  className="rounded-full transition-all"
+                  style={{ width: i === idx ? "16px" : "6px", height: "6px", background: i === idx ? "#f59e0b" : "rgba(255,255,255,0.35)" }} />
+              )) : (
+                <span className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>{idx + 1} / {count}</span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {lightboxOpen && (
+        <PreviewLightbox urls={urls} startIdx={idx} onClose={() => setLightboxOpen(false)} />
+      )}
+    </>
   );
 }
 
