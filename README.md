@@ -9,8 +9,10 @@ A full-stack platform for sports photographers to sell race and event photos. Ru
 **Public storefront**
 - Browse event collections with cover images and descriptions
 - Search folders by bib/dorsal number with live filtering
-- Blurred preview images for private folders, clear previews for public ones
-- Modal flow: preview → buy via MercadoPago → access with email token
+- Sort folders by bib number (ascending/descending) or most recent
+- Folder card grid with 4-photo preview thumbnails; watermarked previews for private folders, clear previews for public ones
+- Modal flow: auto-sliding preview carousel → buy via MercadoPago → access with email token
+- Preview carousel supports swipe navigation and a full-screen lightbox with zoom (scroll/pinch) and pan (drag/touch)
 
 **Photo gallery (`/descarga/[token]`)**
 - Full-resolution photo grid, paginated (24 at a time)
@@ -22,11 +24,18 @@ A full-stack platform for sports photographers to sell race and event photos. Ru
 
 **Admin panel (`/admin`)**
 - Dashboard with sales stats and recent purchases
-- Collections: create, edit, publish/draft toggle, delete
-- Folders: create individually or via bulk import, publish toggle, public/private toggle
-- Photos: upload with per-file progress feed, bulk delete, storage usage bar
+- Collections: create, edit, cover image upload, publish/draft toggle, delete
+- Folders: create individually or via bulk import, sort filter, publish toggle, public/private toggle
+- Photos: upload with per-file progress feed, bulk delete, storage usage bar, HEIC/HEIF cleanup
+- Preview system: mark photos as previews; watermarked versions are auto-generated and shown in the public carousel
 - Bulk folder upload: select parent event folder → auto-detects numeric subfolders → uploads all with progress
 - Sales table: paginated, status filter, manual approval, copy download link
+
+**Watermark & preview system (`/admin/configuracion`)**
+- Upload a custom watermark image (PNG/SVG with transparency)
+- Watermarked previews are generated server-side and stored alongside originals in Supabase
+- Preview freshness tracking: detects which previews are stale after a watermark update
+- One-click "Regenerate all previews" button with live progress
 
 ---
 
@@ -69,27 +78,34 @@ src/
 │   │   │   │       └── carpetas/
 │   │   │   │           ├── nueva/page.tsx
 │   │   │   │           └── [folderId]/page.tsx
-│   │   │   └── ventas/page.tsx           # Sales table
+│   │   │   ├── ventas/page.tsx           # Sales table
+│   │   │   └── configuracion/page.tsx   # Watermark settings
 │   ├── api/
 │   │   ├── auth/[...nextauth]/           # NextAuth handler
 │   │   ├── trpc/[trpc]/                  # tRPC handler
 │   │   ├── uploads/sign/                 # Supabase signed URL generation
+│   │   ├── watermark/                    # Watermark image generation (server-side)
+│   │   ├── watermark-settings/           # GET/POST active watermark image
 │   │   └── webhooks/mercadopago/         # Payment webhook
 │   └── _components/
-│       ├── FolderBrowser.tsx             # Collection folder grid with search
-│       ├── FolderModal.tsx               # Purchase/access modal
-│       ├── PhotoGallery.tsx              # Full gallery with lightbox
+│       ├── FolderBrowser.tsx             # Collection folder grid with search + sort
+│       ├── FolderModal.tsx               # Preview carousel + lightbox + purchase modal
+│       ├── PhotoGallery.tsx              # Full gallery with lightbox + thumbnail strip
 │       └── admin/
 │           ├── BulkFolderCreate.tsx      # Bulk folder import modal
 │           ├── CollectionActions.tsx     # Publish toggle + delete
 │           ├── ConfirmModal.tsx          # Reusable confirm dialog
+│           ├── CoverUploader.tsx         # Collection cover image upload
 │           ├── EditCollectionForm.tsx    # Collection create/edit form
 │           ├── FolderActions.tsx         # Publish/public toggles + delete
-│           ├── PhotoManager.tsx          # Photo grid with bulk delete
+│           ├── FolderList.tsx            # Admin folder list with sort
+│           ├── HeicCleanupButton.tsx     # Remove HEIC/HEIF photos from storage
+│           ├── PhotoManager.tsx          # Photo grid with preview toggle + bulk delete
 │           ├── PhotoUploader.tsx         # Upload with live progress feed
 │           ├── PublishToggle.tsx         # Animated publish switch
 │           ├── SalesTable.tsx            # Purchases table
-│           └── StorageBar.tsx            # Storage usage indicator
+│           ├── StorageBar.tsx            # Storage usage indicator
+│           └── WatermarkSettings.tsx     # Watermark upload + preview regeneration
 ├── server/
 │   ├── api/
 │   │   ├── root.ts                       # App router (collection, folder, photo, purchase)
@@ -124,6 +140,8 @@ model Collection {
   coverUrl    String?
   slug        String   @unique
   isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   folders     Folder[]
 }
 
@@ -134,6 +152,8 @@ model Folder {
   price        Decimal  @db.Decimal(10, 2)
   isPublished  Boolean  @default(false)
   isPublic     Boolean  @default(false)      // true = no paywall
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   collection   Collection @relation(...)
   photos       Photo[]
   purchases    Purchase[]
@@ -141,14 +161,18 @@ model Folder {
 }
 
 model Photo {
-  id         String   @id @default(cuid())
-  folderId   String
-  storageKey String                          // Supabase storage path
-  filename   String
-  fileSize   Int?                            // bytes, used for storage bar
-  width      Int?
-  height     Int?
-  order      Int      @default(0)
+  id                 String    @id @default(cuid())
+  folderId           String
+  storageKey         String                       // Supabase storage path
+  filename           String
+  fileSize           Int?                         // bytes, used for storage bar
+  width              Int?
+  height             Int?
+  order              Int       @default(0)
+  isPreview          Boolean   @default(false)    // shown in public preview carousel
+  previewKey         String?                      // storage key of watermarked copy
+  previewGeneratedAt DateTime?                    // used for freshness check
+  createdAt          DateTime  @default(now())
 }
 
 model Purchase {
@@ -161,9 +185,12 @@ model Purchase {
   status                  PurchaseStatus @default(PENDING)
   mercadopagoPreferenceId String?
   mercadopagoPaymentId    String?
+  mercadopagoOrderId      String?
   downloadToken           String?        @unique
   downloadTokenExpires    DateTime?
   isPublic                Boolean        @default(false)  // permanent share
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
 }
 
 enum PurchaseStatus { PENDING APPROVED REJECTED REFUNDED }
@@ -182,6 +209,15 @@ Generates a Supabase signed upload URL. Requires admin session.
 // Response
 { "signedUrl": "https://..." }
 ```
+
+### `GET /api/watermark-settings`
+Returns a signed URL for the active watermark image (`watermarks/active.png`), or `{ "url": null }` if none exists.
+
+### `POST /api/watermark-settings`
+Uploads a new watermark image (multipart form, field `file`). Replaces the existing one. Requires admin session.
+
+### `POST /api/watermark`
+Generates a watermarked copy of a photo and saves it to Supabase. Called internally when regenerating previews. Requires admin session.
 
 ### `POST /api/webhooks/mercadopago`
 Receives payment status notifications from MercadoPago. On approval:
@@ -212,7 +248,7 @@ NextAuth handler. Credentials provider validates email + bcrypt password hash.
 | Procedure | Access | Description |
 |---|---|---|
 | `listByCollection` | public | Published folders with preview URLs |
-| `getPreview` | public | 4-photo preview + metadata for modal |
+| `getPreview` | public | Preview URLs + metadata for modal |
 | `adminGetById` | protected | Folder with all photos and purchases |
 | `create` | protected | New folder |
 | `update` | protected | Edit fields |
@@ -226,8 +262,11 @@ NextAuth handler. Credentials provider validates email + bcrypt password hash.
 |---|---|---|
 | `bulkAdd` | protected | Add photos after upload |
 | `getStorageUsage` | protected | Sum of `fileSize`, returns used/limit |
-| `delete` | protected | Remove from DB + Supabase storage |
+| `setPreview` | protected | Toggle `isPreview` flag; removes watermarked file when turning off |
+| `previewStatus` | protected | Count of stale/fresh previews relative to watermark update time |
+| `delete` | protected | Remove from DB + Supabase storage (incl. watermarked copy) |
 | `bulkDelete` | protected | Remove batch from DB + storage |
+| `cleanupHeic` | protected | Delete all HEIC/HEIF photos from DB + storage |
 
 ### `purchase`
 | Procedure | Access | Description |
@@ -254,7 +293,7 @@ AUTH_SECRET=...                      # NextAuth secret (required in production)
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...        # Required for signed upload URLs
+SUPABASE_SERVICE_ROLE_KEY=...        # Required for signed upload URLs and watermarking
 
 # MercadoPago
 MERCADOPAGO_ACCESS_TOKEN=...
@@ -273,6 +312,12 @@ ADMIN_PASSWORD=...
 
 ## Key Design Decisions
 
+**Watermark-based preview protection** — Private folder previews are shown without blur; instead a configurable watermark is composited onto a dedicated copy of each preview photo (`previewKey`). When `isPublic = true`, the original (unwatermarked) preview URLs are used directly.
+
+**Preview freshness tracking** — Each `Photo` row stores `previewGeneratedAt`. The watermark settings page compares this against the `updated_at` timestamp of `watermarks/active.png` in Supabase storage to detect which previews are stale and need regeneration.
+
+**Auto-sliding preview carousel** — `FolderModal` shows a crossfading slideshow of up to 4 preview photos with manual prev/next controls and dot navigation. A fullscreen lightbox with mouse/wheel zoom, drag-to-pan, touch pinch-zoom, and swipe navigation is available via the expand button.
+
 **Supabase admin client isolation** — `src/lib/supabase/admin.ts` uses `@supabase/supabase-js` directly with the service role key (not `@supabase/ssr` which requires `next/headers`). This allows it to be called from tRPC server procedures without conflicts.
 
 **Signed URLs for private storage** — All photos are in a private Supabase bucket. `createSignedUrl()` generates temporary access URLs (1 hour). If the `storageKey` starts with `http`, it is treated as a direct URL (for dev/seed data) and returned as-is.
@@ -282,6 +327,8 @@ ADMIN_PASSWORD=...
 **Download token expiry** — Paid (non-public) purchases get a `downloadToken` that expires 72 hours after approval. Public purchases never expire (`downloadTokenExpires` is null, `isPublic` is true).
 
 **Bulk folder upload** — Uses `<input webkitdirectory>` to read an entire folder tree in the browser. `webkitRelativePath` on each file gives the full path (e.g. `maraton/42/foto.jpg`), from which numeric folder names are extracted and grouped automatically.
+
+**HEIC blocking** — The uploader rejects `.heic`/`.heif` files before they reach Supabase. The admin panel includes a cleanup button (`cleanupHeic` mutation) to remove any HEIC files that entered storage before the block was in place.
 
 **Photo downloads** — Uses `fetch()` + `URL.createObjectURL()` instead of `<a download>` because the cross-origin `download` attribute is blocked by browsers on Supabase-hosted images.
 
