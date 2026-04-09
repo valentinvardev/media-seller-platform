@@ -164,6 +164,8 @@ exports.Prisma.CollectionScalarFieldEnum = {
   title: 'title',
   description: 'description',
   coverUrl: 'coverUrl',
+  logoUrl: 'logoUrl',
+  bannerUrl: 'bannerUrl',
   slug: 'slug',
   isPublished: 'isPublished',
   createdAt: 'createdAt',
@@ -192,6 +194,7 @@ exports.Prisma.PhotoScalarFieldEnum = {
   order: 'order',
   isPreview: 'isPreview',
   previewKey: 'previewKey',
+  previewGeneratedAt: 'previewGeneratedAt',
   createdAt: 'createdAt'
 };
 
@@ -200,6 +203,8 @@ exports.Prisma.PurchaseScalarFieldEnum = {
   folderId: 'folderId',
   buyerEmail: 'buyerEmail',
   buyerName: 'buyerName',
+  buyerPhone: 'buyerPhone',
+  buyerLastName: 'buyerLastName',
   amountPaid: 'amountPaid',
   currency: 'currency',
   status: 'status',

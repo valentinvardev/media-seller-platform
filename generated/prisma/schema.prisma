@@ -64,6 +64,8 @@ model Collection {
   title       String
   description String?
   coverUrl    String?
+  logoUrl     String?
+  bannerUrl   String?
   slug        String   @unique
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -81,6 +83,7 @@ model Folder {
   collectionId String
   price        Decimal  @db.Decimal(10, 2)
   isPublished  Boolean  @default(false)
+  isPublic     Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -94,19 +97,24 @@ model Folder {
 }
 
 model Photo {
-  id         String   @id @default(cuid())
-  folderId   String
-  storageKey String
-  filename   String
-  width      Int?
-  height     Int?
-  order      Int      @default(0)
-  createdAt  DateTime @default(now())
+  id                 String    @id @default(cuid())
+  folderId           String
+  storageKey         String
+  filename           String
+  fileSize           Int?
+  width              Int?
+  height             Int?
+  order              Int       @default(0)
+  isPreview          Boolean   @default(false)
+  previewKey         String?
+  previewGeneratedAt DateTime?
+  createdAt          DateTime  @default(now())
 
   folder Folder @relation(fields: [folderId], references: [id], onDelete: Cascade)
 
   @@index([folderId])
   @@index([folderId, order])
+  @@index([folderId, isPreview])
 }
 
 model Purchase {
@@ -114,6 +122,8 @@ model Purchase {
   folderId                String
   buyerEmail              String
   buyerName               String?
+  buyerPhone              String?
+  buyerLastName           String?
   amountPaid              Decimal        @db.Decimal(10, 2)
   currency                String         @default("ARS")
   status                  PurchaseStatus @default(PENDING)

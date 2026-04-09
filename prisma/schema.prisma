@@ -64,6 +64,8 @@ model Collection {
     title       String
     description String?
     coverUrl    String?
+    logoUrl     String?
+    bannerUrl   String?
     slug        String   @unique
     isPublished Boolean  @default(false)
     createdAt   DateTime @default(now())
@@ -120,6 +122,8 @@ model Purchase {
     folderId                String
     buyerEmail              String
     buyerName               String?
+    buyerPhone              String?
+    buyerLastName           String?
     amountPaid              Decimal        @db.Decimal(10, 2)
     currency                String         @default("ARS")
     status                  PurchaseStatus @default(PENDING)

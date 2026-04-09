@@ -6,12 +6,15 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-/** Resolve a coverUrl field: sign it if it's a storage key, pass through if it's a full URL. */
-async function resolveCover(url: string | null | undefined): Promise<string | null> {
+/** Resolve a storage key or full URL to a signed/public URL. */
+async function resolveUrl(url: string | null | undefined): Promise<string | null> {
   if (!url) return null;
   if (url.startsWith("http")) return url;
   return createSignedUrl(url, 7200);
 }
+
+// Keep old name as alias for backwards compat inside this file
+const resolveCover = resolveUrl;
 
 export const collectionRouter = createTRPCRouter({
   // ─── Public ────────────────────────────────────────────────────────────────
@@ -23,7 +26,12 @@ export const collectionRouter = createTRPCRouter({
       include: { _count: { select: { folders: true } } },
     });
     return Promise.all(
-      cols.map(async (c) => ({ ...c, coverUrl: await resolveCover(c.coverUrl) })),
+      cols.map(async (c) => ({
+        ...c,
+        coverUrl: await resolveCover(c.coverUrl),
+        logoUrl: await resolveUrl(c.logoUrl),
+        bannerUrl: await resolveUrl(c.bannerUrl),
+      })),
     );
   }),
 
@@ -35,7 +43,12 @@ export const collectionRouter = createTRPCRouter({
         include: { _count: { select: { folders: true } } },
       });
       if (!col) return null;
-      return { ...col, coverUrl: await resolveCover(col.coverUrl) };
+      return {
+        ...col,
+        coverUrl: await resolveCover(col.coverUrl),
+        logoUrl: await resolveUrl(col.logoUrl),
+        bannerUrl: await resolveUrl(col.bannerUrl),
+      };
     }),
 
   // ─── Admin ─────────────────────────────────────────────────────────────────
@@ -46,7 +59,12 @@ export const collectionRouter = createTRPCRouter({
       include: { _count: { select: { folders: true } } },
     });
     return Promise.all(
-      cols.map(async (c) => ({ ...c, coverUrl: await resolveCover(c.coverUrl) })),
+      cols.map(async (c) => ({
+        ...c,
+        coverUrl: await resolveCover(c.coverUrl),
+        logoUrl: await resolveUrl(c.logoUrl),
+        bannerUrl: await resolveUrl(c.bannerUrl),
+      })),
     );
   }),
 
@@ -63,7 +81,12 @@ export const collectionRouter = createTRPCRouter({
         },
       });
       if (!col) return null;
-      return { ...col, coverUrl: await resolveCover(col.coverUrl) };
+      return {
+        ...col,
+        coverUrl: await resolveCover(col.coverUrl),
+        logoUrl: await resolveUrl(col.logoUrl),
+        bannerUrl: await resolveUrl(col.bannerUrl),
+      };
     }),
 
   create: protectedProcedure

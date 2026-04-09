@@ -19,28 +19,65 @@ export const folderRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const folders = await ctx.db.folder.findMany({
-        where: {
-          collectionId: input.collectionId,
-          isPublished: true,
-          ...(input.search
-            ? { number: { contains: input.search, mode: "insensitive" } }
-            : {}),
-        },
+      const baseWhere = { collectionId: input.collectionId, isPublished: true };
+
+      // Collect exact + fuzzy IDs when searching
+      let exactIds: string[] | null = null;
+      let fuzzyIds: string[] | null = null;
+
+      if (input.search && input.search.trim()) {
+        const q = input.search.trim();
+
+        // Exact: number contains the query string
+        const exactFolders = await ctx.db.folder.findMany({
+          where: { ...baseWhere, number: { contains: q, mode: "insensitive" } },
+          select: { id: true },
+        });
+        exactIds = exactFolders.map((f) => f.id);
+
+        // Fuzzy: for 3–4 digit queries, find numbers that differ by exactly 1 digit
+        // (same length, only one digit position differs by at most 1, or one digit transposed)
+        if (/^\d{3,4}$/.test(q)) {
+          const allFolders = await ctx.db.folder.findMany({
+            where: { ...baseWhere, number: { not: { in: exactIds } } },
+            select: { id: true, number: true },
+          });
+
+          const fuzzy: string[] = [];
+          for (const f of allFolders) {
+            const n = f.number.trim();
+            if (n.length !== q.length) continue;
+            // Count differing digit positions
+            let diffs = 0;
+            for (let i = 0; i < q.length; i++) {
+              if (n[i] !== q[i]) diffs++;
+            }
+            if (diffs === 1) fuzzy.push(f.id);
+          }
+          fuzzyIds = fuzzy;
+        }
+      }
+
+      // Fetch folders: if searching, use the id lists; otherwise all
+      const foldersRaw = await ctx.db.folder.findMany({
+        where: exactIds !== null
+          ? { ...baseWhere, id: { in: [...exactIds, ...(fuzzyIds ?? [])] } }
+          : baseWhere,
         orderBy: { number: "asc" },
         include: {
           _count: { select: { photos: true } },
           photos: {
             take: PREVIEW_PHOTO_COUNT,
-            // Previews first, then by order
             orderBy: [{ isPreview: "desc" }, { order: "asc" }],
             select: { storageKey: true, id: true, previewKey: true, isPreview: true },
           },
         },
       });
 
+      const fuzzyIdSet = new Set(fuzzyIds ?? []);
+
       return Promise.all(
-        folders.map(async (folder) => {
+        foldersRaw.map(async (folder) => {
           const hasWatermarkedPreviews = folder.photos.some(
             (p) => p.isPreview && p.previewKey,
           );
@@ -64,6 +101,7 @@ export const folderRouter = createTRPCRouter({
             updatedAt: folder.updatedAt,
             hasWatermarkedPreviews,
             previewUrls: previewUrls.filter(Boolean) as string[],
+            isFuzzy: fuzzyIdSet.has(folder.id),
           };
         }),
       );

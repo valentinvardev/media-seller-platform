@@ -22,6 +22,8 @@ export const purchaseRouter = createTRPCRouter({
         folderId: z.string(),
         buyerEmail: z.string().email(),
         buyerName: z.string().optional(),
+        buyerLastName: z.string().optional(),
+        buyerPhone: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -35,6 +37,8 @@ export const purchaseRouter = createTRPCRouter({
           folderId: input.folderId,
           buyerEmail: input.buyerEmail,
           buyerName: input.buyerName,
+          buyerLastName: input.buyerLastName,
+          buyerPhone: input.buyerPhone,
           amountPaid: folder.price,
         },
       });
@@ -53,6 +57,8 @@ export const purchaseRouter = createTRPCRouter({
           payer: {
             email: input.buyerEmail,
             name: input.buyerName,
+            surname: input.buyerLastName,
+            phone: input.buyerPhone ? { number: input.buyerPhone } : undefined,
           },
           ...(env.NEXT_PUBLIC_BASE_URL && !env.NEXT_PUBLIC_BASE_URL.includes("localhost")
             ? {

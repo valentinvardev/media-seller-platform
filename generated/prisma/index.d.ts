@@ -5967,6 +5967,8 @@ export namespace Prisma {
     title: string | null
     description: string | null
     coverUrl: string | null
+    logoUrl: string | null
+    bannerUrl: string | null
     slug: string | null
     isPublished: boolean | null
     createdAt: Date | null
@@ -5978,6 +5980,8 @@ export namespace Prisma {
     title: string | null
     description: string | null
     coverUrl: string | null
+    logoUrl: string | null
+    bannerUrl: string | null
     slug: string | null
     isPublished: boolean | null
     createdAt: Date | null
@@ -5989,6 +5993,8 @@ export namespace Prisma {
     title: number
     description: number
     coverUrl: number
+    logoUrl: number
+    bannerUrl: number
     slug: number
     isPublished: number
     createdAt: number
@@ -6002,6 +6008,8 @@ export namespace Prisma {
     title?: true
     description?: true
     coverUrl?: true
+    logoUrl?: true
+    bannerUrl?: true
     slug?: true
     isPublished?: true
     createdAt?: true
@@ -6013,6 +6021,8 @@ export namespace Prisma {
     title?: true
     description?: true
     coverUrl?: true
+    logoUrl?: true
+    bannerUrl?: true
     slug?: true
     isPublished?: true
     createdAt?: true
@@ -6024,6 +6034,8 @@ export namespace Prisma {
     title?: true
     description?: true
     coverUrl?: true
+    logoUrl?: true
+    bannerUrl?: true
     slug?: true
     isPublished?: true
     createdAt?: true
@@ -6108,6 +6120,8 @@ export namespace Prisma {
     title: string
     description: string | null
     coverUrl: string | null
+    logoUrl: string | null
+    bannerUrl: string | null
     slug: string
     isPublished: boolean
     createdAt: Date
@@ -6136,6 +6150,8 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     coverUrl?: boolean
+    logoUrl?: boolean
+    bannerUrl?: boolean
     slug?: boolean
     isPublished?: boolean
     createdAt?: boolean
@@ -6149,6 +6165,8 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     coverUrl?: boolean
+    logoUrl?: boolean
+    bannerUrl?: boolean
     slug?: boolean
     isPublished?: boolean
     createdAt?: boolean
@@ -6160,6 +6178,8 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     coverUrl?: boolean
+    logoUrl?: boolean
+    bannerUrl?: boolean
     slug?: boolean
     isPublished?: boolean
     createdAt?: boolean
@@ -6171,13 +6191,15 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     coverUrl?: boolean
+    logoUrl?: boolean
+    bannerUrl?: boolean
     slug?: boolean
     isPublished?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "slug" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "slug" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
   export type CollectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     folders?: boolean | Collection$foldersArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
@@ -6195,6 +6217,8 @@ export namespace Prisma {
       title: string
       description: string | null
       coverUrl: string | null
+      logoUrl: string | null
+      bannerUrl: string | null
       slug: string
       isPublished: boolean
       createdAt: Date
@@ -6627,6 +6651,8 @@ export namespace Prisma {
     readonly title: FieldRef<"Collection", 'String'>
     readonly description: FieldRef<"Collection", 'String'>
     readonly coverUrl: FieldRef<"Collection", 'String'>
+    readonly logoUrl: FieldRef<"Collection", 'String'>
+    readonly bannerUrl: FieldRef<"Collection", 'String'>
     readonly slug: FieldRef<"Collection", 'String'>
     readonly isPublished: FieldRef<"Collection", 'Boolean'>
     readonly createdAt: FieldRef<"Collection", 'DateTime'>
@@ -8287,6 +8313,7 @@ export namespace Prisma {
     order: number | null
     isPreview: boolean | null
     previewKey: string | null
+    previewGeneratedAt: Date | null
     createdAt: Date | null
   }
 
@@ -8301,6 +8328,7 @@ export namespace Prisma {
     order: number | null
     isPreview: boolean | null
     previewKey: string | null
+    previewGeneratedAt: Date | null
     createdAt: Date | null
   }
 
@@ -8315,6 +8343,7 @@ export namespace Prisma {
     order: number
     isPreview: number
     previewKey: number
+    previewGeneratedAt: number
     createdAt: number
     _all: number
   }
@@ -8345,6 +8374,7 @@ export namespace Prisma {
     order?: true
     isPreview?: true
     previewKey?: true
+    previewGeneratedAt?: true
     createdAt?: true
   }
 
@@ -8359,6 +8389,7 @@ export namespace Prisma {
     order?: true
     isPreview?: true
     previewKey?: true
+    previewGeneratedAt?: true
     createdAt?: true
   }
 
@@ -8373,6 +8404,7 @@ export namespace Prisma {
     order?: true
     isPreview?: true
     previewKey?: true
+    previewGeneratedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -8474,6 +8506,7 @@ export namespace Prisma {
     order: number
     isPreview: boolean
     previewKey: string | null
+    previewGeneratedAt: Date | null
     createdAt: Date
     _count: PhotoCountAggregateOutputType | null
     _avg: PhotoAvgAggregateOutputType | null
@@ -8507,6 +8540,7 @@ export namespace Prisma {
     order?: boolean
     isPreview?: boolean
     previewKey?: boolean
+    previewGeneratedAt?: boolean
     createdAt?: boolean
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
@@ -8522,6 +8556,7 @@ export namespace Prisma {
     order?: boolean
     isPreview?: boolean
     previewKey?: boolean
+    previewGeneratedAt?: boolean
     createdAt?: boolean
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
@@ -8537,6 +8572,7 @@ export namespace Prisma {
     order?: boolean
     isPreview?: boolean
     previewKey?: boolean
+    previewGeneratedAt?: boolean
     createdAt?: boolean
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
@@ -8552,10 +8588,11 @@ export namespace Prisma {
     order?: boolean
     isPreview?: boolean
     previewKey?: boolean
+    previewGeneratedAt?: boolean
     createdAt?: boolean
   }
 
-  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "folderId" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "isPreview" | "previewKey" | "createdAt", ExtArgs["result"]["photo"]>
+  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "folderId" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "isPreview" | "previewKey" | "previewGeneratedAt" | "createdAt", ExtArgs["result"]["photo"]>
   export type PhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }
@@ -8582,6 +8619,7 @@ export namespace Prisma {
       order: number
       isPreview: boolean
       previewKey: string | null
+      previewGeneratedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["photo"]>
     composites: {}
@@ -9017,6 +9055,7 @@ export namespace Prisma {
     readonly order: FieldRef<"Photo", 'Int'>
     readonly isPreview: FieldRef<"Photo", 'Boolean'>
     readonly previewKey: FieldRef<"Photo", 'String'>
+    readonly previewGeneratedAt: FieldRef<"Photo", 'DateTime'>
     readonly createdAt: FieldRef<"Photo", 'DateTime'>
   }
     
@@ -9457,6 +9496,8 @@ export namespace Prisma {
     folderId: string | null
     buyerEmail: string | null
     buyerName: string | null
+    buyerPhone: string | null
+    buyerLastName: string | null
     amountPaid: Decimal | null
     currency: string | null
     status: $Enums.PurchaseStatus | null
@@ -9475,6 +9516,8 @@ export namespace Prisma {
     folderId: string | null
     buyerEmail: string | null
     buyerName: string | null
+    buyerPhone: string | null
+    buyerLastName: string | null
     amountPaid: Decimal | null
     currency: string | null
     status: $Enums.PurchaseStatus | null
@@ -9493,6 +9536,8 @@ export namespace Prisma {
     folderId: number
     buyerEmail: number
     buyerName: number
+    buyerPhone: number
+    buyerLastName: number
     amountPaid: number
     currency: number
     status: number
@@ -9521,6 +9566,8 @@ export namespace Prisma {
     folderId?: true
     buyerEmail?: true
     buyerName?: true
+    buyerPhone?: true
+    buyerLastName?: true
     amountPaid?: true
     currency?: true
     status?: true
@@ -9539,6 +9586,8 @@ export namespace Prisma {
     folderId?: true
     buyerEmail?: true
     buyerName?: true
+    buyerPhone?: true
+    buyerLastName?: true
     amountPaid?: true
     currency?: true
     status?: true
@@ -9557,6 +9606,8 @@ export namespace Prisma {
     folderId?: true
     buyerEmail?: true
     buyerName?: true
+    buyerPhone?: true
+    buyerLastName?: true
     amountPaid?: true
     currency?: true
     status?: true
@@ -9662,6 +9713,8 @@ export namespace Prisma {
     folderId: string
     buyerEmail: string
     buyerName: string | null
+    buyerPhone: string | null
+    buyerLastName: string | null
     amountPaid: Decimal
     currency: string
     status: $Enums.PurchaseStatus
@@ -9699,6 +9752,8 @@ export namespace Prisma {
     folderId?: boolean
     buyerEmail?: boolean
     buyerName?: boolean
+    buyerPhone?: boolean
+    buyerLastName?: boolean
     amountPaid?: boolean
     currency?: boolean
     status?: boolean
@@ -9718,6 +9773,8 @@ export namespace Prisma {
     folderId?: boolean
     buyerEmail?: boolean
     buyerName?: boolean
+    buyerPhone?: boolean
+    buyerLastName?: boolean
     amountPaid?: boolean
     currency?: boolean
     status?: boolean
@@ -9737,6 +9794,8 @@ export namespace Prisma {
     folderId?: boolean
     buyerEmail?: boolean
     buyerName?: boolean
+    buyerPhone?: boolean
+    buyerLastName?: boolean
     amountPaid?: boolean
     currency?: boolean
     status?: boolean
@@ -9756,6 +9815,8 @@ export namespace Prisma {
     folderId?: boolean
     buyerEmail?: boolean
     buyerName?: boolean
+    buyerPhone?: boolean
+    buyerLastName?: boolean
     amountPaid?: boolean
     currency?: boolean
     status?: boolean
@@ -9769,7 +9830,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PurchaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "folderId" | "buyerEmail" | "buyerName" | "amountPaid" | "currency" | "status" | "mercadopagoPreferenceId" | "mercadopagoPaymentId" | "mercadopagoOrderId" | "downloadToken" | "downloadTokenExpires" | "isPublic" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
+  export type PurchaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "folderId" | "buyerEmail" | "buyerName" | "buyerPhone" | "buyerLastName" | "amountPaid" | "currency" | "status" | "mercadopagoPreferenceId" | "mercadopagoPaymentId" | "mercadopagoOrderId" | "downloadToken" | "downloadTokenExpires" | "isPublic" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
   export type PurchaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     folder?: boolean | FolderDefaultArgs<ExtArgs>
   }
@@ -9790,6 +9851,8 @@ export namespace Prisma {
       folderId: string
       buyerEmail: string
       buyerName: string | null
+      buyerPhone: string | null
+      buyerLastName: string | null
       amountPaid: Prisma.Decimal
       currency: string
       status: $Enums.PurchaseStatus
@@ -10229,6 +10292,8 @@ export namespace Prisma {
     readonly folderId: FieldRef<"Purchase", 'String'>
     readonly buyerEmail: FieldRef<"Purchase", 'String'>
     readonly buyerName: FieldRef<"Purchase", 'String'>
+    readonly buyerPhone: FieldRef<"Purchase", 'String'>
+    readonly buyerLastName: FieldRef<"Purchase", 'String'>
     readonly amountPaid: FieldRef<"Purchase", 'Decimal'>
     readonly currency: FieldRef<"Purchase", 'String'>
     readonly status: FieldRef<"Purchase", 'PurchaseStatus'>
@@ -10723,6 +10788,8 @@ export namespace Prisma {
     title: 'title',
     description: 'description',
     coverUrl: 'coverUrl',
+    logoUrl: 'logoUrl',
+    bannerUrl: 'bannerUrl',
     slug: 'slug',
     isPublished: 'isPublished',
     createdAt: 'createdAt',
@@ -10757,6 +10824,7 @@ export namespace Prisma {
     order: 'order',
     isPreview: 'isPreview',
     previewKey: 'previewKey',
+    previewGeneratedAt: 'previewGeneratedAt',
     createdAt: 'createdAt'
   };
 
@@ -10768,6 +10836,8 @@ export namespace Prisma {
     folderId: 'folderId',
     buyerEmail: 'buyerEmail',
     buyerName: 'buyerName',
+    buyerPhone: 'buyerPhone',
+    buyerLastName: 'buyerLastName',
     amountPaid: 'amountPaid',
     currency: 'currency',
     status: 'status',
@@ -11169,6 +11239,8 @@ export namespace Prisma {
     title?: StringFilter<"Collection"> | string
     description?: StringNullableFilter<"Collection"> | string | null
     coverUrl?: StringNullableFilter<"Collection"> | string | null
+    logoUrl?: StringNullableFilter<"Collection"> | string | null
+    bannerUrl?: StringNullableFilter<"Collection"> | string | null
     slug?: StringFilter<"Collection"> | string
     isPublished?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
@@ -11181,6 +11253,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     coverUrl?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    bannerUrl?: SortOrderInput | SortOrder
     slug?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -11197,6 +11271,8 @@ export namespace Prisma {
     title?: StringFilter<"Collection"> | string
     description?: StringNullableFilter<"Collection"> | string | null
     coverUrl?: StringNullableFilter<"Collection"> | string | null
+    logoUrl?: StringNullableFilter<"Collection"> | string | null
+    bannerUrl?: StringNullableFilter<"Collection"> | string | null
     isPublished?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
@@ -11208,6 +11284,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     coverUrl?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    bannerUrl?: SortOrderInput | SortOrder
     slug?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -11225,6 +11303,8 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Collection"> | string
     description?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     coverUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
+    logoUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
+    bannerUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     slug?: StringWithAggregatesFilter<"Collection"> | string
     isPublished?: BoolWithAggregatesFilter<"Collection"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
@@ -11324,6 +11404,7 @@ export namespace Prisma {
     order?: IntFilter<"Photo"> | number
     isPreview?: BoolFilter<"Photo"> | boolean
     previewKey?: StringNullableFilter<"Photo"> | string | null
+    previewGeneratedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     folder?: XOR<FolderScalarRelationFilter, FolderWhereInput>
   }
@@ -11339,6 +11420,7 @@ export namespace Prisma {
     order?: SortOrder
     isPreview?: SortOrder
     previewKey?: SortOrderInput | SortOrder
+    previewGeneratedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     folder?: FolderOrderByWithRelationInput
   }
@@ -11357,6 +11439,7 @@ export namespace Prisma {
     order?: IntFilter<"Photo"> | number
     isPreview?: BoolFilter<"Photo"> | boolean
     previewKey?: StringNullableFilter<"Photo"> | string | null
+    previewGeneratedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     folder?: XOR<FolderScalarRelationFilter, FolderWhereInput>
   }, "id">
@@ -11372,6 +11455,7 @@ export namespace Prisma {
     order?: SortOrder
     isPreview?: SortOrder
     previewKey?: SortOrderInput | SortOrder
+    previewGeneratedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: PhotoCountOrderByAggregateInput
     _avg?: PhotoAvgOrderByAggregateInput
@@ -11394,6 +11478,7 @@ export namespace Prisma {
     order?: IntWithAggregatesFilter<"Photo"> | number
     isPreview?: BoolWithAggregatesFilter<"Photo"> | boolean
     previewKey?: StringNullableWithAggregatesFilter<"Photo"> | string | null
+    previewGeneratedAt?: DateTimeNullableWithAggregatesFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Photo"> | Date | string
   }
 
@@ -11405,6 +11490,8 @@ export namespace Prisma {
     folderId?: StringFilter<"Purchase"> | string
     buyerEmail?: StringFilter<"Purchase"> | string
     buyerName?: StringNullableFilter<"Purchase"> | string | null
+    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
+    buyerLastName?: StringNullableFilter<"Purchase"> | string | null
     amountPaid?: DecimalFilter<"Purchase"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Purchase"> | string
     status?: EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
@@ -11424,6 +11511,8 @@ export namespace Prisma {
     folderId?: SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrderInput | SortOrder
+    buyerPhone?: SortOrderInput | SortOrder
+    buyerLastName?: SortOrderInput | SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -11447,6 +11536,8 @@ export namespace Prisma {
     folderId?: StringFilter<"Purchase"> | string
     buyerEmail?: StringFilter<"Purchase"> | string
     buyerName?: StringNullableFilter<"Purchase"> | string | null
+    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
+    buyerLastName?: StringNullableFilter<"Purchase"> | string | null
     amountPaid?: DecimalFilter<"Purchase"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Purchase"> | string
     status?: EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
@@ -11465,6 +11556,8 @@ export namespace Prisma {
     folderId?: SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrderInput | SortOrder
+    buyerPhone?: SortOrderInput | SortOrder
+    buyerLastName?: SortOrderInput | SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -11491,6 +11584,8 @@ export namespace Prisma {
     folderId?: StringWithAggregatesFilter<"Purchase"> | string
     buyerEmail?: StringWithAggregatesFilter<"Purchase"> | string
     buyerName?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
+    buyerPhone?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
+    buyerLastName?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
     amountPaid?: DecimalWithAggregatesFilter<"Purchase"> | Decimal | DecimalJsLike | number | string
     currency?: StringWithAggregatesFilter<"Purchase"> | string
     status?: EnumPurchaseStatusWithAggregatesFilter<"Purchase"> | $Enums.PurchaseStatus
@@ -11781,6 +11876,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
     slug: string
     isPublished?: boolean
     createdAt?: Date | string
@@ -11793,6 +11890,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
     slug: string
     isPublished?: boolean
     createdAt?: Date | string
@@ -11805,6 +11904,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11817,6 +11918,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11829,6 +11932,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
     slug: string
     isPublished?: boolean
     createdAt?: Date | string
@@ -11840,6 +11945,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11851,6 +11958,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11951,6 +12060,7 @@ export namespace Prisma {
     order?: number
     isPreview?: boolean
     previewKey?: string | null
+    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
     folder: FolderCreateNestedOneWithoutPhotosInput
   }
@@ -11966,6 +12076,7 @@ export namespace Prisma {
     order?: number
     isPreview?: boolean
     previewKey?: string | null
+    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -11979,6 +12090,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     folder?: FolderUpdateOneRequiredWithoutPhotosNestedInput
   }
@@ -11994,6 +12106,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12008,6 +12121,7 @@ export namespace Prisma {
     order?: number
     isPreview?: boolean
     previewKey?: string | null
+    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -12021,6 +12135,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12035,6 +12150,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12042,6 +12158,8 @@ export namespace Prisma {
     id?: string
     buyerEmail: string
     buyerName?: string | null
+    buyerPhone?: string | null
+    buyerLastName?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -12061,6 +12179,8 @@ export namespace Prisma {
     folderId: string
     buyerEmail: string
     buyerName?: string | null
+    buyerPhone?: string | null
+    buyerLastName?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -12078,6 +12198,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -12097,6 +12219,8 @@ export namespace Prisma {
     folderId?: StringFieldUpdateOperationsInput | string
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -12115,6 +12239,8 @@ export namespace Prisma {
     folderId: string
     buyerEmail: string
     buyerName?: string | null
+    buyerPhone?: string | null
+    buyerLastName?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -12132,6 +12258,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -12150,6 +12278,8 @@ export namespace Prisma {
     folderId?: StringFieldUpdateOperationsInput | string
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -12490,6 +12620,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     coverUrl?: SortOrder
+    logoUrl?: SortOrder
+    bannerUrl?: SortOrder
     slug?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -12501,6 +12633,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     coverUrl?: SortOrder
+    logoUrl?: SortOrder
+    bannerUrl?: SortOrder
     slug?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -12512,6 +12646,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     coverUrl?: SortOrder
+    logoUrl?: SortOrder
+    bannerUrl?: SortOrder
     slug?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -12651,6 +12787,7 @@ export namespace Prisma {
     order?: SortOrder
     isPreview?: SortOrder
     previewKey?: SortOrder
+    previewGeneratedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12672,6 +12809,7 @@ export namespace Prisma {
     order?: SortOrder
     isPreview?: SortOrder
     previewKey?: SortOrder
+    previewGeneratedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12686,6 +12824,7 @@ export namespace Prisma {
     order?: SortOrder
     isPreview?: SortOrder
     previewKey?: SortOrder
+    previewGeneratedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12724,6 +12863,8 @@ export namespace Prisma {
     folderId?: SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrder
+    buyerPhone?: SortOrder
+    buyerLastName?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -12746,6 +12887,8 @@ export namespace Prisma {
     folderId?: SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrder
+    buyerPhone?: SortOrder
+    buyerLastName?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -12764,6 +12907,8 @@ export namespace Prisma {
     folderId?: SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrder
+    buyerPhone?: SortOrder
+    buyerLastName?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -13668,6 +13813,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
     slug: string
     isPublished?: boolean
     createdAt?: Date | string
@@ -13679,6 +13826,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
     slug: string
     isPublished?: boolean
     createdAt?: Date | string
@@ -13700,6 +13849,7 @@ export namespace Prisma {
     order?: number
     isPreview?: boolean
     previewKey?: string | null
+    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -13713,6 +13863,7 @@ export namespace Prisma {
     order?: number
     isPreview?: boolean
     previewKey?: string | null
+    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -13730,6 +13881,8 @@ export namespace Prisma {
     id?: string
     buyerEmail: string
     buyerName?: string | null
+    buyerPhone?: string | null
+    buyerLastName?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -13747,6 +13900,8 @@ export namespace Prisma {
     id?: string
     buyerEmail: string
     buyerName?: string | null
+    buyerPhone?: string | null
+    buyerLastName?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -13786,6 +13941,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13797,6 +13954,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13833,6 +13992,7 @@ export namespace Prisma {
     order?: IntFilter<"Photo"> | number
     isPreview?: BoolFilter<"Photo"> | boolean
     previewKey?: StringNullableFilter<"Photo"> | string | null
+    previewGeneratedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
   }
 
@@ -13860,6 +14020,8 @@ export namespace Prisma {
     folderId?: StringFilter<"Purchase"> | string
     buyerEmail?: StringFilter<"Purchase"> | string
     buyerName?: StringNullableFilter<"Purchase"> | string | null
+    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
+    buyerLastName?: StringNullableFilter<"Purchase"> | string | null
     amountPaid?: DecimalFilter<"Purchase"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Purchase"> | string
     status?: EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
@@ -14139,6 +14301,7 @@ export namespace Prisma {
     order?: number
     isPreview?: boolean
     previewKey?: string | null
+    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -14146,6 +14309,8 @@ export namespace Prisma {
     id?: string
     buyerEmail: string
     buyerName?: string | null
+    buyerPhone?: string | null
+    buyerLastName?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -14169,6 +14334,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14182,6 +14348,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14195,6 +14362,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14202,6 +14370,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -14219,6 +14389,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -14236,6 +14408,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
