@@ -1,18 +1,111 @@
 import { z } from "zod";
-import { getAdminClient } from "~/lib/supabase/admin";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { getAdminClient, createSignedUrl } from "~/lib/supabase/admin";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 const STORAGE_LIMIT_BYTES = 100 * 1024 * 1024 * 1024; // 100 GB
 
 export const photoRouter = createTRPCRouter({
+  // ─── Public ────────────────────────────────────────────────────────────────
+
+  /**
+   * Search photos in a collection by bib number.
+   * Returns: exact matches first, then fuzzy (1-digit-different, 3-4 digit bibs).
+   * Only metadata (id, bibNumber) returned immediately; URLs resolved on demand.
+   */
+  searchByBib: publicProcedure
+    .input(
+      z.object({
+        collectionId: z.string(),
+        bib: z.string().min(1).max(10),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const q = input.bib.trim();
+
+      // Exact match group
+      const exact = await ctx.db.photo.findMany({
+        where: {
+          collectionId: input.collectionId,
+          bibNumber: { equals: q, mode: "insensitive" },
+        },
+        orderBy: { order: "asc" },
+        select: { id: true, bibNumber: true, storageKey: true, previewKey: true, filename: true },
+      });
+
+      // Fuzzy group — only for 3-4 digit queries
+      let fuzzy: typeof exact = [];
+      if (/^\d{3,4}$/.test(q)) {
+        const candidates = await ctx.db.photo.findMany({
+          where: {
+            collectionId: input.collectionId,
+            bibNumber: { not: null },
+            AND: [
+              { bibNumber: { not: q } },
+            ],
+          },
+          select: { id: true, bibNumber: true, storageKey: true, previewKey: true, filename: true },
+        });
+        fuzzy = candidates.filter((p) => {
+          const n = p.bibNumber?.trim() ?? "";
+          if (n.length !== q.length) return false;
+          let diffs = 0;
+          for (let i = 0; i < q.length; i++) {
+            if (n[i] !== q[i]) diffs++;
+          }
+          return diffs === 1;
+        });
+      }
+
+      // Group by bibNumber so each bib becomes one card
+      const groupByBib = (photos: typeof exact) => {
+        const map = new Map<string, typeof exact>();
+        for (const p of photos) {
+          const key = p.bibNumber ?? "?";
+          if (!map.has(key)) map.set(key, []);
+          map.get(key)!.push(p);
+        }
+        return Array.from(map.entries()).map(([bib, photos]) => ({ bib, photos }));
+      };
+
+      return {
+        exact: groupByBib(exact),
+        fuzzy: groupByBib(fuzzy),
+      };
+    }),
+
+  /** Resolve signed preview URLs for a list of photo IDs (called after initial render). */
+  getPreviewUrls: publicProcedure
+    .input(z.object({ ids: z.array(z.string()) }))
+    .query(async ({ ctx, input }) => {
+      const photos = await ctx.db.photo.findMany({
+        where: { id: { in: input.ids } },
+        select: { id: true, storageKey: true, previewKey: true },
+      });
+      const results = await Promise.all(
+        photos.map(async (p) => {
+          const key = p.previewKey ?? p.storageKey;
+          const url = await createSignedUrl(key, 3600);
+          return { id: p.id, url };
+        }),
+      );
+      return results.filter((r): r is { id: string; url: string } => r.url !== null);
+    }),
+
+  // ─── Admin ─────────────────────────────────────────────────────────────────
+
   bulkAdd: protectedProcedure
     .input(
       z.object({
-        folderId: z.string(),
+        collectionId: z.string(),
         photos: z.array(
           z.object({
             storageKey: z.string(),
             filename: z.string(),
+            bibNumber: z.string().optional(),
             fileSize: z.number().optional(),
             width: z.number().optional(),
             height: z.number().optional(),
@@ -21,12 +114,13 @@ export const photoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const count = await ctx.db.photo.count({ where: { folderId: input.folderId } });
+      const count = await ctx.db.photo.count({ where: { collectionId: input.collectionId } });
       await ctx.db.photo.createMany({
         data: input.photos.map((p, i) => ({
-          folderId: input.folderId,
+          collectionId: input.collectionId,
           storageKey: p.storageKey,
           filename: p.filename,
+          bibNumber: p.bibNumber ?? null,
           fileSize: p.fileSize,
           width: p.width,
           height: p.height,
@@ -42,31 +136,6 @@ export const photoRouter = createTRPCRouter({
       limitBytes: STORAGE_LIMIT_BYTES,
     };
   }),
-
-  setPreview: protectedProcedure
-    .input(z.object({ id: z.string(), isPreview: z.boolean() }))
-    .mutation(async ({ ctx, input }) => {
-      if (!input.isPreview) {
-        // Turning OFF: remove watermarked file from storage
-        const photo = await ctx.db.photo.findUniqueOrThrow({
-          where: { id: input.id },
-          select: { previewKey: true },
-        });
-        if (photo.previewKey) {
-          const client = getAdminClient();
-          if (client) await client.storage.from("photos").remove([photo.previewKey]);
-        }
-        return ctx.db.photo.update({
-          where: { id: input.id },
-          data: { isPreview: false, previewKey: null },
-        });
-      }
-      // Turning ON: just mark it — the watermark API route handles file generation
-      return ctx.db.photo.update({
-        where: { id: input.id },
-        data: { isPreview: true },
-      });
-    }),
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -98,53 +167,9 @@ export const photoRouter = createTRPCRouter({
       await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });
     }),
 
-  previewStatus: protectedProcedure.query(async ({ ctx }) => {
-    const photos = await ctx.db.photo.findMany({
-      where: { isPreview: true, previewKey: { not: null } },
-      select: { id: true, previewGeneratedAt: true },
-    });
-
-    // Get watermark last-modified from Supabase storage
-    const client = getAdminClient();
-    let wmUpdatedAt: Date | null = null;
-    if (client) {
-      const { data } = await client.storage.from("photos").list("watermarks");
-      const entry = data?.find((f) => f.name === "active.png");
-      if (entry?.updated_at) wmUpdatedAt = new Date(entry.updated_at);
-    }
-
-    const ids = photos.map((p) => p.id);
-    const stale = photos.filter((p) =>
-      !p.previewGeneratedAt || (wmUpdatedAt && p.previewGeneratedAt < wmUpdatedAt),
-    ).length;
-
-    return { ids, total: ids.length, stale, fresh: ids.length - stale, wmUpdatedAt };
-  }),
-
-  cleanupHeic: protectedProcedure.mutation(async ({ ctx }) => {
-    const heicPhotos = await ctx.db.photo.findMany({
-      where: {
-        OR: [
-          { filename: { endsWith: ".heic", mode: "insensitive" } },
-          { filename: { endsWith: ".heif", mode: "insensitive" } },
-        ],
-      },
-      select: { id: true, storageKey: true, previewKey: true },
-    });
-
-    if (heicPhotos.length === 0) return { deleted: 0 };
-
-    const client = getAdminClient();
-    if (client) {
-      const keys: string[] = [];
-      for (const p of heicPhotos) {
-        if (!p.storageKey.startsWith("http")) keys.push(p.storageKey);
-        if (p.previewKey) keys.push(p.previewKey);
-      }
-      if (keys.length) await client.storage.from("photos").remove(keys);
-    }
-
-    await ctx.db.photo.deleteMany({ where: { id: { in: heicPhotos.map((p) => p.id) } } });
-    return { deleted: heicPhotos.length };
-  }),
+  setBibNumber: protectedProcedure
+    .input(z.object({ id: z.string(), bibNumber: z.string().nullable() }))
+    .mutation(({ ctx, input }) =>
+      ctx.db.photo.update({ where: { id: input.id }, data: { bibNumber: input.bibNumber } }),
+    ),
 });

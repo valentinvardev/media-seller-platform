@@ -9,14 +9,12 @@ type Sale = {
   id: string;
   buyerEmail: string;
   buyerName: string | null;
+  bibNumber: string | null;
   status: string;
   amountPaid: unknown;
   createdAt: Date;
   downloadToken: string | null;
-  folder: {
-    number: string;
-    collection: { title: string };
-  };
+  collection: { title: string };
 };
 
 export function SalesTable({ items }: { items: Sale[] }) {
@@ -38,11 +36,6 @@ export function SalesTable({ items }: { items: Sale[] }) {
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border py-20 text-center" style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}>
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: "#1e1e35" }}>
-            <svg className="w-6 h-6" style={{ color: "#475569" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-          </div>
         <p className="text-white font-medium mb-1">Sin ventas aún</p>
         <p className="text-slate-500 text-sm">Las ventas aparecerán aquí cuando se realice una compra</p>
       </div>
@@ -54,10 +47,8 @@ export function SalesTable({ items }: { items: Sale[] }) {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b text-left" style={{ borderColor: "#1e1e35" }}>
-            {["Email comprador", "Carpeta", "Estado", "Monto", "Fecha", "Acciones"].map((h, i) => (
-              <th key={i} className="px-5 py-4 text-xs font-medium text-slate-500 uppercase tracking-wider">
-                {h}
-              </th>
+            {["Email comprador", "Dorsal", "Colección", "Estado", "Monto", "Fecha", "Acciones"].map((h, i) => (
+              <th key={i} className="px-5 py-4 text-xs font-medium text-slate-500 uppercase tracking-wider">{h}</th>
             ))}
           </tr>
         </thead>
@@ -69,9 +60,11 @@ export function SalesTable({ items }: { items: Sale[] }) {
                 {sale.buyerName && <p className="text-slate-500 text-xs">{sale.buyerName}</p>}
               </td>
               <td className="px-5 py-4">
-                <span className="font-mono font-bold text-white">#{sale.folder.number}</span>
-                <p className="text-slate-500 text-xs">{sale.folder.collection.title}</p>
+                <span className="font-mono font-bold text-white">
+                  {sale.bibNumber ? `#${sale.bibNumber}` : "—"}
+                </span>
               </td>
+              <td className="px-5 py-4 text-slate-400 text-xs">{sale.collection.title}</td>
               <td className="px-5 py-4"><StatusBadge status={sale.status} /></td>
               <td className="px-5 py-4 font-medium text-white">
                 ${Number(sale.amountPaid).toLocaleString("es-AR")}
@@ -87,7 +80,6 @@ export function SalesTable({ items }: { items: Sale[] }) {
                       disabled={approve.isPending}
                       className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
                       style={{ background: "#10b98120", color: "#34d399" }}
-                      title="Aprobar manualmente (para testing sin webhook)"
                     >
                       ✓ Aprobar
                     </button>
@@ -110,7 +102,7 @@ export function SalesTable({ items }: { items: Sale[] }) {
       {confirmSale && (
         <ConfirmModal
           title="Aprobar compra manualmente"
-          message={`¿Aprobar la compra de ${confirmSale.buyerEmail} para la carpeta #${confirmSale.folder.number}?`}
+          message={`¿Aprobar la compra de ${confirmSale.buyerEmail} para el dorsal #${confirmSale.bibNumber ?? "—"}?`}
           confirmLabel="Aprobar"
           variant="success"
           onConfirm={() => { approve.mutate({ id: confirmSale.id }); setConfirmSale(null); }}
@@ -124,7 +116,7 @@ export function SalesTable({ items }: { items: Sale[] }) {
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
     APPROVED: { bg: "#10b98120", text: "#34d399", label: "Aprobada" },
-    PENDING: { bg: "#f59e0b20", text: "#fbbf24", label: "Pendiente" },
+    PENDING:  { bg: "#f59e0b20", text: "#fbbf24", label: "Pendiente" },
     REJECTED: { bg: "#ef444420", text: "#f87171", label: "Rechazada" },
     REFUNDED: { bg: "#6366f120", text: "#818cf8", label: "Reembolsada" },
   };

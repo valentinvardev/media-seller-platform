@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 
   if (upError) return NextResponse.json({ error: "Upload failed" }, { status: 500 });
 
-  await db.photo.update({ where: { id: photoId }, data: { isPreview: true, previewKey, previewGeneratedAt: new Date() } });
+  await db.photo.update({ where: { id: photoId }, data: { previewKey } });
 
   return NextResponse.json({ previewKey });
 }

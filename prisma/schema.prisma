@@ -60,70 +60,54 @@ model VerificationToken {
 // ─── Photography Domain ──────────────────────────────────────────────────────
 
 model Collection {
-    id          String   @id @default(cuid())
-    title       String
-    description String?
-    coverUrl    String?
-    logoUrl     String?
-    bannerUrl   String?
-    slug        String   @unique
-    isPublished Boolean  @default(false)
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id           String   @id @default(cuid())
+    title        String
+    description  String?
+    coverUrl     String?
+    logoUrl      String?
+    bannerUrl    String?
+    slug         String   @unique
+    pricePerBib  Decimal  @default(0) @db.Decimal(10, 2)
+    isPublished  Boolean  @default(false)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 
-    folders Folder[]
+    photos    Photo[]
+    purchases Purchase[]
 
     @@index([slug])
     @@index([isPublished])
 }
 
-model Folder {
-    id           String   @id @default(cuid())
-    number       String
+// Photos belong directly to a Collection; bibNumber is OCR-detected
+model Photo {
+    id           String    @id @default(cuid())
     collectionId String
-    price        Decimal  @db.Decimal(10, 2)
-    isPublished  Boolean  @default(false)
-    isPublic     Boolean  @default(false)
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
+    bibNumber    String?   // OCR-detected bib (null = not yet read or unknown)
+    storageKey   String
+    filename     String
+    fileSize     Int?
+    width        Int?
+    height       Int?
+    order        Int       @default(0)
+    previewKey   String?   // Watermarked version key
+    createdAt    DateTime  @default(now())
 
     collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-    photos     Photo[]
-    purchases  Purchase[]
 
-    @@unique([collectionId, number])
     @@index([collectionId])
-    @@index([number])
+    @@index([collectionId, bibNumber])
 }
 
-model Photo {
-    id         String   @id @default(cuid())
-    folderId   String
-    storageKey String
-    filename   String
-    fileSize   Int?
-    width      Int?
-    height     Int?
-    order      Int      @default(0)
-    isPreview          Boolean   @default(false)
-    previewKey         String?
-    previewGeneratedAt DateTime?
-    createdAt          DateTime  @default(now())
-
-    folder Folder @relation(fields: [folderId], references: [id], onDelete: Cascade)
-
-    @@index([folderId])
-    @@index([folderId, order])
-    @@index([folderId, isPreview])
-}
-
+// Purchase = buying all photos for a bib in a collection
 model Purchase {
     id                      String         @id @default(cuid())
-    folderId                String
+    collectionId            String
+    bibNumber               String?        // Which bib was purchased
     buyerEmail              String
     buyerName               String?
-    buyerPhone              String?
     buyerLastName           String?
+    buyerPhone              String?
     amountPaid              Decimal        @db.Decimal(10, 2)
     currency                String         @default("ARS")
     status                  PurchaseStatus @default(PENDING)
@@ -136,11 +120,11 @@ model Purchase {
     createdAt               DateTime       @default(now())
     updatedAt               DateTime       @updatedAt
 
-    folder Folder @relation(fields: [folderId], references: [id])
+    collection Collection @relation(fields: [collectionId], references: [id])
 
-    @@index([folderId])
+    @@index([collectionId])
+    @@index([bibNumber])
     @@index([buyerEmail])
-    @@index([mercadopagoPaymentId])
     @@index([downloadToken])
 }
 

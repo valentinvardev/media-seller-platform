@@ -39,11 +39,6 @@ export type VerificationToken = $Result.DefaultSelection<Prisma.$VerificationTok
  */
 export type Collection = $Result.DefaultSelection<Prisma.$CollectionPayload>
 /**
- * Model Folder
- * 
- */
-export type Folder = $Result.DefaultSelection<Prisma.$FolderPayload>
-/**
  * Model Photo
  * 
  */
@@ -240,16 +235,6 @@ export class PrismaClient<
     * ```
     */
   get collection(): Prisma.CollectionDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.folder`: Exposes CRUD operations for the **Folder** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Folders
-    * const folders = await prisma.folder.findMany()
-    * ```
-    */
-  get folder(): Prisma.FolderDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.photo`: Exposes CRUD operations for the **Photo** model.
@@ -716,7 +701,6 @@ export namespace Prisma {
     User: 'User',
     VerificationToken: 'VerificationToken',
     Collection: 'Collection',
-    Folder: 'Folder',
     Photo: 'Photo',
     Purchase: 'Purchase'
   };
@@ -737,7 +721,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "account" | "session" | "user" | "verificationToken" | "collection" | "folder" | "photo" | "purchase"
+      modelProps: "account" | "session" | "user" | "verificationToken" | "collection" | "photo" | "purchase"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1111,80 +1095,6 @@ export namespace Prisma {
           }
         }
       }
-      Folder: {
-        payload: Prisma.$FolderPayload<ExtArgs>
-        fields: Prisma.FolderFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.FolderFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.FolderFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>
-          }
-          findFirst: {
-            args: Prisma.FolderFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.FolderFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>
-          }
-          findMany: {
-            args: Prisma.FolderFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>[]
-          }
-          create: {
-            args: Prisma.FolderCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>
-          }
-          createMany: {
-            args: Prisma.FolderCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.FolderCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>[]
-          }
-          delete: {
-            args: Prisma.FolderDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>
-          }
-          update: {
-            args: Prisma.FolderUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>
-          }
-          deleteMany: {
-            args: Prisma.FolderDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.FolderUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.FolderUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>[]
-          }
-          upsert: {
-            args: Prisma.FolderUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FolderPayload>
-          }
-          aggregate: {
-            args: Prisma.FolderAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateFolder>
-          }
-          groupBy: {
-            args: Prisma.FolderGroupByArgs<ExtArgs>
-            result: $Utils.Optional<FolderGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.FolderCountArgs<ExtArgs>
-            result: $Utils.Optional<FolderCountAggregateOutputType> | number
-          }
-        }
-      }
       Photo: {
         payload: Prisma.$PhotoPayload<ExtArgs>
         fields: Prisma.PhotoFieldRefs
@@ -1434,7 +1344,6 @@ export namespace Prisma {
     user?: UserOmit
     verificationToken?: VerificationTokenOmit
     collection?: CollectionOmit
-    folder?: FolderOmit
     photo?: PhotoOmit
     purchase?: PurchaseOmit
   }
@@ -1557,11 +1466,13 @@ export namespace Prisma {
    */
 
   export type CollectionCountOutputType = {
-    folders: number
+    photos: number
+    purchases: number
   }
 
   export type CollectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    folders?: boolean | CollectionCountOutputTypeCountFoldersArgs
+    photos?: boolean | CollectionCountOutputTypeCountPhotosArgs
+    purchases?: boolean | CollectionCountOutputTypeCountPurchasesArgs
   }
 
   // Custom InputTypes
@@ -1578,47 +1489,14 @@ export namespace Prisma {
   /**
    * CollectionCountOutputType without action
    */
-  export type CollectionCountOutputTypeCountFoldersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FolderWhereInput
-  }
-
-
-  /**
-   * Count Type FolderCountOutputType
-   */
-
-  export type FolderCountOutputType = {
-    photos: number
-    purchases: number
-  }
-
-  export type FolderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    photos?: boolean | FolderCountOutputTypeCountPhotosArgs
-    purchases?: boolean | FolderCountOutputTypeCountPurchasesArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * FolderCountOutputType without action
-   */
-  export type FolderCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FolderCountOutputType
-     */
-    select?: FolderCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * FolderCountOutputType without action
-   */
-  export type FolderCountOutputTypeCountPhotosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type CollectionCountOutputTypeCountPhotosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PhotoWhereInput
   }
 
   /**
-   * FolderCountOutputType without action
+   * CollectionCountOutputType without action
    */
-  export type FolderCountOutputTypeCountPurchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type CollectionCountOutputTypeCountPurchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PurchaseWhereInput
   }
 
@@ -5958,8 +5836,18 @@ export namespace Prisma {
 
   export type AggregateCollection = {
     _count: CollectionCountAggregateOutputType | null
+    _avg: CollectionAvgAggregateOutputType | null
+    _sum: CollectionSumAggregateOutputType | null
     _min: CollectionMinAggregateOutputType | null
     _max: CollectionMaxAggregateOutputType | null
+  }
+
+  export type CollectionAvgAggregateOutputType = {
+    pricePerBib: Decimal | null
+  }
+
+  export type CollectionSumAggregateOutputType = {
+    pricePerBib: Decimal | null
   }
 
   export type CollectionMinAggregateOutputType = {
@@ -5970,6 +5858,7 @@ export namespace Prisma {
     logoUrl: string | null
     bannerUrl: string | null
     slug: string | null
+    pricePerBib: Decimal | null
     isPublished: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5983,6 +5872,7 @@ export namespace Prisma {
     logoUrl: string | null
     bannerUrl: string | null
     slug: string | null
+    pricePerBib: Decimal | null
     isPublished: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5996,12 +5886,21 @@ export namespace Prisma {
     logoUrl: number
     bannerUrl: number
     slug: number
+    pricePerBib: number
     isPublished: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
+
+  export type CollectionAvgAggregateInputType = {
+    pricePerBib?: true
+  }
+
+  export type CollectionSumAggregateInputType = {
+    pricePerBib?: true
+  }
 
   export type CollectionMinAggregateInputType = {
     id?: true
@@ -6011,6 +5910,7 @@ export namespace Prisma {
     logoUrl?: true
     bannerUrl?: true
     slug?: true
+    pricePerBib?: true
     isPublished?: true
     createdAt?: true
     updatedAt?: true
@@ -6024,6 +5924,7 @@ export namespace Prisma {
     logoUrl?: true
     bannerUrl?: true
     slug?: true
+    pricePerBib?: true
     isPublished?: true
     createdAt?: true
     updatedAt?: true
@@ -6037,6 +5938,7 @@ export namespace Prisma {
     logoUrl?: true
     bannerUrl?: true
     slug?: true
+    pricePerBib?: true
     isPublished?: true
     createdAt?: true
     updatedAt?: true
@@ -6081,6 +5983,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: CollectionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CollectionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: CollectionMinAggregateInputType
@@ -6111,6 +6025,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: CollectionCountAggregateInputType | true
+    _avg?: CollectionAvgAggregateInputType
+    _sum?: CollectionSumAggregateInputType
     _min?: CollectionMinAggregateInputType
     _max?: CollectionMaxAggregateInputType
   }
@@ -6123,10 +6039,13 @@ export namespace Prisma {
     logoUrl: string | null
     bannerUrl: string | null
     slug: string
+    pricePerBib: Decimal
     isPublished: boolean
     createdAt: Date
     updatedAt: Date
     _count: CollectionCountAggregateOutputType | null
+    _avg: CollectionAvgAggregateOutputType | null
+    _sum: CollectionSumAggregateOutputType | null
     _min: CollectionMinAggregateOutputType | null
     _max: CollectionMaxAggregateOutputType | null
   }
@@ -6153,10 +6072,12 @@ export namespace Prisma {
     logoUrl?: boolean
     bannerUrl?: boolean
     slug?: boolean
+    pricePerBib?: boolean
     isPublished?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    folders?: boolean | Collection$foldersArgs<ExtArgs>
+    photos?: boolean | Collection$photosArgs<ExtArgs>
+    purchases?: boolean | Collection$purchasesArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["collection"]>
 
@@ -6168,6 +6089,7 @@ export namespace Prisma {
     logoUrl?: boolean
     bannerUrl?: boolean
     slug?: boolean
+    pricePerBib?: boolean
     isPublished?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6181,6 +6103,7 @@ export namespace Prisma {
     logoUrl?: boolean
     bannerUrl?: boolean
     slug?: boolean
+    pricePerBib?: boolean
     isPublished?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6194,14 +6117,16 @@ export namespace Prisma {
     logoUrl?: boolean
     bannerUrl?: boolean
     slug?: boolean
+    pricePerBib?: boolean
     isPublished?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "slug" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "slug" | "pricePerBib" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
   export type CollectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    folders?: boolean | Collection$foldersArgs<ExtArgs>
+    photos?: boolean | Collection$photosArgs<ExtArgs>
+    purchases?: boolean | Collection$purchasesArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CollectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6210,7 +6135,8 @@ export namespace Prisma {
   export type $CollectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Collection"
     objects: {
-      folders: Prisma.$FolderPayload<ExtArgs>[]
+      photos: Prisma.$PhotoPayload<ExtArgs>[]
+      purchases: Prisma.$PurchasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6220,6 +6146,7 @@ export namespace Prisma {
       logoUrl: string | null
       bannerUrl: string | null
       slug: string
+      pricePerBib: Prisma.Decimal
       isPublished: boolean
       createdAt: Date
       updatedAt: Date
@@ -6617,7 +6544,8 @@ export namespace Prisma {
    */
   export interface Prisma__CollectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    folders<T extends Collection$foldersArgs<ExtArgs> = {}>(args?: Subset<T, Collection$foldersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    photos<T extends Collection$photosArgs<ExtArgs> = {}>(args?: Subset<T, Collection$photosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    purchases<T extends Collection$purchasesArgs<ExtArgs> = {}>(args?: Subset<T, Collection$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6654,6 +6582,7 @@ export namespace Prisma {
     readonly logoUrl: FieldRef<"Collection", 'String'>
     readonly bannerUrl: FieldRef<"Collection", 'String'>
     readonly slug: FieldRef<"Collection", 'String'>
+    readonly pricePerBib: FieldRef<"Collection", 'Decimal'>
     readonly isPublished: FieldRef<"Collection", 'Boolean'>
     readonly createdAt: FieldRef<"Collection", 'DateTime'>
     readonly updatedAt: FieldRef<"Collection", 'DateTime'>
@@ -7045,1174 +6974,9 @@ export namespace Prisma {
   }
 
   /**
-   * Collection.folders
+   * Collection.photos
    */
-  export type Collection$foldersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    where?: FolderWhereInput
-    orderBy?: FolderOrderByWithRelationInput | FolderOrderByWithRelationInput[]
-    cursor?: FolderWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: FolderScalarFieldEnum | FolderScalarFieldEnum[]
-  }
-
-  /**
-   * Collection without action
-   */
-  export type CollectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Collection
-     */
-    select?: CollectionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Collection
-     */
-    omit?: CollectionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Folder
-   */
-
-  export type AggregateFolder = {
-    _count: FolderCountAggregateOutputType | null
-    _avg: FolderAvgAggregateOutputType | null
-    _sum: FolderSumAggregateOutputType | null
-    _min: FolderMinAggregateOutputType | null
-    _max: FolderMaxAggregateOutputType | null
-  }
-
-  export type FolderAvgAggregateOutputType = {
-    price: Decimal | null
-  }
-
-  export type FolderSumAggregateOutputType = {
-    price: Decimal | null
-  }
-
-  export type FolderMinAggregateOutputType = {
-    id: string | null
-    number: string | null
-    collectionId: string | null
-    price: Decimal | null
-    isPublished: boolean | null
-    isPublic: boolean | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type FolderMaxAggregateOutputType = {
-    id: string | null
-    number: string | null
-    collectionId: string | null
-    price: Decimal | null
-    isPublished: boolean | null
-    isPublic: boolean | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type FolderCountAggregateOutputType = {
-    id: number
-    number: number
-    collectionId: number
-    price: number
-    isPublished: number
-    isPublic: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type FolderAvgAggregateInputType = {
-    price?: true
-  }
-
-  export type FolderSumAggregateInputType = {
-    price?: true
-  }
-
-  export type FolderMinAggregateInputType = {
-    id?: true
-    number?: true
-    collectionId?: true
-    price?: true
-    isPublished?: true
-    isPublic?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type FolderMaxAggregateInputType = {
-    id?: true
-    number?: true
-    collectionId?: true
-    price?: true
-    isPublished?: true
-    isPublic?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type FolderCountAggregateInputType = {
-    id?: true
-    number?: true
-    collectionId?: true
-    price?: true
-    isPublished?: true
-    isPublic?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type FolderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Folder to aggregate.
-     */
-    where?: FolderWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Folders to fetch.
-     */
-    orderBy?: FolderOrderByWithRelationInput | FolderOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: FolderWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Folders from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Folders.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Folders
-    **/
-    _count?: true | FolderCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: FolderAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: FolderSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: FolderMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: FolderMaxAggregateInputType
-  }
-
-  export type GetFolderAggregateType<T extends FolderAggregateArgs> = {
-        [P in keyof T & keyof AggregateFolder]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateFolder[P]>
-      : GetScalarType<T[P], AggregateFolder[P]>
-  }
-
-
-
-
-  export type FolderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FolderWhereInput
-    orderBy?: FolderOrderByWithAggregationInput | FolderOrderByWithAggregationInput[]
-    by: FolderScalarFieldEnum[] | FolderScalarFieldEnum
-    having?: FolderScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: FolderCountAggregateInputType | true
-    _avg?: FolderAvgAggregateInputType
-    _sum?: FolderSumAggregateInputType
-    _min?: FolderMinAggregateInputType
-    _max?: FolderMaxAggregateInputType
-  }
-
-  export type FolderGroupByOutputType = {
-    id: string
-    number: string
-    collectionId: string
-    price: Decimal
-    isPublished: boolean
-    isPublic: boolean
-    createdAt: Date
-    updatedAt: Date
-    _count: FolderCountAggregateOutputType | null
-    _avg: FolderAvgAggregateOutputType | null
-    _sum: FolderSumAggregateOutputType | null
-    _min: FolderMinAggregateOutputType | null
-    _max: FolderMaxAggregateOutputType | null
-  }
-
-  type GetFolderGroupByPayload<T extends FolderGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<FolderGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof FolderGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], FolderGroupByOutputType[P]>
-            : GetScalarType<T[P], FolderGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type FolderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    number?: boolean
-    collectionId?: boolean
-    price?: boolean
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-    photos?: boolean | Folder$photosArgs<ExtArgs>
-    purchases?: boolean | Folder$purchasesArgs<ExtArgs>
-    _count?: boolean | FolderCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["folder"]>
-
-  export type FolderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    number?: boolean
-    collectionId?: boolean
-    price?: boolean
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["folder"]>
-
-  export type FolderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    number?: boolean
-    collectionId?: boolean
-    price?: boolean
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["folder"]>
-
-  export type FolderSelectScalar = {
-    id?: boolean
-    number?: boolean
-    collectionId?: boolean
-    price?: boolean
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type FolderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "number" | "collectionId" | "price" | "isPublished" | "isPublic" | "createdAt" | "updatedAt", ExtArgs["result"]["folder"]>
-  export type FolderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-    photos?: boolean | Folder$photosArgs<ExtArgs>
-    purchases?: boolean | Folder$purchasesArgs<ExtArgs>
-    _count?: boolean | FolderCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type FolderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-  }
-  export type FolderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-  }
-
-  export type $FolderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Folder"
-    objects: {
-      collection: Prisma.$CollectionPayload<ExtArgs>
-      photos: Prisma.$PhotoPayload<ExtArgs>[]
-      purchases: Prisma.$PurchasePayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      number: string
-      collectionId: string
-      price: Prisma.Decimal
-      isPublished: boolean
-      isPublic: boolean
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["folder"]>
-    composites: {}
-  }
-
-  type FolderGetPayload<S extends boolean | null | undefined | FolderDefaultArgs> = $Result.GetResult<Prisma.$FolderPayload, S>
-
-  type FolderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<FolderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: FolderCountAggregateInputType | true
-    }
-
-  export interface FolderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Folder'], meta: { name: 'Folder' } }
-    /**
-     * Find zero or one Folder that matches the filter.
-     * @param {FolderFindUniqueArgs} args - Arguments to find a Folder
-     * @example
-     * // Get one Folder
-     * const folder = await prisma.folder.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends FolderFindUniqueArgs>(args: SelectSubset<T, FolderFindUniqueArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Folder that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {FolderFindUniqueOrThrowArgs} args - Arguments to find a Folder
-     * @example
-     * // Get one Folder
-     * const folder = await prisma.folder.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends FolderFindUniqueOrThrowArgs>(args: SelectSubset<T, FolderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Folder that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FolderFindFirstArgs} args - Arguments to find a Folder
-     * @example
-     * // Get one Folder
-     * const folder = await prisma.folder.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends FolderFindFirstArgs>(args?: SelectSubset<T, FolderFindFirstArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Folder that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FolderFindFirstOrThrowArgs} args - Arguments to find a Folder
-     * @example
-     * // Get one Folder
-     * const folder = await prisma.folder.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends FolderFindFirstOrThrowArgs>(args?: SelectSubset<T, FolderFindFirstOrThrowArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Folders that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FolderFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Folders
-     * const folders = await prisma.folder.findMany()
-     * 
-     * // Get first 10 Folders
-     * const folders = await prisma.folder.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const folderWithIdOnly = await prisma.folder.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends FolderFindManyArgs>(args?: SelectSubset<T, FolderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Folder.
-     * @param {FolderCreateArgs} args - Arguments to create a Folder.
-     * @example
-     * // Create one Folder
-     * const Folder = await prisma.folder.create({
-     *   data: {
-     *     // ... data to create a Folder
-     *   }
-     * })
-     * 
-     */
-    create<T extends FolderCreateArgs>(args: SelectSubset<T, FolderCreateArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Folders.
-     * @param {FolderCreateManyArgs} args - Arguments to create many Folders.
-     * @example
-     * // Create many Folders
-     * const folder = await prisma.folder.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends FolderCreateManyArgs>(args?: SelectSubset<T, FolderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Folders and returns the data saved in the database.
-     * @param {FolderCreateManyAndReturnArgs} args - Arguments to create many Folders.
-     * @example
-     * // Create many Folders
-     * const folder = await prisma.folder.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Folders and only return the `id`
-     * const folderWithIdOnly = await prisma.folder.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends FolderCreateManyAndReturnArgs>(args?: SelectSubset<T, FolderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Folder.
-     * @param {FolderDeleteArgs} args - Arguments to delete one Folder.
-     * @example
-     * // Delete one Folder
-     * const Folder = await prisma.folder.delete({
-     *   where: {
-     *     // ... filter to delete one Folder
-     *   }
-     * })
-     * 
-     */
-    delete<T extends FolderDeleteArgs>(args: SelectSubset<T, FolderDeleteArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Folder.
-     * @param {FolderUpdateArgs} args - Arguments to update one Folder.
-     * @example
-     * // Update one Folder
-     * const folder = await prisma.folder.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends FolderUpdateArgs>(args: SelectSubset<T, FolderUpdateArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Folders.
-     * @param {FolderDeleteManyArgs} args - Arguments to filter Folders to delete.
-     * @example
-     * // Delete a few Folders
-     * const { count } = await prisma.folder.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends FolderDeleteManyArgs>(args?: SelectSubset<T, FolderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Folders.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FolderUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Folders
-     * const folder = await prisma.folder.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends FolderUpdateManyArgs>(args: SelectSubset<T, FolderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Folders and returns the data updated in the database.
-     * @param {FolderUpdateManyAndReturnArgs} args - Arguments to update many Folders.
-     * @example
-     * // Update many Folders
-     * const folder = await prisma.folder.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Folders and only return the `id`
-     * const folderWithIdOnly = await prisma.folder.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends FolderUpdateManyAndReturnArgs>(args: SelectSubset<T, FolderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Folder.
-     * @param {FolderUpsertArgs} args - Arguments to update or create a Folder.
-     * @example
-     * // Update or create a Folder
-     * const folder = await prisma.folder.upsert({
-     *   create: {
-     *     // ... data to create a Folder
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Folder we want to update
-     *   }
-     * })
-     */
-    upsert<T extends FolderUpsertArgs>(args: SelectSubset<T, FolderUpsertArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Folders.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FolderCountArgs} args - Arguments to filter Folders to count.
-     * @example
-     * // Count the number of Folders
-     * const count = await prisma.folder.count({
-     *   where: {
-     *     // ... the filter for the Folders we want to count
-     *   }
-     * })
-    **/
-    count<T extends FolderCountArgs>(
-      args?: Subset<T, FolderCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], FolderCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Folder.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FolderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends FolderAggregateArgs>(args: Subset<T, FolderAggregateArgs>): Prisma.PrismaPromise<GetFolderAggregateType<T>>
-
-    /**
-     * Group by Folder.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FolderGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends FolderGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: FolderGroupByArgs['orderBy'] }
-        : { orderBy?: FolderGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, FolderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFolderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Folder model
-   */
-  readonly fields: FolderFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Folder.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__FolderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    photos<T extends Folder$photosArgs<ExtArgs> = {}>(args?: Subset<T, Folder$photosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    purchases<T extends Folder$purchasesArgs<ExtArgs> = {}>(args?: Subset<T, Folder$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Folder model
-   */
-  interface FolderFieldRefs {
-    readonly id: FieldRef<"Folder", 'String'>
-    readonly number: FieldRef<"Folder", 'String'>
-    readonly collectionId: FieldRef<"Folder", 'String'>
-    readonly price: FieldRef<"Folder", 'Decimal'>
-    readonly isPublished: FieldRef<"Folder", 'Boolean'>
-    readonly isPublic: FieldRef<"Folder", 'Boolean'>
-    readonly createdAt: FieldRef<"Folder", 'DateTime'>
-    readonly updatedAt: FieldRef<"Folder", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Folder findUnique
-   */
-  export type FolderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * Filter, which Folder to fetch.
-     */
-    where: FolderWhereUniqueInput
-  }
-
-  /**
-   * Folder findUniqueOrThrow
-   */
-  export type FolderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * Filter, which Folder to fetch.
-     */
-    where: FolderWhereUniqueInput
-  }
-
-  /**
-   * Folder findFirst
-   */
-  export type FolderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * Filter, which Folder to fetch.
-     */
-    where?: FolderWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Folders to fetch.
-     */
-    orderBy?: FolderOrderByWithRelationInput | FolderOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Folders.
-     */
-    cursor?: FolderWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Folders from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Folders.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Folders.
-     */
-    distinct?: FolderScalarFieldEnum | FolderScalarFieldEnum[]
-  }
-
-  /**
-   * Folder findFirstOrThrow
-   */
-  export type FolderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * Filter, which Folder to fetch.
-     */
-    where?: FolderWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Folders to fetch.
-     */
-    orderBy?: FolderOrderByWithRelationInput | FolderOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Folders.
-     */
-    cursor?: FolderWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Folders from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Folders.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Folders.
-     */
-    distinct?: FolderScalarFieldEnum | FolderScalarFieldEnum[]
-  }
-
-  /**
-   * Folder findMany
-   */
-  export type FolderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * Filter, which Folders to fetch.
-     */
-    where?: FolderWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Folders to fetch.
-     */
-    orderBy?: FolderOrderByWithRelationInput | FolderOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Folders.
-     */
-    cursor?: FolderWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Folders from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Folders.
-     */
-    skip?: number
-    distinct?: FolderScalarFieldEnum | FolderScalarFieldEnum[]
-  }
-
-  /**
-   * Folder create
-   */
-  export type FolderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Folder.
-     */
-    data: XOR<FolderCreateInput, FolderUncheckedCreateInput>
-  }
-
-  /**
-   * Folder createMany
-   */
-  export type FolderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Folders.
-     */
-    data: FolderCreateManyInput | FolderCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Folder createManyAndReturn
-   */
-  export type FolderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * The data used to create many Folders.
-     */
-    data: FolderCreateManyInput | FolderCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Folder update
-   */
-  export type FolderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Folder.
-     */
-    data: XOR<FolderUpdateInput, FolderUncheckedUpdateInput>
-    /**
-     * Choose, which Folder to update.
-     */
-    where: FolderWhereUniqueInput
-  }
-
-  /**
-   * Folder updateMany
-   */
-  export type FolderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Folders.
-     */
-    data: XOR<FolderUpdateManyMutationInput, FolderUncheckedUpdateManyInput>
-    /**
-     * Filter which Folders to update
-     */
-    where?: FolderWhereInput
-    /**
-     * Limit how many Folders to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Folder updateManyAndReturn
-   */
-  export type FolderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * The data used to update Folders.
-     */
-    data: XOR<FolderUpdateManyMutationInput, FolderUncheckedUpdateManyInput>
-    /**
-     * Filter which Folders to update
-     */
-    where?: FolderWhereInput
-    /**
-     * Limit how many Folders to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Folder upsert
-   */
-  export type FolderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Folder to update in case it exists.
-     */
-    where: FolderWhereUniqueInput
-    /**
-     * In case the Folder found by the `where` argument doesn't exist, create a new Folder with this data.
-     */
-    create: XOR<FolderCreateInput, FolderUncheckedCreateInput>
-    /**
-     * In case the Folder was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<FolderUpdateInput, FolderUncheckedUpdateInput>
-  }
-
-  /**
-   * Folder delete
-   */
-  export type FolderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Folder
-     */
-    select?: FolderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Folder
-     */
-    omit?: FolderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FolderInclude<ExtArgs> | null
-    /**
-     * Filter which Folder to delete.
-     */
-    where: FolderWhereUniqueInput
-  }
-
-  /**
-   * Folder deleteMany
-   */
-  export type FolderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Folders to delete
-     */
-    where?: FolderWhereInput
-    /**
-     * Limit how many Folders to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Folder.photos
-   */
-  export type Folder$photosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Collection$photosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Photo
      */
@@ -8234,9 +6998,9 @@ export namespace Prisma {
   }
 
   /**
-   * Folder.purchases
+   * Collection.purchases
    */
-  export type Folder$purchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Collection$purchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Purchase
      */
@@ -8258,21 +7022,21 @@ export namespace Prisma {
   }
 
   /**
-   * Folder without action
+   * Collection without action
    */
-  export type FolderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type CollectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Folder
+     * Select specific fields to fetch from the Collection
      */
-    select?: FolderSelect<ExtArgs> | null
+    select?: CollectionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Folder
+     * Omit specific fields from the Collection
      */
-    omit?: FolderOmit<ExtArgs> | null
+    omit?: CollectionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FolderInclude<ExtArgs> | null
+    include?: CollectionInclude<ExtArgs> | null
   }
 
 
@@ -8304,46 +7068,43 @@ export namespace Prisma {
 
   export type PhotoMinAggregateOutputType = {
     id: string | null
-    folderId: string | null
+    collectionId: string | null
+    bibNumber: string | null
     storageKey: string | null
     filename: string | null
     fileSize: number | null
     width: number | null
     height: number | null
     order: number | null
-    isPreview: boolean | null
     previewKey: string | null
-    previewGeneratedAt: Date | null
     createdAt: Date | null
   }
 
   export type PhotoMaxAggregateOutputType = {
     id: string | null
-    folderId: string | null
+    collectionId: string | null
+    bibNumber: string | null
     storageKey: string | null
     filename: string | null
     fileSize: number | null
     width: number | null
     height: number | null
     order: number | null
-    isPreview: boolean | null
     previewKey: string | null
-    previewGeneratedAt: Date | null
     createdAt: Date | null
   }
 
   export type PhotoCountAggregateOutputType = {
     id: number
-    folderId: number
+    collectionId: number
+    bibNumber: number
     storageKey: number
     filename: number
     fileSize: number
     width: number
     height: number
     order: number
-    isPreview: number
     previewKey: number
-    previewGeneratedAt: number
     createdAt: number
     _all: number
   }
@@ -8365,46 +7126,43 @@ export namespace Prisma {
 
   export type PhotoMinAggregateInputType = {
     id?: true
-    folderId?: true
+    collectionId?: true
+    bibNumber?: true
     storageKey?: true
     filename?: true
     fileSize?: true
     width?: true
     height?: true
     order?: true
-    isPreview?: true
     previewKey?: true
-    previewGeneratedAt?: true
     createdAt?: true
   }
 
   export type PhotoMaxAggregateInputType = {
     id?: true
-    folderId?: true
+    collectionId?: true
+    bibNumber?: true
     storageKey?: true
     filename?: true
     fileSize?: true
     width?: true
     height?: true
     order?: true
-    isPreview?: true
     previewKey?: true
-    previewGeneratedAt?: true
     createdAt?: true
   }
 
   export type PhotoCountAggregateInputType = {
     id?: true
-    folderId?: true
+    collectionId?: true
+    bibNumber?: true
     storageKey?: true
     filename?: true
     fileSize?: true
     width?: true
     height?: true
     order?: true
-    isPreview?: true
     previewKey?: true
-    previewGeneratedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -8497,16 +7255,15 @@ export namespace Prisma {
 
   export type PhotoGroupByOutputType = {
     id: string
-    folderId: string
+    collectionId: string
+    bibNumber: string | null
     storageKey: string
     filename: string
     fileSize: number | null
     width: number | null
     height: number | null
     order: number
-    isPreview: boolean
     previewKey: string | null
-    previewGeneratedAt: Date | null
     createdAt: Date
     _count: PhotoCountAggregateOutputType | null
     _avg: PhotoAvgAggregateOutputType | null
@@ -8531,95 +7288,90 @@ export namespace Prisma {
 
   export type PhotoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    folderId?: boolean
+    collectionId?: boolean
+    bibNumber?: boolean
     storageKey?: boolean
     filename?: boolean
     fileSize?: boolean
     width?: boolean
     height?: boolean
     order?: boolean
-    isPreview?: boolean
     previewKey?: boolean
-    previewGeneratedAt?: boolean
     createdAt?: boolean
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
 
   export type PhotoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    folderId?: boolean
+    collectionId?: boolean
+    bibNumber?: boolean
     storageKey?: boolean
     filename?: boolean
     fileSize?: boolean
     width?: boolean
     height?: boolean
     order?: boolean
-    isPreview?: boolean
     previewKey?: boolean
-    previewGeneratedAt?: boolean
     createdAt?: boolean
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
 
   export type PhotoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    folderId?: boolean
+    collectionId?: boolean
+    bibNumber?: boolean
     storageKey?: boolean
     filename?: boolean
     fileSize?: boolean
     width?: boolean
     height?: boolean
     order?: boolean
-    isPreview?: boolean
     previewKey?: boolean
-    previewGeneratedAt?: boolean
     createdAt?: boolean
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
 
   export type PhotoSelectScalar = {
     id?: boolean
-    folderId?: boolean
+    collectionId?: boolean
+    bibNumber?: boolean
     storageKey?: boolean
     filename?: boolean
     fileSize?: boolean
     width?: boolean
     height?: boolean
     order?: boolean
-    isPreview?: boolean
     previewKey?: boolean
-    previewGeneratedAt?: boolean
     createdAt?: boolean
   }
 
-  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "folderId" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "isPreview" | "previewKey" | "previewGeneratedAt" | "createdAt", ExtArgs["result"]["photo"]>
+  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "bibNumber" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "previewKey" | "createdAt", ExtArgs["result"]["photo"]>
   export type PhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }
   export type PhotoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }
   export type PhotoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }
 
   export type $PhotoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Photo"
     objects: {
-      folder: Prisma.$FolderPayload<ExtArgs>
+      collection: Prisma.$CollectionPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      folderId: string
+      collectionId: string
+      bibNumber: string | null
       storageKey: string
       filename: string
       fileSize: number | null
       width: number | null
       height: number | null
       order: number
-      isPreview: boolean
       previewKey: string | null
-      previewGeneratedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["photo"]>
     composites: {}
@@ -9015,7 +7767,7 @@ export namespace Prisma {
    */
   export interface Prisma__PhotoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    folder<T extends FolderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FolderDefaultArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9046,16 +7798,15 @@ export namespace Prisma {
    */
   interface PhotoFieldRefs {
     readonly id: FieldRef<"Photo", 'String'>
-    readonly folderId: FieldRef<"Photo", 'String'>
+    readonly collectionId: FieldRef<"Photo", 'String'>
+    readonly bibNumber: FieldRef<"Photo", 'String'>
     readonly storageKey: FieldRef<"Photo", 'String'>
     readonly filename: FieldRef<"Photo", 'String'>
     readonly fileSize: FieldRef<"Photo", 'Int'>
     readonly width: FieldRef<"Photo", 'Int'>
     readonly height: FieldRef<"Photo", 'Int'>
     readonly order: FieldRef<"Photo", 'Int'>
-    readonly isPreview: FieldRef<"Photo", 'Boolean'>
     readonly previewKey: FieldRef<"Photo", 'String'>
-    readonly previewGeneratedAt: FieldRef<"Photo", 'DateTime'>
     readonly createdAt: FieldRef<"Photo", 'DateTime'>
   }
     
@@ -9493,11 +8244,12 @@ export namespace Prisma {
 
   export type PurchaseMinAggregateOutputType = {
     id: string | null
-    folderId: string | null
+    collectionId: string | null
+    bibNumber: string | null
     buyerEmail: string | null
     buyerName: string | null
-    buyerPhone: string | null
     buyerLastName: string | null
+    buyerPhone: string | null
     amountPaid: Decimal | null
     currency: string | null
     status: $Enums.PurchaseStatus | null
@@ -9513,11 +8265,12 @@ export namespace Prisma {
 
   export type PurchaseMaxAggregateOutputType = {
     id: string | null
-    folderId: string | null
+    collectionId: string | null
+    bibNumber: string | null
     buyerEmail: string | null
     buyerName: string | null
-    buyerPhone: string | null
     buyerLastName: string | null
+    buyerPhone: string | null
     amountPaid: Decimal | null
     currency: string | null
     status: $Enums.PurchaseStatus | null
@@ -9533,11 +8286,12 @@ export namespace Prisma {
 
   export type PurchaseCountAggregateOutputType = {
     id: number
-    folderId: number
+    collectionId: number
+    bibNumber: number
     buyerEmail: number
     buyerName: number
-    buyerPhone: number
     buyerLastName: number
+    buyerPhone: number
     amountPaid: number
     currency: number
     status: number
@@ -9563,11 +8317,12 @@ export namespace Prisma {
 
   export type PurchaseMinAggregateInputType = {
     id?: true
-    folderId?: true
+    collectionId?: true
+    bibNumber?: true
     buyerEmail?: true
     buyerName?: true
-    buyerPhone?: true
     buyerLastName?: true
+    buyerPhone?: true
     amountPaid?: true
     currency?: true
     status?: true
@@ -9583,11 +8338,12 @@ export namespace Prisma {
 
   export type PurchaseMaxAggregateInputType = {
     id?: true
-    folderId?: true
+    collectionId?: true
+    bibNumber?: true
     buyerEmail?: true
     buyerName?: true
-    buyerPhone?: true
     buyerLastName?: true
+    buyerPhone?: true
     amountPaid?: true
     currency?: true
     status?: true
@@ -9603,11 +8359,12 @@ export namespace Prisma {
 
   export type PurchaseCountAggregateInputType = {
     id?: true
-    folderId?: true
+    collectionId?: true
+    bibNumber?: true
     buyerEmail?: true
     buyerName?: true
-    buyerPhone?: true
     buyerLastName?: true
+    buyerPhone?: true
     amountPaid?: true
     currency?: true
     status?: true
@@ -9710,11 +8467,12 @@ export namespace Prisma {
 
   export type PurchaseGroupByOutputType = {
     id: string
-    folderId: string
+    collectionId: string
+    bibNumber: string | null
     buyerEmail: string
     buyerName: string | null
-    buyerPhone: string | null
     buyerLastName: string | null
+    buyerPhone: string | null
     amountPaid: Decimal
     currency: string
     status: $Enums.PurchaseStatus
@@ -9749,11 +8507,12 @@ export namespace Prisma {
 
   export type PurchaseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    folderId?: boolean
+    collectionId?: boolean
+    bibNumber?: boolean
     buyerEmail?: boolean
     buyerName?: boolean
-    buyerPhone?: boolean
     buyerLastName?: boolean
+    buyerPhone?: boolean
     amountPaid?: boolean
     currency?: boolean
     status?: boolean
@@ -9765,16 +8524,17 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["purchase"]>
 
   export type PurchaseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    folderId?: boolean
+    collectionId?: boolean
+    bibNumber?: boolean
     buyerEmail?: boolean
     buyerName?: boolean
-    buyerPhone?: boolean
     buyerLastName?: boolean
+    buyerPhone?: boolean
     amountPaid?: boolean
     currency?: boolean
     status?: boolean
@@ -9786,16 +8546,17 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["purchase"]>
 
   export type PurchaseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    folderId?: boolean
+    collectionId?: boolean
+    bibNumber?: boolean
     buyerEmail?: boolean
     buyerName?: boolean
-    buyerPhone?: boolean
     buyerLastName?: boolean
+    buyerPhone?: boolean
     amountPaid?: boolean
     currency?: boolean
     status?: boolean
@@ -9807,16 +8568,17 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["purchase"]>
 
   export type PurchaseSelectScalar = {
     id?: boolean
-    folderId?: boolean
+    collectionId?: boolean
+    bibNumber?: boolean
     buyerEmail?: boolean
     buyerName?: boolean
-    buyerPhone?: boolean
     buyerLastName?: boolean
+    buyerPhone?: boolean
     amountPaid?: boolean
     currency?: boolean
     status?: boolean
@@ -9830,29 +8592,30 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PurchaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "folderId" | "buyerEmail" | "buyerName" | "buyerPhone" | "buyerLastName" | "amountPaid" | "currency" | "status" | "mercadopagoPreferenceId" | "mercadopagoPaymentId" | "mercadopagoOrderId" | "downloadToken" | "downloadTokenExpires" | "isPublic" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
+  export type PurchaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "bibNumber" | "buyerEmail" | "buyerName" | "buyerLastName" | "buyerPhone" | "amountPaid" | "currency" | "status" | "mercadopagoPreferenceId" | "mercadopagoPaymentId" | "mercadopagoOrderId" | "downloadToken" | "downloadTokenExpires" | "isPublic" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
   export type PurchaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }
   export type PurchaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }
   export type PurchaseIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    folder?: boolean | FolderDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }
 
   export type $PurchasePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Purchase"
     objects: {
-      folder: Prisma.$FolderPayload<ExtArgs>
+      collection: Prisma.$CollectionPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      folderId: string
+      collectionId: string
+      bibNumber: string | null
       buyerEmail: string
       buyerName: string | null
-      buyerPhone: string | null
       buyerLastName: string | null
+      buyerPhone: string | null
       amountPaid: Prisma.Decimal
       currency: string
       status: $Enums.PurchaseStatus
@@ -10258,7 +9021,7 @@ export namespace Prisma {
    */
   export interface Prisma__PurchaseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    folder<T extends FolderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FolderDefaultArgs<ExtArgs>>): Prisma__FolderClient<$Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10289,11 +9052,12 @@ export namespace Prisma {
    */
   interface PurchaseFieldRefs {
     readonly id: FieldRef<"Purchase", 'String'>
-    readonly folderId: FieldRef<"Purchase", 'String'>
+    readonly collectionId: FieldRef<"Purchase", 'String'>
+    readonly bibNumber: FieldRef<"Purchase", 'String'>
     readonly buyerEmail: FieldRef<"Purchase", 'String'>
     readonly buyerName: FieldRef<"Purchase", 'String'>
-    readonly buyerPhone: FieldRef<"Purchase", 'String'>
     readonly buyerLastName: FieldRef<"Purchase", 'String'>
+    readonly buyerPhone: FieldRef<"Purchase", 'String'>
     readonly amountPaid: FieldRef<"Purchase", 'Decimal'>
     readonly currency: FieldRef<"Purchase", 'String'>
     readonly status: FieldRef<"Purchase", 'PurchaseStatus'>
@@ -10791,6 +9555,7 @@ export namespace Prisma {
     logoUrl: 'logoUrl',
     bannerUrl: 'bannerUrl',
     slug: 'slug',
+    pricePerBib: 'pricePerBib',
     isPublished: 'isPublished',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -10799,32 +9564,17 @@ export namespace Prisma {
   export type CollectionScalarFieldEnum = (typeof CollectionScalarFieldEnum)[keyof typeof CollectionScalarFieldEnum]
 
 
-  export const FolderScalarFieldEnum: {
-    id: 'id',
-    number: 'number',
-    collectionId: 'collectionId',
-    price: 'price',
-    isPublished: 'isPublished',
-    isPublic: 'isPublic',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type FolderScalarFieldEnum = (typeof FolderScalarFieldEnum)[keyof typeof FolderScalarFieldEnum]
-
-
   export const PhotoScalarFieldEnum: {
     id: 'id',
-    folderId: 'folderId',
+    collectionId: 'collectionId',
+    bibNumber: 'bibNumber',
     storageKey: 'storageKey',
     filename: 'filename',
     fileSize: 'fileSize',
     width: 'width',
     height: 'height',
     order: 'order',
-    isPreview: 'isPreview',
     previewKey: 'previewKey',
-    previewGeneratedAt: 'previewGeneratedAt',
     createdAt: 'createdAt'
   };
 
@@ -10833,11 +9583,12 @@ export namespace Prisma {
 
   export const PurchaseScalarFieldEnum: {
     id: 'id',
-    folderId: 'folderId',
+    collectionId: 'collectionId',
+    bibNumber: 'bibNumber',
     buyerEmail: 'buyerEmail',
     buyerName: 'buyerName',
-    buyerPhone: 'buyerPhone',
     buyerLastName: 'buyerLastName',
+    buyerPhone: 'buyerPhone',
     amountPaid: 'amountPaid',
     currency: 'currency',
     status: 'status',
@@ -10926,13 +9677,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
    * Reference to a field of type 'Decimal'
    */
   export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -10943,6 +9687,13 @@ export namespace Prisma {
    * Reference to a field of type 'Decimal[]'
    */
   export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -11242,10 +9993,12 @@ export namespace Prisma {
     logoUrl?: StringNullableFilter<"Collection"> | string | null
     bannerUrl?: StringNullableFilter<"Collection"> | string | null
     slug?: StringFilter<"Collection"> | string
+    pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
-    folders?: FolderListRelationFilter
+    photos?: PhotoListRelationFilter
+    purchases?: PurchaseListRelationFilter
   }
 
   export type CollectionOrderByWithRelationInput = {
@@ -11256,10 +10009,12 @@ export namespace Prisma {
     logoUrl?: SortOrderInput | SortOrder
     bannerUrl?: SortOrderInput | SortOrder
     slug?: SortOrder
+    pricePerBib?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    folders?: FolderOrderByRelationAggregateInput
+    photos?: PhotoOrderByRelationAggregateInput
+    purchases?: PurchaseOrderByRelationAggregateInput
   }
 
   export type CollectionWhereUniqueInput = Prisma.AtLeast<{
@@ -11273,10 +10028,12 @@ export namespace Prisma {
     coverUrl?: StringNullableFilter<"Collection"> | string | null
     logoUrl?: StringNullableFilter<"Collection"> | string | null
     bannerUrl?: StringNullableFilter<"Collection"> | string | null
+    pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
-    folders?: FolderListRelationFilter
+    photos?: PhotoListRelationFilter
+    purchases?: PurchaseListRelationFilter
   }, "id" | "slug">
 
   export type CollectionOrderByWithAggregationInput = {
@@ -11287,12 +10044,15 @@ export namespace Prisma {
     logoUrl?: SortOrderInput | SortOrder
     bannerUrl?: SortOrderInput | SortOrder
     slug?: SortOrder
+    pricePerBib?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CollectionCountOrderByAggregateInput
+    _avg?: CollectionAvgOrderByAggregateInput
     _max?: CollectionMaxOrderByAggregateInput
     _min?: CollectionMinOrderByAggregateInput
+    _sum?: CollectionSumOrderByAggregateInput
   }
 
   export type CollectionScalarWhereWithAggregatesInput = {
@@ -11306,88 +10066,10 @@ export namespace Prisma {
     logoUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     bannerUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     slug?: StringWithAggregatesFilter<"Collection"> | string
+    pricePerBib?: DecimalWithAggregatesFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolWithAggregatesFilter<"Collection"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
-  }
-
-  export type FolderWhereInput = {
-    AND?: FolderWhereInput | FolderWhereInput[]
-    OR?: FolderWhereInput[]
-    NOT?: FolderWhereInput | FolderWhereInput[]
-    id?: StringFilter<"Folder"> | string
-    number?: StringFilter<"Folder"> | string
-    collectionId?: StringFilter<"Folder"> | string
-    price?: DecimalFilter<"Folder"> | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFilter<"Folder"> | boolean
-    isPublic?: BoolFilter<"Folder"> | boolean
-    createdAt?: DateTimeFilter<"Folder"> | Date | string
-    updatedAt?: DateTimeFilter<"Folder"> | Date | string
-    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
-    photos?: PhotoListRelationFilter
-    purchases?: PurchaseListRelationFilter
-  }
-
-  export type FolderOrderByWithRelationInput = {
-    id?: SortOrder
-    number?: SortOrder
-    collectionId?: SortOrder
-    price?: SortOrder
-    isPublished?: SortOrder
-    isPublic?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    collection?: CollectionOrderByWithRelationInput
-    photos?: PhotoOrderByRelationAggregateInput
-    purchases?: PurchaseOrderByRelationAggregateInput
-  }
-
-  export type FolderWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    collectionId_number?: FolderCollectionIdNumberCompoundUniqueInput
-    AND?: FolderWhereInput | FolderWhereInput[]
-    OR?: FolderWhereInput[]
-    NOT?: FolderWhereInput | FolderWhereInput[]
-    number?: StringFilter<"Folder"> | string
-    collectionId?: StringFilter<"Folder"> | string
-    price?: DecimalFilter<"Folder"> | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFilter<"Folder"> | boolean
-    isPublic?: BoolFilter<"Folder"> | boolean
-    createdAt?: DateTimeFilter<"Folder"> | Date | string
-    updatedAt?: DateTimeFilter<"Folder"> | Date | string
-    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
-    photos?: PhotoListRelationFilter
-    purchases?: PurchaseListRelationFilter
-  }, "id" | "collectionId_number">
-
-  export type FolderOrderByWithAggregationInput = {
-    id?: SortOrder
-    number?: SortOrder
-    collectionId?: SortOrder
-    price?: SortOrder
-    isPublished?: SortOrder
-    isPublic?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: FolderCountOrderByAggregateInput
-    _avg?: FolderAvgOrderByAggregateInput
-    _max?: FolderMaxOrderByAggregateInput
-    _min?: FolderMinOrderByAggregateInput
-    _sum?: FolderSumOrderByAggregateInput
-  }
-
-  export type FolderScalarWhereWithAggregatesInput = {
-    AND?: FolderScalarWhereWithAggregatesInput | FolderScalarWhereWithAggregatesInput[]
-    OR?: FolderScalarWhereWithAggregatesInput[]
-    NOT?: FolderScalarWhereWithAggregatesInput | FolderScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Folder"> | string
-    number?: StringWithAggregatesFilter<"Folder"> | string
-    collectionId?: StringWithAggregatesFilter<"Folder"> | string
-    price?: DecimalWithAggregatesFilter<"Folder"> | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolWithAggregatesFilter<"Folder"> | boolean
-    isPublic?: BoolWithAggregatesFilter<"Folder"> | boolean
-    createdAt?: DateTimeWithAggregatesFilter<"Folder"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"Folder"> | Date | string
   }
 
   export type PhotoWhereInput = {
@@ -11395,34 +10077,32 @@ export namespace Prisma {
     OR?: PhotoWhereInput[]
     NOT?: PhotoWhereInput | PhotoWhereInput[]
     id?: StringFilter<"Photo"> | string
-    folderId?: StringFilter<"Photo"> | string
+    collectionId?: StringFilter<"Photo"> | string
+    bibNumber?: StringNullableFilter<"Photo"> | string | null
     storageKey?: StringFilter<"Photo"> | string
     filename?: StringFilter<"Photo"> | string
     fileSize?: IntNullableFilter<"Photo"> | number | null
     width?: IntNullableFilter<"Photo"> | number | null
     height?: IntNullableFilter<"Photo"> | number | null
     order?: IntFilter<"Photo"> | number
-    isPreview?: BoolFilter<"Photo"> | boolean
     previewKey?: StringNullableFilter<"Photo"> | string | null
-    previewGeneratedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
-    folder?: XOR<FolderScalarRelationFilter, FolderWhereInput>
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
   }
 
   export type PhotoOrderByWithRelationInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrderInput | SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
     fileSize?: SortOrderInput | SortOrder
     width?: SortOrderInput | SortOrder
     height?: SortOrderInput | SortOrder
     order?: SortOrder
-    isPreview?: SortOrder
     previewKey?: SortOrderInput | SortOrder
-    previewGeneratedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    folder?: FolderOrderByWithRelationInput
+    collection?: CollectionOrderByWithRelationInput
   }
 
   export type PhotoWhereUniqueInput = Prisma.AtLeast<{
@@ -11430,32 +10110,30 @@ export namespace Prisma {
     AND?: PhotoWhereInput | PhotoWhereInput[]
     OR?: PhotoWhereInput[]
     NOT?: PhotoWhereInput | PhotoWhereInput[]
-    folderId?: StringFilter<"Photo"> | string
+    collectionId?: StringFilter<"Photo"> | string
+    bibNumber?: StringNullableFilter<"Photo"> | string | null
     storageKey?: StringFilter<"Photo"> | string
     filename?: StringFilter<"Photo"> | string
     fileSize?: IntNullableFilter<"Photo"> | number | null
     width?: IntNullableFilter<"Photo"> | number | null
     height?: IntNullableFilter<"Photo"> | number | null
     order?: IntFilter<"Photo"> | number
-    isPreview?: BoolFilter<"Photo"> | boolean
     previewKey?: StringNullableFilter<"Photo"> | string | null
-    previewGeneratedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
-    folder?: XOR<FolderScalarRelationFilter, FolderWhereInput>
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
   }, "id">
 
   export type PhotoOrderByWithAggregationInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrderInput | SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
     fileSize?: SortOrderInput | SortOrder
     width?: SortOrderInput | SortOrder
     height?: SortOrderInput | SortOrder
     order?: SortOrder
-    isPreview?: SortOrder
     previewKey?: SortOrderInput | SortOrder
-    previewGeneratedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: PhotoCountOrderByAggregateInput
     _avg?: PhotoAvgOrderByAggregateInput
@@ -11469,16 +10147,15 @@ export namespace Prisma {
     OR?: PhotoScalarWhereWithAggregatesInput[]
     NOT?: PhotoScalarWhereWithAggregatesInput | PhotoScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Photo"> | string
-    folderId?: StringWithAggregatesFilter<"Photo"> | string
+    collectionId?: StringWithAggregatesFilter<"Photo"> | string
+    bibNumber?: StringNullableWithAggregatesFilter<"Photo"> | string | null
     storageKey?: StringWithAggregatesFilter<"Photo"> | string
     filename?: StringWithAggregatesFilter<"Photo"> | string
     fileSize?: IntNullableWithAggregatesFilter<"Photo"> | number | null
     width?: IntNullableWithAggregatesFilter<"Photo"> | number | null
     height?: IntNullableWithAggregatesFilter<"Photo"> | number | null
     order?: IntWithAggregatesFilter<"Photo"> | number
-    isPreview?: BoolWithAggregatesFilter<"Photo"> | boolean
     previewKey?: StringNullableWithAggregatesFilter<"Photo"> | string | null
-    previewGeneratedAt?: DateTimeNullableWithAggregatesFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Photo"> | Date | string
   }
 
@@ -11487,11 +10164,12 @@ export namespace Prisma {
     OR?: PurchaseWhereInput[]
     NOT?: PurchaseWhereInput | PurchaseWhereInput[]
     id?: StringFilter<"Purchase"> | string
-    folderId?: StringFilter<"Purchase"> | string
+    collectionId?: StringFilter<"Purchase"> | string
+    bibNumber?: StringNullableFilter<"Purchase"> | string | null
     buyerEmail?: StringFilter<"Purchase"> | string
     buyerName?: StringNullableFilter<"Purchase"> | string | null
-    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
     buyerLastName?: StringNullableFilter<"Purchase"> | string | null
+    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
     amountPaid?: DecimalFilter<"Purchase"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Purchase"> | string
     status?: EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
@@ -11503,16 +10181,17 @@ export namespace Prisma {
     isPublic?: BoolFilter<"Purchase"> | boolean
     createdAt?: DateTimeFilter<"Purchase"> | Date | string
     updatedAt?: DateTimeFilter<"Purchase"> | Date | string
-    folder?: XOR<FolderScalarRelationFilter, FolderWhereInput>
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
   }
 
   export type PurchaseOrderByWithRelationInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrderInput | SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrderInput | SortOrder
-    buyerPhone?: SortOrderInput | SortOrder
     buyerLastName?: SortOrderInput | SortOrder
+    buyerPhone?: SortOrderInput | SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -11524,7 +10203,7 @@ export namespace Prisma {
     isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    folder?: FolderOrderByWithRelationInput
+    collection?: CollectionOrderByWithRelationInput
   }
 
   export type PurchaseWhereUniqueInput = Prisma.AtLeast<{
@@ -11533,11 +10212,12 @@ export namespace Prisma {
     AND?: PurchaseWhereInput | PurchaseWhereInput[]
     OR?: PurchaseWhereInput[]
     NOT?: PurchaseWhereInput | PurchaseWhereInput[]
-    folderId?: StringFilter<"Purchase"> | string
+    collectionId?: StringFilter<"Purchase"> | string
+    bibNumber?: StringNullableFilter<"Purchase"> | string | null
     buyerEmail?: StringFilter<"Purchase"> | string
     buyerName?: StringNullableFilter<"Purchase"> | string | null
-    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
     buyerLastName?: StringNullableFilter<"Purchase"> | string | null
+    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
     amountPaid?: DecimalFilter<"Purchase"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Purchase"> | string
     status?: EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
@@ -11548,16 +10228,17 @@ export namespace Prisma {
     isPublic?: BoolFilter<"Purchase"> | boolean
     createdAt?: DateTimeFilter<"Purchase"> | Date | string
     updatedAt?: DateTimeFilter<"Purchase"> | Date | string
-    folder?: XOR<FolderScalarRelationFilter, FolderWhereInput>
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
   }, "id" | "downloadToken">
 
   export type PurchaseOrderByWithAggregationInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrderInput | SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrderInput | SortOrder
-    buyerPhone?: SortOrderInput | SortOrder
     buyerLastName?: SortOrderInput | SortOrder
+    buyerPhone?: SortOrderInput | SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -11581,11 +10262,12 @@ export namespace Prisma {
     OR?: PurchaseScalarWhereWithAggregatesInput[]
     NOT?: PurchaseScalarWhereWithAggregatesInput | PurchaseScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Purchase"> | string
-    folderId?: StringWithAggregatesFilter<"Purchase"> | string
+    collectionId?: StringWithAggregatesFilter<"Purchase"> | string
+    bibNumber?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
     buyerEmail?: StringWithAggregatesFilter<"Purchase"> | string
     buyerName?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
-    buyerPhone?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
     buyerLastName?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
+    buyerPhone?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
     amountPaid?: DecimalWithAggregatesFilter<"Purchase"> | Decimal | DecimalJsLike | number | string
     currency?: StringWithAggregatesFilter<"Purchase"> | string
     status?: EnumPurchaseStatusWithAggregatesFilter<"Purchase"> | $Enums.PurchaseStatus
@@ -11879,10 +10561,12 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    folders?: FolderCreateNestedManyWithoutCollectionInput
+    photos?: PhotoCreateNestedManyWithoutCollectionInput
+    purchases?: PurchaseCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUncheckedCreateInput = {
@@ -11893,10 +10577,12 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    folders?: FolderUncheckedCreateNestedManyWithoutCollectionInput
+    photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
+    purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUpdateInput = {
@@ -11907,10 +10593,12 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    folders?: FolderUpdateManyWithoutCollectionNestedInput
+    photos?: PhotoUpdateManyWithoutCollectionNestedInput
+    purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionUncheckedUpdateInput = {
@@ -11921,10 +10609,12 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    folders?: FolderUncheckedUpdateManyWithoutCollectionNestedInput
+    photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
+    purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionCreateManyInput = {
@@ -11935,6 +10625,7 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -11948,6 +10639,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11961,205 +10653,116 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FolderCreateInput = {
-    id?: string
-    number: string
-    price: Decimal | DecimalJsLike | number | string
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collection: CollectionCreateNestedOneWithoutFoldersInput
-    photos?: PhotoCreateNestedManyWithoutFolderInput
-    purchases?: PurchaseCreateNestedManyWithoutFolderInput
-  }
-
-  export type FolderUncheckedCreateInput = {
-    id?: string
-    number: string
-    collectionId: string
-    price: Decimal | DecimalJsLike | number | string
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    photos?: PhotoUncheckedCreateNestedManyWithoutFolderInput
-    purchases?: PurchaseUncheckedCreateNestedManyWithoutFolderInput
-  }
-
-  export type FolderUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collection?: CollectionUpdateOneRequiredWithoutFoldersNestedInput
-    photos?: PhotoUpdateManyWithoutFolderNestedInput
-    purchases?: PurchaseUpdateManyWithoutFolderNestedInput
-  }
-
-  export type FolderUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    collectionId?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    photos?: PhotoUncheckedUpdateManyWithoutFolderNestedInput
-    purchases?: PurchaseUncheckedUpdateManyWithoutFolderNestedInput
-  }
-
-  export type FolderCreateManyInput = {
-    id?: string
-    number: string
-    collectionId: string
-    price: Decimal | DecimalJsLike | number | string
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type FolderUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FolderUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    collectionId?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PhotoCreateInput = {
     id?: string
+    bibNumber?: string | null
     storageKey: string
     filename: string
     fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
-    isPreview?: boolean
     previewKey?: string | null
-    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
-    folder: FolderCreateNestedOneWithoutPhotosInput
+    collection: CollectionCreateNestedOneWithoutPhotosInput
   }
 
   export type PhotoUncheckedCreateInput = {
     id?: string
-    folderId: string
+    collectionId: string
+    bibNumber?: string | null
     storageKey: string
     filename: string
     fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
-    isPreview?: boolean
     previewKey?: string | null
-    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type PhotoUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
-    isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
-    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    folder?: FolderUpdateOneRequiredWithoutPhotosNestedInput
+    collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
   }
 
   export type PhotoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    folderId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
-    isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
-    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PhotoCreateManyInput = {
     id?: string
-    folderId: string
+    collectionId: string
+    bibNumber?: string | null
     storageKey: string
     filename: string
     fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
-    isPreview?: boolean
     previewKey?: string | null
-    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type PhotoUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
-    isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
-    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PhotoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    folderId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
-    isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
-    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PurchaseCreateInput = {
     id?: string
+    bibNumber?: string | null
     buyerEmail: string
     buyerName?: string | null
-    buyerPhone?: string | null
     buyerLastName?: string | null
+    buyerPhone?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -12171,16 +10774,17 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    folder: FolderCreateNestedOneWithoutPurchasesInput
+    collection: CollectionCreateNestedOneWithoutPurchasesInput
   }
 
   export type PurchaseUncheckedCreateInput = {
     id?: string
-    folderId: string
+    collectionId: string
+    bibNumber?: string | null
     buyerEmail: string
     buyerName?: string | null
-    buyerPhone?: string | null
     buyerLastName?: string | null
+    buyerPhone?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -12196,10 +10800,11 @@ export namespace Prisma {
 
   export type PurchaseUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
-    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -12211,16 +10816,17 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    folder?: FolderUpdateOneRequiredWithoutPurchasesNestedInput
+    collection?: CollectionUpdateOneRequiredWithoutPurchasesNestedInput
   }
 
   export type PurchaseUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    folderId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
-    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -12236,11 +10842,12 @@ export namespace Prisma {
 
   export type PurchaseCreateManyInput = {
     id?: string
-    folderId: string
+    collectionId: string
+    bibNumber?: string | null
     buyerEmail: string
     buyerName?: string | null
-    buyerPhone?: string | null
     buyerLastName?: string | null
+    buyerPhone?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -12256,10 +10863,11 @@ export namespace Prisma {
 
   export type PurchaseUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
-    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -12275,11 +10883,12 @@ export namespace Prisma {
 
   export type PurchaseUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    folderId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
-    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -12600,68 +11209,6 @@ export namespace Prisma {
     expires?: SortOrder
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type FolderListRelationFilter = {
-    every?: FolderWhereInput
-    some?: FolderWhereInput
-    none?: FolderWhereInput
-  }
-
-  export type FolderOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type CollectionCountOrderByAggregateInput = {
-    id?: SortOrder
-    title?: SortOrder
-    description?: SortOrder
-    coverUrl?: SortOrder
-    logoUrl?: SortOrder
-    bannerUrl?: SortOrder
-    slug?: SortOrder
-    isPublished?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type CollectionMaxOrderByAggregateInput = {
-    id?: SortOrder
-    title?: SortOrder
-    description?: SortOrder
-    coverUrl?: SortOrder
-    logoUrl?: SortOrder
-    bannerUrl?: SortOrder
-    slug?: SortOrder
-    isPublished?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type CollectionMinOrderByAggregateInput = {
-    id?: SortOrder
-    title?: SortOrder
-    description?: SortOrder
-    coverUrl?: SortOrder
-    logoUrl?: SortOrder
-    bannerUrl?: SortOrder
-    slug?: SortOrder
-    isPublished?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type DecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -12673,9 +11220,9 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
-  export type CollectionScalarRelationFilter = {
-    is?: CollectionWhereInput
-    isNot?: CollectionWhereInput
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type PhotoListRelationFilter = {
@@ -12698,50 +11245,54 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type FolderCollectionIdNumberCompoundUniqueInput = {
-    collectionId: string
-    number: string
-  }
-
-  export type FolderCountOrderByAggregateInput = {
+  export type CollectionCountOrderByAggregateInput = {
     id?: SortOrder
-    number?: SortOrder
-    collectionId?: SortOrder
-    price?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    coverUrl?: SortOrder
+    logoUrl?: SortOrder
+    bannerUrl?: SortOrder
+    slug?: SortOrder
+    pricePerBib?: SortOrder
     isPublished?: SortOrder
-    isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type FolderAvgOrderByAggregateInput = {
-    price?: SortOrder
+  export type CollectionAvgOrderByAggregateInput = {
+    pricePerBib?: SortOrder
   }
 
-  export type FolderMaxOrderByAggregateInput = {
+  export type CollectionMaxOrderByAggregateInput = {
     id?: SortOrder
-    number?: SortOrder
-    collectionId?: SortOrder
-    price?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    coverUrl?: SortOrder
+    logoUrl?: SortOrder
+    bannerUrl?: SortOrder
+    slug?: SortOrder
+    pricePerBib?: SortOrder
     isPublished?: SortOrder
-    isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type FolderMinOrderByAggregateInput = {
+  export type CollectionMinOrderByAggregateInput = {
     id?: SortOrder
-    number?: SortOrder
-    collectionId?: SortOrder
-    price?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    coverUrl?: SortOrder
+    logoUrl?: SortOrder
+    bannerUrl?: SortOrder
+    slug?: SortOrder
+    pricePerBib?: SortOrder
     isPublished?: SortOrder
-    isPublic?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type FolderSumOrderByAggregateInput = {
-    price?: SortOrder
+  export type CollectionSumOrderByAggregateInput = {
+    pricePerBib?: SortOrder
   }
 
   export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -12760,6 +11311,14 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -12771,23 +11330,22 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type FolderScalarRelationFilter = {
-    is?: FolderWhereInput
-    isNot?: FolderWhereInput
+  export type CollectionScalarRelationFilter = {
+    is?: CollectionWhereInput
+    isNot?: CollectionWhereInput
   }
 
   export type PhotoCountOrderByAggregateInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
     fileSize?: SortOrder
     width?: SortOrder
     height?: SortOrder
     order?: SortOrder
-    isPreview?: SortOrder
     previewKey?: SortOrder
-    previewGeneratedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12800,31 +11358,29 @@ export namespace Prisma {
 
   export type PhotoMaxOrderByAggregateInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
     fileSize?: SortOrder
     width?: SortOrder
     height?: SortOrder
     order?: SortOrder
-    isPreview?: SortOrder
     previewKey?: SortOrder
-    previewGeneratedAt?: SortOrder
     createdAt?: SortOrder
   }
 
   export type PhotoMinOrderByAggregateInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
     fileSize?: SortOrder
     width?: SortOrder
     height?: SortOrder
     order?: SortOrder
-    isPreview?: SortOrder
     previewKey?: SortOrder
-    previewGeneratedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12860,11 +11416,12 @@ export namespace Prisma {
 
   export type PurchaseCountOrderByAggregateInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrder
-    buyerPhone?: SortOrder
     buyerLastName?: SortOrder
+    buyerPhone?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -12884,11 +11441,12 @@ export namespace Prisma {
 
   export type PurchaseMaxOrderByAggregateInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrder
-    buyerPhone?: SortOrder
     buyerLastName?: SortOrder
+    buyerPhone?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -12904,11 +11462,12 @@ export namespace Prisma {
 
   export type PurchaseMinOrderByAggregateInput = {
     id?: SortOrder
-    folderId?: SortOrder
+    collectionId?: SortOrder
+    bibNumber?: SortOrder
     buyerEmail?: SortOrder
     buyerName?: SortOrder
-    buyerPhone?: SortOrder
     buyerLastName?: SortOrder
+    buyerPhone?: SortOrder
     amountPaid?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -13072,83 +11631,31 @@ export namespace Prisma {
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
   }
 
-  export type FolderCreateNestedManyWithoutCollectionInput = {
-    create?: XOR<FolderCreateWithoutCollectionInput, FolderUncheckedCreateWithoutCollectionInput> | FolderCreateWithoutCollectionInput[] | FolderUncheckedCreateWithoutCollectionInput[]
-    connectOrCreate?: FolderCreateOrConnectWithoutCollectionInput | FolderCreateOrConnectWithoutCollectionInput[]
-    createMany?: FolderCreateManyCollectionInputEnvelope
-    connect?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-  }
-
-  export type FolderUncheckedCreateNestedManyWithoutCollectionInput = {
-    create?: XOR<FolderCreateWithoutCollectionInput, FolderUncheckedCreateWithoutCollectionInput> | FolderCreateWithoutCollectionInput[] | FolderUncheckedCreateWithoutCollectionInput[]
-    connectOrCreate?: FolderCreateOrConnectWithoutCollectionInput | FolderCreateOrConnectWithoutCollectionInput[]
-    createMany?: FolderCreateManyCollectionInputEnvelope
-    connect?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
-  export type FolderUpdateManyWithoutCollectionNestedInput = {
-    create?: XOR<FolderCreateWithoutCollectionInput, FolderUncheckedCreateWithoutCollectionInput> | FolderCreateWithoutCollectionInput[] | FolderUncheckedCreateWithoutCollectionInput[]
-    connectOrCreate?: FolderCreateOrConnectWithoutCollectionInput | FolderCreateOrConnectWithoutCollectionInput[]
-    upsert?: FolderUpsertWithWhereUniqueWithoutCollectionInput | FolderUpsertWithWhereUniqueWithoutCollectionInput[]
-    createMany?: FolderCreateManyCollectionInputEnvelope
-    set?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-    disconnect?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-    delete?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-    connect?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-    update?: FolderUpdateWithWhereUniqueWithoutCollectionInput | FolderUpdateWithWhereUniqueWithoutCollectionInput[]
-    updateMany?: FolderUpdateManyWithWhereWithoutCollectionInput | FolderUpdateManyWithWhereWithoutCollectionInput[]
-    deleteMany?: FolderScalarWhereInput | FolderScalarWhereInput[]
-  }
-
-  export type FolderUncheckedUpdateManyWithoutCollectionNestedInput = {
-    create?: XOR<FolderCreateWithoutCollectionInput, FolderUncheckedCreateWithoutCollectionInput> | FolderCreateWithoutCollectionInput[] | FolderUncheckedCreateWithoutCollectionInput[]
-    connectOrCreate?: FolderCreateOrConnectWithoutCollectionInput | FolderCreateOrConnectWithoutCollectionInput[]
-    upsert?: FolderUpsertWithWhereUniqueWithoutCollectionInput | FolderUpsertWithWhereUniqueWithoutCollectionInput[]
-    createMany?: FolderCreateManyCollectionInputEnvelope
-    set?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-    disconnect?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-    delete?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-    connect?: FolderWhereUniqueInput | FolderWhereUniqueInput[]
-    update?: FolderUpdateWithWhereUniqueWithoutCollectionInput | FolderUpdateWithWhereUniqueWithoutCollectionInput[]
-    updateMany?: FolderUpdateManyWithWhereWithoutCollectionInput | FolderUpdateManyWithWhereWithoutCollectionInput[]
-    deleteMany?: FolderScalarWhereInput | FolderScalarWhereInput[]
-  }
-
-  export type CollectionCreateNestedOneWithoutFoldersInput = {
-    create?: XOR<CollectionCreateWithoutFoldersInput, CollectionUncheckedCreateWithoutFoldersInput>
-    connectOrCreate?: CollectionCreateOrConnectWithoutFoldersInput
-    connect?: CollectionWhereUniqueInput
-  }
-
-  export type PhotoCreateNestedManyWithoutFolderInput = {
-    create?: XOR<PhotoCreateWithoutFolderInput, PhotoUncheckedCreateWithoutFolderInput> | PhotoCreateWithoutFolderInput[] | PhotoUncheckedCreateWithoutFolderInput[]
-    connectOrCreate?: PhotoCreateOrConnectWithoutFolderInput | PhotoCreateOrConnectWithoutFolderInput[]
-    createMany?: PhotoCreateManyFolderInputEnvelope
+  export type PhotoCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
+    createMany?: PhotoCreateManyCollectionInputEnvelope
     connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
   }
 
-  export type PurchaseCreateNestedManyWithoutFolderInput = {
-    create?: XOR<PurchaseCreateWithoutFolderInput, PurchaseUncheckedCreateWithoutFolderInput> | PurchaseCreateWithoutFolderInput[] | PurchaseUncheckedCreateWithoutFolderInput[]
-    connectOrCreate?: PurchaseCreateOrConnectWithoutFolderInput | PurchaseCreateOrConnectWithoutFolderInput[]
-    createMany?: PurchaseCreateManyFolderInputEnvelope
+  export type PurchaseCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<PurchaseCreateWithoutCollectionInput, PurchaseUncheckedCreateWithoutCollectionInput> | PurchaseCreateWithoutCollectionInput[] | PurchaseUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: PurchaseCreateOrConnectWithoutCollectionInput | PurchaseCreateOrConnectWithoutCollectionInput[]
+    createMany?: PurchaseCreateManyCollectionInputEnvelope
     connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
   }
 
-  export type PhotoUncheckedCreateNestedManyWithoutFolderInput = {
-    create?: XOR<PhotoCreateWithoutFolderInput, PhotoUncheckedCreateWithoutFolderInput> | PhotoCreateWithoutFolderInput[] | PhotoUncheckedCreateWithoutFolderInput[]
-    connectOrCreate?: PhotoCreateOrConnectWithoutFolderInput | PhotoCreateOrConnectWithoutFolderInput[]
-    createMany?: PhotoCreateManyFolderInputEnvelope
+  export type PhotoUncheckedCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
+    createMany?: PhotoCreateManyCollectionInputEnvelope
     connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
   }
 
-  export type PurchaseUncheckedCreateNestedManyWithoutFolderInput = {
-    create?: XOR<PurchaseCreateWithoutFolderInput, PurchaseUncheckedCreateWithoutFolderInput> | PurchaseCreateWithoutFolderInput[] | PurchaseUncheckedCreateWithoutFolderInput[]
-    connectOrCreate?: PurchaseCreateOrConnectWithoutFolderInput | PurchaseCreateOrConnectWithoutFolderInput[]
-    createMany?: PurchaseCreateManyFolderInputEnvelope
+  export type PurchaseUncheckedCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<PurchaseCreateWithoutCollectionInput, PurchaseUncheckedCreateWithoutCollectionInput> | PurchaseCreateWithoutCollectionInput[] | PurchaseUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: PurchaseCreateOrConnectWithoutCollectionInput | PurchaseCreateOrConnectWithoutCollectionInput[]
+    createMany?: PurchaseCreateManyCollectionInputEnvelope
     connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
   }
 
@@ -13160,74 +11667,70 @@ export namespace Prisma {
     divide?: Decimal | DecimalJsLike | number | string
   }
 
-  export type CollectionUpdateOneRequiredWithoutFoldersNestedInput = {
-    create?: XOR<CollectionCreateWithoutFoldersInput, CollectionUncheckedCreateWithoutFoldersInput>
-    connectOrCreate?: CollectionCreateOrConnectWithoutFoldersInput
-    upsert?: CollectionUpsertWithoutFoldersInput
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type PhotoUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
+    upsert?: PhotoUpsertWithWhereUniqueWithoutCollectionInput | PhotoUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: PhotoCreateManyCollectionInputEnvelope
+    set?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    disconnect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    delete?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    update?: PhotoUpdateWithWhereUniqueWithoutCollectionInput | PhotoUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: PhotoUpdateManyWithWhereWithoutCollectionInput | PhotoUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
+  }
+
+  export type PurchaseUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<PurchaseCreateWithoutCollectionInput, PurchaseUncheckedCreateWithoutCollectionInput> | PurchaseCreateWithoutCollectionInput[] | PurchaseUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: PurchaseCreateOrConnectWithoutCollectionInput | PurchaseCreateOrConnectWithoutCollectionInput[]
+    upsert?: PurchaseUpsertWithWhereUniqueWithoutCollectionInput | PurchaseUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: PurchaseCreateManyCollectionInputEnvelope
+    set?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+    disconnect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+    delete?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+    connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+    update?: PurchaseUpdateWithWhereUniqueWithoutCollectionInput | PurchaseUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: PurchaseUpdateManyWithWhereWithoutCollectionInput | PurchaseUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: PurchaseScalarWhereInput | PurchaseScalarWhereInput[]
+  }
+
+  export type PhotoUncheckedUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
+    upsert?: PhotoUpsertWithWhereUniqueWithoutCollectionInput | PhotoUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: PhotoCreateManyCollectionInputEnvelope
+    set?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    disconnect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    delete?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    update?: PhotoUpdateWithWhereUniqueWithoutCollectionInput | PhotoUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: PhotoUpdateManyWithWhereWithoutCollectionInput | PhotoUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
+  }
+
+  export type PurchaseUncheckedUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<PurchaseCreateWithoutCollectionInput, PurchaseUncheckedCreateWithoutCollectionInput> | PurchaseCreateWithoutCollectionInput[] | PurchaseUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: PurchaseCreateOrConnectWithoutCollectionInput | PurchaseCreateOrConnectWithoutCollectionInput[]
+    upsert?: PurchaseUpsertWithWhereUniqueWithoutCollectionInput | PurchaseUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: PurchaseCreateManyCollectionInputEnvelope
+    set?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+    disconnect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+    delete?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+    connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+    update?: PurchaseUpdateWithWhereUniqueWithoutCollectionInput | PurchaseUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: PurchaseUpdateManyWithWhereWithoutCollectionInput | PurchaseUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: PurchaseScalarWhereInput | PurchaseScalarWhereInput[]
+  }
+
+  export type CollectionCreateNestedOneWithoutPhotosInput = {
+    create?: XOR<CollectionCreateWithoutPhotosInput, CollectionUncheckedCreateWithoutPhotosInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutPhotosInput
     connect?: CollectionWhereUniqueInput
-    update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutFoldersInput, CollectionUpdateWithoutFoldersInput>, CollectionUncheckedUpdateWithoutFoldersInput>
-  }
-
-  export type PhotoUpdateManyWithoutFolderNestedInput = {
-    create?: XOR<PhotoCreateWithoutFolderInput, PhotoUncheckedCreateWithoutFolderInput> | PhotoCreateWithoutFolderInput[] | PhotoUncheckedCreateWithoutFolderInput[]
-    connectOrCreate?: PhotoCreateOrConnectWithoutFolderInput | PhotoCreateOrConnectWithoutFolderInput[]
-    upsert?: PhotoUpsertWithWhereUniqueWithoutFolderInput | PhotoUpsertWithWhereUniqueWithoutFolderInput[]
-    createMany?: PhotoCreateManyFolderInputEnvelope
-    set?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
-    disconnect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
-    delete?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
-    connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
-    update?: PhotoUpdateWithWhereUniqueWithoutFolderInput | PhotoUpdateWithWhereUniqueWithoutFolderInput[]
-    updateMany?: PhotoUpdateManyWithWhereWithoutFolderInput | PhotoUpdateManyWithWhereWithoutFolderInput[]
-    deleteMany?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
-  }
-
-  export type PurchaseUpdateManyWithoutFolderNestedInput = {
-    create?: XOR<PurchaseCreateWithoutFolderInput, PurchaseUncheckedCreateWithoutFolderInput> | PurchaseCreateWithoutFolderInput[] | PurchaseUncheckedCreateWithoutFolderInput[]
-    connectOrCreate?: PurchaseCreateOrConnectWithoutFolderInput | PurchaseCreateOrConnectWithoutFolderInput[]
-    upsert?: PurchaseUpsertWithWhereUniqueWithoutFolderInput | PurchaseUpsertWithWhereUniqueWithoutFolderInput[]
-    createMany?: PurchaseCreateManyFolderInputEnvelope
-    set?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
-    disconnect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
-    delete?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
-    connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
-    update?: PurchaseUpdateWithWhereUniqueWithoutFolderInput | PurchaseUpdateWithWhereUniqueWithoutFolderInput[]
-    updateMany?: PurchaseUpdateManyWithWhereWithoutFolderInput | PurchaseUpdateManyWithWhereWithoutFolderInput[]
-    deleteMany?: PurchaseScalarWhereInput | PurchaseScalarWhereInput[]
-  }
-
-  export type PhotoUncheckedUpdateManyWithoutFolderNestedInput = {
-    create?: XOR<PhotoCreateWithoutFolderInput, PhotoUncheckedCreateWithoutFolderInput> | PhotoCreateWithoutFolderInput[] | PhotoUncheckedCreateWithoutFolderInput[]
-    connectOrCreate?: PhotoCreateOrConnectWithoutFolderInput | PhotoCreateOrConnectWithoutFolderInput[]
-    upsert?: PhotoUpsertWithWhereUniqueWithoutFolderInput | PhotoUpsertWithWhereUniqueWithoutFolderInput[]
-    createMany?: PhotoCreateManyFolderInputEnvelope
-    set?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
-    disconnect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
-    delete?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
-    connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
-    update?: PhotoUpdateWithWhereUniqueWithoutFolderInput | PhotoUpdateWithWhereUniqueWithoutFolderInput[]
-    updateMany?: PhotoUpdateManyWithWhereWithoutFolderInput | PhotoUpdateManyWithWhereWithoutFolderInput[]
-    deleteMany?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
-  }
-
-  export type PurchaseUncheckedUpdateManyWithoutFolderNestedInput = {
-    create?: XOR<PurchaseCreateWithoutFolderInput, PurchaseUncheckedCreateWithoutFolderInput> | PurchaseCreateWithoutFolderInput[] | PurchaseUncheckedCreateWithoutFolderInput[]
-    connectOrCreate?: PurchaseCreateOrConnectWithoutFolderInput | PurchaseCreateOrConnectWithoutFolderInput[]
-    upsert?: PurchaseUpsertWithWhereUniqueWithoutFolderInput | PurchaseUpsertWithWhereUniqueWithoutFolderInput[]
-    createMany?: PurchaseCreateManyFolderInputEnvelope
-    set?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
-    disconnect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
-    delete?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
-    connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
-    update?: PurchaseUpdateWithWhereUniqueWithoutFolderInput | PurchaseUpdateWithWhereUniqueWithoutFolderInput[]
-    updateMany?: PurchaseUpdateManyWithWhereWithoutFolderInput | PurchaseUpdateManyWithWhereWithoutFolderInput[]
-    deleteMany?: PurchaseScalarWhereInput | PurchaseScalarWhereInput[]
-  }
-
-  export type FolderCreateNestedOneWithoutPhotosInput = {
-    create?: XOR<FolderCreateWithoutPhotosInput, FolderUncheckedCreateWithoutPhotosInput>
-    connectOrCreate?: FolderCreateOrConnectWithoutPhotosInput
-    connect?: FolderWhereUniqueInput
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -13238,30 +11741,30 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type FolderUpdateOneRequiredWithoutPhotosNestedInput = {
-    create?: XOR<FolderCreateWithoutPhotosInput, FolderUncheckedCreateWithoutPhotosInput>
-    connectOrCreate?: FolderCreateOrConnectWithoutPhotosInput
-    upsert?: FolderUpsertWithoutPhotosInput
-    connect?: FolderWhereUniqueInput
-    update?: XOR<XOR<FolderUpdateToOneWithWhereWithoutPhotosInput, FolderUpdateWithoutPhotosInput>, FolderUncheckedUpdateWithoutPhotosInput>
+  export type CollectionUpdateOneRequiredWithoutPhotosNestedInput = {
+    create?: XOR<CollectionCreateWithoutPhotosInput, CollectionUncheckedCreateWithoutPhotosInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutPhotosInput
+    upsert?: CollectionUpsertWithoutPhotosInput
+    connect?: CollectionWhereUniqueInput
+    update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutPhotosInput, CollectionUpdateWithoutPhotosInput>, CollectionUncheckedUpdateWithoutPhotosInput>
   }
 
-  export type FolderCreateNestedOneWithoutPurchasesInput = {
-    create?: XOR<FolderCreateWithoutPurchasesInput, FolderUncheckedCreateWithoutPurchasesInput>
-    connectOrCreate?: FolderCreateOrConnectWithoutPurchasesInput
-    connect?: FolderWhereUniqueInput
+  export type CollectionCreateNestedOneWithoutPurchasesInput = {
+    create?: XOR<CollectionCreateWithoutPurchasesInput, CollectionUncheckedCreateWithoutPurchasesInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutPurchasesInput
+    connect?: CollectionWhereUniqueInput
   }
 
   export type EnumPurchaseStatusFieldUpdateOperationsInput = {
     set?: $Enums.PurchaseStatus
   }
 
-  export type FolderUpdateOneRequiredWithoutPurchasesNestedInput = {
-    create?: XOR<FolderCreateWithoutPurchasesInput, FolderUncheckedCreateWithoutPurchasesInput>
-    connectOrCreate?: FolderCreateOrConnectWithoutPurchasesInput
-    upsert?: FolderUpsertWithoutPurchasesInput
-    connect?: FolderWhereUniqueInput
-    update?: XOR<XOR<FolderUpdateToOneWithWhereWithoutPurchasesInput, FolderUpdateWithoutPurchasesInput>, FolderUncheckedUpdateWithoutPurchasesInput>
+  export type CollectionUpdateOneRequiredWithoutPurchasesNestedInput = {
+    create?: XOR<CollectionCreateWithoutPurchasesInput, CollectionUncheckedCreateWithoutPurchasesInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutPurchasesInput
+    upsert?: CollectionUpsertWithoutPurchasesInput
+    connect?: CollectionWhereUniqueInput
+    update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutPurchasesInput, CollectionUpdateWithoutPurchasesInput>, CollectionUncheckedUpdateWithoutPurchasesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -13425,19 +11928,6 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type NestedDecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -13447,6 +11937,11 @@ export namespace Prisma {
     gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -13463,6 +11958,14 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -13744,145 +12247,49 @@ export namespace Prisma {
     expires?: DateTimeFilter<"Session"> | Date | string
   }
 
-  export type FolderCreateWithoutCollectionInput = {
+  export type PhotoCreateWithoutCollectionInput = {
     id?: string
-    number: string
-    price: Decimal | DecimalJsLike | number | string
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    photos?: PhotoCreateNestedManyWithoutFolderInput
-    purchases?: PurchaseCreateNestedManyWithoutFolderInput
-  }
-
-  export type FolderUncheckedCreateWithoutCollectionInput = {
-    id?: string
-    number: string
-    price: Decimal | DecimalJsLike | number | string
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    photos?: PhotoUncheckedCreateNestedManyWithoutFolderInput
-    purchases?: PurchaseUncheckedCreateNestedManyWithoutFolderInput
-  }
-
-  export type FolderCreateOrConnectWithoutCollectionInput = {
-    where: FolderWhereUniqueInput
-    create: XOR<FolderCreateWithoutCollectionInput, FolderUncheckedCreateWithoutCollectionInput>
-  }
-
-  export type FolderCreateManyCollectionInputEnvelope = {
-    data: FolderCreateManyCollectionInput | FolderCreateManyCollectionInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type FolderUpsertWithWhereUniqueWithoutCollectionInput = {
-    where: FolderWhereUniqueInput
-    update: XOR<FolderUpdateWithoutCollectionInput, FolderUncheckedUpdateWithoutCollectionInput>
-    create: XOR<FolderCreateWithoutCollectionInput, FolderUncheckedCreateWithoutCollectionInput>
-  }
-
-  export type FolderUpdateWithWhereUniqueWithoutCollectionInput = {
-    where: FolderWhereUniqueInput
-    data: XOR<FolderUpdateWithoutCollectionInput, FolderUncheckedUpdateWithoutCollectionInput>
-  }
-
-  export type FolderUpdateManyWithWhereWithoutCollectionInput = {
-    where: FolderScalarWhereInput
-    data: XOR<FolderUpdateManyMutationInput, FolderUncheckedUpdateManyWithoutCollectionInput>
-  }
-
-  export type FolderScalarWhereInput = {
-    AND?: FolderScalarWhereInput | FolderScalarWhereInput[]
-    OR?: FolderScalarWhereInput[]
-    NOT?: FolderScalarWhereInput | FolderScalarWhereInput[]
-    id?: StringFilter<"Folder"> | string
-    number?: StringFilter<"Folder"> | string
-    collectionId?: StringFilter<"Folder"> | string
-    price?: DecimalFilter<"Folder"> | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFilter<"Folder"> | boolean
-    isPublic?: BoolFilter<"Folder"> | boolean
-    createdAt?: DateTimeFilter<"Folder"> | Date | string
-    updatedAt?: DateTimeFilter<"Folder"> | Date | string
-  }
-
-  export type CollectionCreateWithoutFoldersInput = {
-    id?: string
-    title: string
-    description?: string | null
-    coverUrl?: string | null
-    logoUrl?: string | null
-    bannerUrl?: string | null
-    slug: string
-    isPublished?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type CollectionUncheckedCreateWithoutFoldersInput = {
-    id?: string
-    title: string
-    description?: string | null
-    coverUrl?: string | null
-    logoUrl?: string | null
-    bannerUrl?: string | null
-    slug: string
-    isPublished?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type CollectionCreateOrConnectWithoutFoldersInput = {
-    where: CollectionWhereUniqueInput
-    create: XOR<CollectionCreateWithoutFoldersInput, CollectionUncheckedCreateWithoutFoldersInput>
-  }
-
-  export type PhotoCreateWithoutFolderInput = {
-    id?: string
+    bibNumber?: string | null
     storageKey: string
     filename: string
     fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
-    isPreview?: boolean
     previewKey?: string | null
-    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
-  export type PhotoUncheckedCreateWithoutFolderInput = {
+  export type PhotoUncheckedCreateWithoutCollectionInput = {
     id?: string
+    bibNumber?: string | null
     storageKey: string
     filename: string
     fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
-    isPreview?: boolean
     previewKey?: string | null
-    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
-  export type PhotoCreateOrConnectWithoutFolderInput = {
+  export type PhotoCreateOrConnectWithoutCollectionInput = {
     where: PhotoWhereUniqueInput
-    create: XOR<PhotoCreateWithoutFolderInput, PhotoUncheckedCreateWithoutFolderInput>
+    create: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput>
   }
 
-  export type PhotoCreateManyFolderInputEnvelope = {
-    data: PhotoCreateManyFolderInput | PhotoCreateManyFolderInput[]
+  export type PhotoCreateManyCollectionInputEnvelope = {
+    data: PhotoCreateManyCollectionInput | PhotoCreateManyCollectionInput[]
     skipDuplicates?: boolean
   }
 
-  export type PurchaseCreateWithoutFolderInput = {
+  export type PurchaseCreateWithoutCollectionInput = {
     id?: string
+    bibNumber?: string | null
     buyerEmail: string
     buyerName?: string | null
-    buyerPhone?: string | null
     buyerLastName?: string | null
+    buyerPhone?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -13896,12 +12303,13 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PurchaseUncheckedCreateWithoutFolderInput = {
+  export type PurchaseUncheckedCreateWithoutCollectionInput = {
     id?: string
+    bibNumber?: string | null
     buyerEmail: string
     buyerName?: string | null
-    buyerPhone?: string | null
     buyerLastName?: string | null
+    buyerPhone?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -13915,67 +12323,30 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PurchaseCreateOrConnectWithoutFolderInput = {
+  export type PurchaseCreateOrConnectWithoutCollectionInput = {
     where: PurchaseWhereUniqueInput
-    create: XOR<PurchaseCreateWithoutFolderInput, PurchaseUncheckedCreateWithoutFolderInput>
+    create: XOR<PurchaseCreateWithoutCollectionInput, PurchaseUncheckedCreateWithoutCollectionInput>
   }
 
-  export type PurchaseCreateManyFolderInputEnvelope = {
-    data: PurchaseCreateManyFolderInput | PurchaseCreateManyFolderInput[]
+  export type PurchaseCreateManyCollectionInputEnvelope = {
+    data: PurchaseCreateManyCollectionInput | PurchaseCreateManyCollectionInput[]
     skipDuplicates?: boolean
   }
 
-  export type CollectionUpsertWithoutFoldersInput = {
-    update: XOR<CollectionUpdateWithoutFoldersInput, CollectionUncheckedUpdateWithoutFoldersInput>
-    create: XOR<CollectionCreateWithoutFoldersInput, CollectionUncheckedCreateWithoutFoldersInput>
-    where?: CollectionWhereInput
-  }
-
-  export type CollectionUpdateToOneWithWhereWithoutFoldersInput = {
-    where?: CollectionWhereInput
-    data: XOR<CollectionUpdateWithoutFoldersInput, CollectionUncheckedUpdateWithoutFoldersInput>
-  }
-
-  export type CollectionUpdateWithoutFoldersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    slug?: StringFieldUpdateOperationsInput | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CollectionUncheckedUpdateWithoutFoldersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    slug?: StringFieldUpdateOperationsInput | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type PhotoUpsertWithWhereUniqueWithoutFolderInput = {
+  export type PhotoUpsertWithWhereUniqueWithoutCollectionInput = {
     where: PhotoWhereUniqueInput
-    update: XOR<PhotoUpdateWithoutFolderInput, PhotoUncheckedUpdateWithoutFolderInput>
-    create: XOR<PhotoCreateWithoutFolderInput, PhotoUncheckedCreateWithoutFolderInput>
+    update: XOR<PhotoUpdateWithoutCollectionInput, PhotoUncheckedUpdateWithoutCollectionInput>
+    create: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput>
   }
 
-  export type PhotoUpdateWithWhereUniqueWithoutFolderInput = {
+  export type PhotoUpdateWithWhereUniqueWithoutCollectionInput = {
     where: PhotoWhereUniqueInput
-    data: XOR<PhotoUpdateWithoutFolderInput, PhotoUncheckedUpdateWithoutFolderInput>
+    data: XOR<PhotoUpdateWithoutCollectionInput, PhotoUncheckedUpdateWithoutCollectionInput>
   }
 
-  export type PhotoUpdateManyWithWhereWithoutFolderInput = {
+  export type PhotoUpdateManyWithWhereWithoutCollectionInput = {
     where: PhotoScalarWhereInput
-    data: XOR<PhotoUpdateManyMutationInput, PhotoUncheckedUpdateManyWithoutFolderInput>
+    data: XOR<PhotoUpdateManyMutationInput, PhotoUncheckedUpdateManyWithoutCollectionInput>
   }
 
   export type PhotoScalarWhereInput = {
@@ -13983,33 +12354,32 @@ export namespace Prisma {
     OR?: PhotoScalarWhereInput[]
     NOT?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
     id?: StringFilter<"Photo"> | string
-    folderId?: StringFilter<"Photo"> | string
+    collectionId?: StringFilter<"Photo"> | string
+    bibNumber?: StringNullableFilter<"Photo"> | string | null
     storageKey?: StringFilter<"Photo"> | string
     filename?: StringFilter<"Photo"> | string
     fileSize?: IntNullableFilter<"Photo"> | number | null
     width?: IntNullableFilter<"Photo"> | number | null
     height?: IntNullableFilter<"Photo"> | number | null
     order?: IntFilter<"Photo"> | number
-    isPreview?: BoolFilter<"Photo"> | boolean
     previewKey?: StringNullableFilter<"Photo"> | string | null
-    previewGeneratedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
   }
 
-  export type PurchaseUpsertWithWhereUniqueWithoutFolderInput = {
+  export type PurchaseUpsertWithWhereUniqueWithoutCollectionInput = {
     where: PurchaseWhereUniqueInput
-    update: XOR<PurchaseUpdateWithoutFolderInput, PurchaseUncheckedUpdateWithoutFolderInput>
-    create: XOR<PurchaseCreateWithoutFolderInput, PurchaseUncheckedCreateWithoutFolderInput>
+    update: XOR<PurchaseUpdateWithoutCollectionInput, PurchaseUncheckedUpdateWithoutCollectionInput>
+    create: XOR<PurchaseCreateWithoutCollectionInput, PurchaseUncheckedCreateWithoutCollectionInput>
   }
 
-  export type PurchaseUpdateWithWhereUniqueWithoutFolderInput = {
+  export type PurchaseUpdateWithWhereUniqueWithoutCollectionInput = {
     where: PurchaseWhereUniqueInput
-    data: XOR<PurchaseUpdateWithoutFolderInput, PurchaseUncheckedUpdateWithoutFolderInput>
+    data: XOR<PurchaseUpdateWithoutCollectionInput, PurchaseUncheckedUpdateWithoutCollectionInput>
   }
 
-  export type PurchaseUpdateManyWithWhereWithoutFolderInput = {
+  export type PurchaseUpdateManyWithWhereWithoutCollectionInput = {
     where: PurchaseScalarWhereInput
-    data: XOR<PurchaseUpdateManyMutationInput, PurchaseUncheckedUpdateManyWithoutFolderInput>
+    data: XOR<PurchaseUpdateManyMutationInput, PurchaseUncheckedUpdateManyWithoutCollectionInput>
   }
 
   export type PurchaseScalarWhereInput = {
@@ -14017,11 +12387,12 @@ export namespace Prisma {
     OR?: PurchaseScalarWhereInput[]
     NOT?: PurchaseScalarWhereInput | PurchaseScalarWhereInput[]
     id?: StringFilter<"Purchase"> | string
-    folderId?: StringFilter<"Purchase"> | string
+    collectionId?: StringFilter<"Purchase"> | string
+    bibNumber?: StringNullableFilter<"Purchase"> | string | null
     buyerEmail?: StringFilter<"Purchase"> | string
     buyerName?: StringNullableFilter<"Purchase"> | string | null
-    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
     buyerLastName?: StringNullableFilter<"Purchase"> | string | null
+    buyerPhone?: StringNullableFilter<"Purchase"> | string | null
     amountPaid?: DecimalFilter<"Purchase"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Purchase"> | string
     status?: EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
@@ -14035,132 +12406,156 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Purchase"> | Date | string
   }
 
-  export type FolderCreateWithoutPhotosInput = {
+  export type CollectionCreateWithoutPhotosInput = {
     id?: string
-    number: string
-    price: Decimal | DecimalJsLike | number | string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    slug: string
+    pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
-    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    collection: CollectionCreateNestedOneWithoutFoldersInput
-    purchases?: PurchaseCreateNestedManyWithoutFolderInput
+    purchases?: PurchaseCreateNestedManyWithoutCollectionInput
   }
 
-  export type FolderUncheckedCreateWithoutPhotosInput = {
+  export type CollectionUncheckedCreateWithoutPhotosInput = {
     id?: string
-    number: string
-    collectionId: string
-    price: Decimal | DecimalJsLike | number | string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    slug: string
+    pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
-    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    purchases?: PurchaseUncheckedCreateNestedManyWithoutFolderInput
+    purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
   }
 
-  export type FolderCreateOrConnectWithoutPhotosInput = {
-    where: FolderWhereUniqueInput
-    create: XOR<FolderCreateWithoutPhotosInput, FolderUncheckedCreateWithoutPhotosInput>
+  export type CollectionCreateOrConnectWithoutPhotosInput = {
+    where: CollectionWhereUniqueInput
+    create: XOR<CollectionCreateWithoutPhotosInput, CollectionUncheckedCreateWithoutPhotosInput>
   }
 
-  export type FolderUpsertWithoutPhotosInput = {
-    update: XOR<FolderUpdateWithoutPhotosInput, FolderUncheckedUpdateWithoutPhotosInput>
-    create: XOR<FolderCreateWithoutPhotosInput, FolderUncheckedCreateWithoutPhotosInput>
-    where?: FolderWhereInput
+  export type CollectionUpsertWithoutPhotosInput = {
+    update: XOR<CollectionUpdateWithoutPhotosInput, CollectionUncheckedUpdateWithoutPhotosInput>
+    create: XOR<CollectionCreateWithoutPhotosInput, CollectionUncheckedCreateWithoutPhotosInput>
+    where?: CollectionWhereInput
   }
 
-  export type FolderUpdateToOneWithWhereWithoutPhotosInput = {
-    where?: FolderWhereInput
-    data: XOR<FolderUpdateWithoutPhotosInput, FolderUncheckedUpdateWithoutPhotosInput>
+  export type CollectionUpdateToOneWithWhereWithoutPhotosInput = {
+    where?: CollectionWhereInput
+    data: XOR<CollectionUpdateWithoutPhotosInput, CollectionUncheckedUpdateWithoutPhotosInput>
   }
 
-  export type FolderUpdateWithoutPhotosInput = {
+  export type CollectionUpdateWithoutPhotosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collection?: CollectionUpdateOneRequiredWithoutFoldersNestedInput
-    purchases?: PurchaseUpdateManyWithoutFolderNestedInput
+    purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
   }
 
-  export type FolderUncheckedUpdateWithoutPhotosInput = {
+  export type CollectionUncheckedUpdateWithoutPhotosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    collectionId?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    purchases?: PurchaseUncheckedUpdateManyWithoutFolderNestedInput
+    purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
-  export type FolderCreateWithoutPurchasesInput = {
+  export type CollectionCreateWithoutPurchasesInput = {
     id?: string
-    number: string
-    price: Decimal | DecimalJsLike | number | string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    slug: string
+    pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
-    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    collection: CollectionCreateNestedOneWithoutFoldersInput
-    photos?: PhotoCreateNestedManyWithoutFolderInput
+    photos?: PhotoCreateNestedManyWithoutCollectionInput
   }
 
-  export type FolderUncheckedCreateWithoutPurchasesInput = {
+  export type CollectionUncheckedCreateWithoutPurchasesInput = {
     id?: string
-    number: string
-    collectionId: string
-    price: Decimal | DecimalJsLike | number | string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    slug: string
+    pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
-    isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    photos?: PhotoUncheckedCreateNestedManyWithoutFolderInput
+    photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
   }
 
-  export type FolderCreateOrConnectWithoutPurchasesInput = {
-    where: FolderWhereUniqueInput
-    create: XOR<FolderCreateWithoutPurchasesInput, FolderUncheckedCreateWithoutPurchasesInput>
+  export type CollectionCreateOrConnectWithoutPurchasesInput = {
+    where: CollectionWhereUniqueInput
+    create: XOR<CollectionCreateWithoutPurchasesInput, CollectionUncheckedCreateWithoutPurchasesInput>
   }
 
-  export type FolderUpsertWithoutPurchasesInput = {
-    update: XOR<FolderUpdateWithoutPurchasesInput, FolderUncheckedUpdateWithoutPurchasesInput>
-    create: XOR<FolderCreateWithoutPurchasesInput, FolderUncheckedCreateWithoutPurchasesInput>
-    where?: FolderWhereInput
+  export type CollectionUpsertWithoutPurchasesInput = {
+    update: XOR<CollectionUpdateWithoutPurchasesInput, CollectionUncheckedUpdateWithoutPurchasesInput>
+    create: XOR<CollectionCreateWithoutPurchasesInput, CollectionUncheckedCreateWithoutPurchasesInput>
+    where?: CollectionWhereInput
   }
 
-  export type FolderUpdateToOneWithWhereWithoutPurchasesInput = {
-    where?: FolderWhereInput
-    data: XOR<FolderUpdateWithoutPurchasesInput, FolderUncheckedUpdateWithoutPurchasesInput>
+  export type CollectionUpdateToOneWithWhereWithoutPurchasesInput = {
+    where?: CollectionWhereInput
+    data: XOR<CollectionUpdateWithoutPurchasesInput, CollectionUncheckedUpdateWithoutPurchasesInput>
   }
 
-  export type FolderUpdateWithoutPurchasesInput = {
+  export type CollectionUpdateWithoutPurchasesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collection?: CollectionUpdateOneRequiredWithoutFoldersNestedInput
-    photos?: PhotoUpdateManyWithoutFolderNestedInput
+    photos?: PhotoUpdateManyWithoutCollectionNestedInput
   }
 
-  export type FolderUncheckedUpdateWithoutPurchasesInput = {
+  export type CollectionUncheckedUpdateWithoutPurchasesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    collectionId?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    photos?: PhotoUncheckedUpdateManyWithoutFolderNestedInput
+    photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -14247,70 +12642,26 @@ export namespace Prisma {
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FolderCreateManyCollectionInput = {
+  export type PhotoCreateManyCollectionInput = {
     id?: string
-    number: string
-    price: Decimal | DecimalJsLike | number | string
-    isPublished?: boolean
-    isPublic?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type FolderUpdateWithoutCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    photos?: PhotoUpdateManyWithoutFolderNestedInput
-    purchases?: PurchaseUpdateManyWithoutFolderNestedInput
-  }
-
-  export type FolderUncheckedUpdateWithoutCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    photos?: PhotoUncheckedUpdateManyWithoutFolderNestedInput
-    purchases?: PurchaseUncheckedUpdateManyWithoutFolderNestedInput
-  }
-
-  export type FolderUncheckedUpdateManyWithoutCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    isPublic?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type PhotoCreateManyFolderInput = {
-    id?: string
+    bibNumber?: string | null
     storageKey: string
     filename: string
     fileSize?: number | null
     width?: number | null
     height?: number | null
     order?: number
-    isPreview?: boolean
     previewKey?: string | null
-    previewGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
-  export type PurchaseCreateManyFolderInput = {
+  export type PurchaseCreateManyCollectionInput = {
     id?: string
+    bibNumber?: string | null
     buyerEmail: string
     buyerName?: string | null
-    buyerPhone?: string | null
     buyerLastName?: string | null
+    buyerPhone?: string | null
     amountPaid: Decimal | DecimalJsLike | number | string
     currency?: string
     status?: $Enums.PurchaseStatus
@@ -14324,54 +12675,52 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PhotoUpdateWithoutFolderInput = {
+  export type PhotoUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
-    isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
-    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PhotoUncheckedUpdateWithoutFolderInput = {
+  export type PhotoUncheckedUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
-    isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
-    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PhotoUncheckedUpdateManyWithoutFolderInput = {
+  export type PhotoUncheckedUpdateManyWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     fileSize?: NullableIntFieldUpdateOperationsInput | number | null
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     order?: IntFieldUpdateOperationsInput | number
-    isPreview?: BoolFieldUpdateOperationsInput | boolean
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
-    previewGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PurchaseUpdateWithoutFolderInput = {
+  export type PurchaseUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
-    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -14385,12 +12734,13 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PurchaseUncheckedUpdateWithoutFolderInput = {
+  export type PurchaseUncheckedUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
-    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
@@ -14404,12 +12754,13 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PurchaseUncheckedUpdateManyWithoutFolderInput = {
+  export type PurchaseUncheckedUpdateManyWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     buyerEmail?: StringFieldUpdateOperationsInput | string
     buyerName?: NullableStringFieldUpdateOperationsInput | string | null
-    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     buyerLastName?: NullableStringFieldUpdateOperationsInput | string | null
+    buyerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     amountPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus

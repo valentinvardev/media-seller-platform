@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 
-type Step = "preview" | "review" | "buy" | "email";
+type Step = "preview" | "buy" | "email";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,6 @@ function PreviewLightbox({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const imgRef = useRef<HTMLImageElement>(null);
   const count = urls.length;
-
   const drag = useRef({ active: false, startX: 0, startY: 0, px: 0, py: 0 });
 
   const resetView = useCallback(() => { setZoom(1); setPan({ x: 0, y: 0 }); }, []);
@@ -47,7 +46,7 @@ function PreviewLightbox({
   const clamp = (x: number, y: number, z: number) => {
     const el = imgRef.current;
     if (!el) return { x, y };
-    const maxX = (el.clientWidth  * (z - 1)) / 2;
+    const maxX = (el.clientWidth * (z - 1)) / 2;
     const maxY = (el.clientHeight * (z - 1)) / 2;
     return { x: Math.min(maxX, Math.max(-maxX, x)), y: Math.min(maxY, Math.max(-maxY, y)) };
   };
@@ -184,18 +183,9 @@ function PreviewLightbox({
   );
 }
 
-// ─── Preview Slider ───────────────────────────────────────────────────────────
+// ─── Photo Preview Slider ─────────────────────────────────────────────────────
 
-function PreviewSlider({
-  urls,
-  isPrivate,
-  photoCount,
-}: {
-  urls: string[];
-  isPrivate: boolean;
-  hasWatermarkedPreviews: boolean;
-  photoCount: number;
-}) {
+function PreviewSlider({ urls, photoCount }: { urls: string[]; photoCount: number }) {
   const [idx, setIdx] = useState(0);
   const [touchX, setTouchX] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -213,15 +203,7 @@ function PreviewSlider({
   const interact = () => { pauseUntil.current = Date.now() + 5000; };
   const goPrev = () => { interact(); setIdx((i) => (i - 1 + count) % count); };
   const goNext = () => { interact(); setIdx((i) => (i + 1) % count); };
-  const goTo   = (i: number) => { interact(); setIdx(i); };
-
-  const handleTouchStart = (e: React.TouchEvent) => setTouchX(e.touches[0]!.clientX);
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchX === null) return;
-    const diff = touchX - e.changedTouches[0]!.clientX;
-    if (Math.abs(diff) > 40) diff > 0 ? goNext() : goPrev();
-    setTouchX(null);
-  };
+  const goTo = (i: number) => { interact(); setIdx(i); };
 
   if (urls.length === 0) {
     return (
@@ -239,8 +221,13 @@ function PreviewSlider({
       <div
         className="relative overflow-hidden select-none"
         style={{ height: "220px" }}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={(e) => setTouchX(e.touches[0]!.clientX)}
+        onTouchEnd={(e) => {
+          if (touchX === null) return;
+          const diff = touchX - e.changedTouches[0]!.clientX;
+          if (Math.abs(diff) > 40) diff > 0 ? goNext() : goPrev();
+          setTouchX(null);
+        }}
       >
         {urls.map((url, i) => (
           <div key={i} className="absolute inset-0"
@@ -262,12 +249,12 @@ function PreviewSlider({
 
         {count > 1 && (
           <>
-            <button onClick={goPrev} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}>
+            <button onClick={goPrev} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <button onClick={goNext} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}>
+            <button onClick={goNext} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
@@ -279,18 +266,16 @@ function PreviewSlider({
           className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-2.5"
           style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)" }}
         >
-          {isPrivate ? (
-            <div className="flex items-center gap-1.5">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "#f59e0b1a", border: "1px solid #f59e0b40" }}>
-                <svg className="w-3 h-3" style={{ color: "#f59e0b" }} fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-xs font-medium" style={{ color: "#fbbf24" }}>
-                {photoCount} foto{photoCount !== 1 ? "s" : ""}
-              </span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#f59e0b1a", border: "1px solid #f59e0b40" }}>
+              <svg className="w-2.5 h-2.5" style={{ color: "#f59e0b" }} fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
             </div>
-          ) : <div />}
+            <span className="text-xs font-medium" style={{ color: "#fbbf24" }}>
+              {photoCount} foto{photoCount !== 1 ? "s" : ""}
+            </span>
+          </div>
 
           {count > 1 && (
             <div className="flex items-center gap-1">
@@ -313,114 +298,34 @@ function PreviewSlider({
   );
 }
 
-// ─── Photo Review (deselect step) ────────────────────────────────────────────
+// ─── BibCheckoutModal ─────────────────────────────────────────────────────────
 
-function PhotoReview({
-  previewUrls,
-  photoCount,
-  price,
-  onConfirm,
-  onBack,
+export function BibCheckoutModal({
+  bib,
+  photoIds,
+  collectionId,
+  onClose,
 }: {
-  previewUrls: string[];
-  photoCount: number;
-  price: number;
-  onConfirm: () => void;
-  onBack: () => void;
+  bib: string;
+  photoIds: string[];
+  collectionId: string;
+  onClose: () => void;
 }) {
-  // We only have preview URLs (watermarked); we show them for selection UX
-  // The actual purchase is always for the whole folder — this is a visual review
-  const [deselected, setDeselected] = useState<Set<number>>(new Set());
-
-  const toggle = (i: number) => {
-    setDeselected((prev) => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i);
-      else next.add(i);
-      return next;
-    });
-  };
-
-  const selected = photoCount - deselected.size;
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="text-center">
-        <p className="text-white font-medium text-sm mb-1">Revisá tus fotos</p>
-        <p className="text-slate-500 text-xs">
-          Destilá las que no son tuyas antes de comprar. La carpeta completa tiene {photoCount} foto{photoCount !== 1 ? "s" : ""}.
-        </p>
-      </div>
-
-      {previewUrls.length > 0 ? (
-        <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto rounded-xl p-1" style={{ background: "#0a0a15" }}>
-          {previewUrls.map((url, i) => (
-            <button
-              key={i}
-              onClick={() => toggle(i)}
-              className="relative rounded-lg overflow-hidden aspect-square transition-all"
-              style={{
-                opacity: deselected.has(i) ? 0.3 : 1,
-                outline: deselected.has(i) ? "none" : "2px solid #f59e0b",
-                outlineOffset: "1px",
-              }}
-            >
-              <img src={url} alt="" className="w-full h-full object-cover" />
-              {deselected.has(i) && (
-                <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.5)" }}>
-                  <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <div className="rounded-xl p-6 text-center text-slate-500 text-sm" style={{ background: "#0a0a15" }}>
-          Las fotos con marca de agua se muestran como preview. Al comprar recibís todas en HD.
-        </div>
-      )}
-
-      {previewUrls.length > 0 && deselected.size > 0 && (
-        <p className="text-xs text-center" style={{ color: "#94a3b8" }}>
-          Marcaste {deselected.size} foto{deselected.size !== 1 ? "s" : ""} como no tuyas. Al comprar igual recibirás la carpeta completa.
-        </p>
-      )}
-
-      <div className="flex flex-col gap-2 pt-1">
-        <div className="flex items-center justify-between text-sm px-1">
-          <span className="text-slate-400">{selected} de {photoCount} fotos seleccionadas</span>
-          <span className="font-bold" style={{ color: "#fbbf24" }}>${price.toLocaleString("es-AR")}</span>
-        </div>
-        <button
-          onClick={onConfirm}
-          className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02]"
-          style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)", boxShadow: "0 0 20px #f59e0b25" }}
-        >
-          Confirmar y completar datos
-        </button>
-        <button onClick={onBack} className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors">
-          Volver
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Modal ───────────────────────────────────────────────────────────────
-
-export function FolderModal({ folderId, onClose }: { folderId: string; onClose: () => void }) {
   const [step, setStep] = useState<Step>("preview");
-  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [emailInput, setEmailInput] = useState("");
   const [emailError, setEmailError] = useState("");
   const router = useRouter();
 
-  const { data: folder, isLoading } = api.folder.getPreview.useQuery({ folderId });
+  const { data: urls, isLoading: urlsLoading } = api.photo.getPreviewUrls.useQuery(
+    { ids: photoIds },
+    { enabled: photoIds.length > 0 },
+  );
+
+  const { data: collectionInfo } = api.collection.getPrice.useQuery({ collectionId });
 
   const createPreference = api.purchase.createPreference.useMutation({
     onSuccess: (data) => { if (data.initPoint) window.location.href = data.initPoint; },
@@ -431,21 +336,18 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
       if (token) {
         router.push(`/descarga/${token}`);
       } else {
-        setEmailError("No encontramos una compra aprobada para este email en esta carpeta.");
+        setEmailError("No encontramos una compra aprobada para este email en este dorsal.");
       }
     },
   });
 
-  const getPublicToken = api.purchase.getPublicFolderToken.useMutation({
-    onSuccess: (token) => router.push(`/descarga/${token}`),
-  });
-
   const handleBuy = () => {
-    if (!email) return;
+    if (!email || !name) return;
     createPreference.mutate({
-      folderId,
+      collectionId,
+      bibNumber: bib,
       buyerEmail: email,
-      buyerName: name || undefined,
+      buyerName: name,
       buyerLastName: lastName || undefined,
       buyerPhone: phone || undefined,
     });
@@ -454,8 +356,11 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
   const handleEmailAccess = () => {
     if (!emailInput) return;
     setEmailError("");
-    accessByEmail.mutate({ email: emailInput, folderId });
+    accessByEmail.mutate({ email: emailInput, collectionId, bibNumber: bib });
   };
+
+  const previewUrls = urls?.map((u) => u.url) ?? [];
+  const price = collectionInfo?.price ?? 0;
 
   return (
     <div
@@ -475,13 +380,10 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "#1e1e35" }}>
           <div>
-            {!isLoading && folder && (
-              <>
-                <p className="text-xs text-slate-500 mb-0.5">{folder.collectionTitle}</p>
-                <h2 className="font-bold text-white text-lg">Carpeta #{folder.number}</h2>
-              </>
+            {collectionInfo && (
+              <p className="text-xs text-slate-500 mb-0.5">{collectionInfo.title}</p>
             )}
-            {isLoading && <div className="h-6 w-32 rounded animate-pulse" style={{ background: "#1e1e35" }} />}
+            <h2 className="font-bold text-white text-lg">Dorsal #{bib}</h2>
           </div>
           <button
             onClick={onClose}
@@ -492,181 +394,161 @@ export function FolderModal({ folderId, onClose }: { folderId: string; onClose: 
           </button>
         </div>
 
-        {isLoading ? (
-          <div className="flex justify-center items-center py-20">
+        {/* Preview slider */}
+        {urlsLoading ? (
+          <div className="flex justify-center items-center" style={{ height: "220px", background: "#0a0a15" }}>
             <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
           </div>
-        ) : !folder ? (
-          <p className="text-center text-slate-500 py-16">Carpeta no encontrada.</p>
         ) : (
-          <>
-            {/* Slider */}
-            <PreviewSlider
-              urls={folder.previewUrls}
-              isPrivate={!folder.isPublic}
-              hasWatermarkedPreviews={folder.hasWatermarkedPreviews}
-              photoCount={folder.photoCount}
-            />
+          <PreviewSlider urls={previewUrls} photoCount={photoIds.length} />
+        )}
 
-            {/* Price row */}
-            {!folder.isPublic && (
-              <div
-                className="px-5 py-3 flex items-center justify-between"
-                style={{ background: "#f59e0b0e", borderTop: "1px solid #f59e0b20" }}
-              >
-                <div>
-                  <span className="text-sm text-slate-400">Comprar todas las fotos</span>
-                  <span className="text-xs text-slate-600 ml-2">· {folder.photoCount} fotos en HD</span>
-                </div>
-                <span className="font-bold text-lg" style={{ color: "#fbbf24" }}>
-                  $ {Number(folder.price).toLocaleString("es-AR")}
-                </span>
-              </div>
-            )}
+        {/* Price row */}
+        {price > 0 && (
+          <div
+            className="px-5 py-3 flex items-center justify-between"
+            style={{ background: "#f59e0b0e", borderTop: "1px solid #f59e0b20" }}
+          >
+            <div>
+              <span className="text-sm text-slate-400">Comprar todas las fotos</span>
+              <span className="text-xs text-slate-600 ml-2">· {photoIds.length} foto{photoIds.length !== 1 ? "s" : ""} en HD</span>
+            </div>
+            <span className="font-bold text-lg" style={{ color: "#fbbf24" }}>
+              $ {price.toLocaleString("es-AR")}
+            </span>
+          </div>
+        )}
 
-            {/* Steps */}
-            <div className="px-5 py-5">
-              {step === "preview" && (
-                <div className="flex flex-col gap-3">
-                  {folder.isPublic ? (
-                    <button
-                      onClick={() => getPublicToken.mutate({ folderId })}
-                      disabled={getPublicToken.isPending}
-                      className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02] disabled:opacity-50"
-                      style={{ background: "linear-gradient(135deg, #10b981, #34d399)", boxShadow: "0 0 20px #10b98125" }}
-                    >
-                      {getPublicToken.isPending ? "Cargando..." : "Ver fotos gratis"}
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => setStep("review")}
-                        className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02]"
-                        style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)", boxShadow: "0 0 20px #f59e0b25" }}
-                      >
-                        Comprar todas · $ {Number(folder.price).toLocaleString("es-AR")}
-                      </button>
-                      <button
-                        onClick={() => setStep("email")}
-                        className="w-full py-3 rounded-xl font-medium text-sm border transition-all hover:border-white/20 hover:text-white"
-                        style={{ background: "#16162a", borderColor: "#2a2a45", color: "#94a3b8" }}
-                      >
-                        Ya compré — Acceder con email
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {step === "review" && (
-                <PhotoReview
-                  previewUrls={folder.previewUrls}
-                  photoCount={folder.photoCount}
-                  price={Number(folder.price)}
-                  onConfirm={() => setStep("buy")}
-                  onBack={() => setStep("preview")}
-                />
-              )}
-
-              {step === "buy" && (
-                <div className="flex flex-col gap-3">
-                  <p className="text-slate-400 text-sm text-center mb-1">Completá tus datos</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Nombre *"
-                      className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border transition-colors text-sm"
-                      style={{ background: "#16162a", borderColor: "#2a2a45" }}
-                    />
-                    <input
-                      type="text"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Apellido"
-                      className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border transition-colors text-sm"
-                      style={{ background: "#16162a", borderColor: "#2a2a45" }}
-                    />
-                  </div>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Teléfono (ej: 1165551234)"
-                    className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border transition-colors text-sm"
-                    style={{ background: "#16162a", borderColor: "#2a2a45" }}
-                  />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email *"
-                    required
-                    className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border transition-colors text-sm"
-                    style={{ background: "#16162a", borderColor: "#2a2a45" }}
-                    onKeyDown={(e) => { if (e.key === "Enter" && email) handleBuy(); }}
-                  />
+        {/* Steps */}
+        <div className="px-5 py-5">
+          {step === "preview" && (
+            <div className="flex flex-col gap-3">
+              {price > 0 ? (
+                <>
                   <button
-                    onClick={handleBuy}
-                    disabled={!email || !name || createPreference.isPending}
-                    className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all disabled:opacity-40"
-                    style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+                    onClick={() => setStep("buy")}
+                    className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02]"
+                    style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)", boxShadow: "0 0 20px #f59e0b25" }}
                   >
-                    {createPreference.isPending
-                      ? "Redirigiendo a MercadoPago..."
-                      : `Pagar $ ${Number(folder.price).toLocaleString("es-AR")}`}
-                  </button>
-                  {createPreference.isError && (
-                    <p className="text-red-400 text-xs text-center">Ocurrió un error. Intentá de nuevo.</p>
-                  )}
-                  <button
-                    onClick={() => setStep("review")}
-                    className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors"
-                  >
-                    Volver
-                  </button>
-                </div>
-              )}
-
-              {step === "email" && (
-                <div className="flex flex-col gap-3">
-                  <div className="text-center mb-1">
-                    <p className="text-white font-medium text-sm">Acceder a tus fotos</p>
-                    <p className="text-slate-500 text-xs mt-1">
-                      Ingresá el email con el que compraste esta carpeta
-                    </p>
-                  </div>
-                  <input
-                    type="email"
-                    value={emailInput}
-                    onChange={(e) => { setEmailInput(e.target.value); setEmailError(""); }}
-                    placeholder="tu@email.com"
-                    className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border transition-colors"
-                    style={{ background: "#16162a", borderColor: emailError ? "#ef444450" : "#2a2a45" }}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleEmailAccess(); }}
-                    autoFocus
-                  />
-                  {emailError && <p className="text-red-400 text-xs text-center">{emailError}</p>}
-                  <button
-                    onClick={handleEmailAccess}
-                    disabled={!emailInput || accessByEmail.isPending}
-                    className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all disabled:opacity-40"
-                    style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
-                  >
-                    {accessByEmail.isPending ? "Buscando..." : "Acceder a mis fotos"}
+                    Comprar todas · $ {price.toLocaleString("es-AR")}
                   </button>
                   <button
-                    onClick={() => setStep("preview")}
-                    className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors"
+                    onClick={() => setStep("email")}
+                    className="w-full py-3 rounded-xl font-medium text-sm border transition-all hover:border-white/20 hover:text-white"
+                    style={{ background: "#16162a", borderColor: "#2a2a45", color: "#94a3b8" }}
                   >
-                    Volver
+                    Ya compré — Acceder con email
                   </button>
-                </div>
+                </>
+              ) : (
+                <button
+                  onClick={() => setStep("email")}
+                  className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all hover:scale-[1.02]"
+                  style={{ background: "linear-gradient(135deg, #10b981, #34d399)", boxShadow: "0 0 20px #10b98125" }}
+                >
+                  Acceder a mis fotos
+                </button>
               )}
             </div>
-          </>
-        )}
+          )}
+
+          {step === "buy" && (
+            <div className="flex flex-col gap-3">
+              <p className="text-slate-400 text-sm text-center mb-1">Completá tus datos</p>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Nombre *"
+                  className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border text-sm"
+                  style={{ background: "#16162a", borderColor: "#2a2a45" }}
+                />
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Apellido"
+                  className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border text-sm"
+                  style={{ background: "#16162a", borderColor: "#2a2a45" }}
+                />
+              </div>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Teléfono (ej: 1165551234)"
+                className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border text-sm"
+                style={{ background: "#16162a", borderColor: "#2a2a45" }}
+              />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email *"
+                required
+                className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border text-sm"
+                style={{ background: "#16162a", borderColor: "#2a2a45" }}
+                onKeyDown={(e) => { if (e.key === "Enter" && email && name) handleBuy(); }}
+              />
+              <button
+                onClick={handleBuy}
+                disabled={!email || !name || createPreference.isPending}
+                className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all disabled:opacity-40"
+                style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+              >
+                {createPreference.isPending
+                  ? "Redirigiendo a MercadoPago..."
+                  : `Pagar $ ${price.toLocaleString("es-AR")}`}
+              </button>
+              {createPreference.isError && (
+                <p className="text-red-400 text-xs text-center">Ocurrió un error. Intentá de nuevo.</p>
+              )}
+              <button
+                onClick={() => setStep("preview")}
+                className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors"
+              >
+                Volver
+              </button>
+            </div>
+          )}
+
+          {step === "email" && (
+            <div className="flex flex-col gap-3">
+              <div className="text-center mb-1">
+                <p className="text-white font-medium text-sm">Acceder a tus fotos</p>
+                <p className="text-slate-500 text-xs mt-1">
+                  Ingresá el email con el que compraste el dorsal #{bib}
+                </p>
+              </div>
+              <input
+                type="email"
+                value={emailInput}
+                onChange={(e) => { setEmailInput(e.target.value); setEmailError(""); }}
+                placeholder="tu@email.com"
+                className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 outline-none border"
+                style={{ background: "#16162a", borderColor: emailError ? "#ef444450" : "#2a2a45" }}
+                onKeyDown={(e) => { if (e.key === "Enter") handleEmailAccess(); }}
+                autoFocus
+              />
+              {emailError && <p className="text-red-400 text-xs text-center">{emailError}</p>}
+              <button
+                onClick={handleEmailAccess}
+                disabled={!emailInput || accessByEmail.isPending}
+                className="w-full py-4 rounded-xl font-bold text-black text-sm transition-all disabled:opacity-40"
+                style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+              >
+                {accessByEmail.isPending ? "Buscando..." : "Acceder a mis fotos"}
+              </button>
+              <button
+                onClick={() => setStep("preview")}
+                className="text-slate-500 hover:text-slate-300 text-sm text-center transition-colors"
+              >
+                Volver
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -109,7 +109,7 @@ export default async function CollectionPage({
       <div className="max-w-7xl mx-auto px-6 mt-4 mb-0 flex items-center gap-4">
         <div className="h-px flex-1" style={{ background: "#1a1a2e" }} />
         <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#252540" }}>
-          {collection._count.folders} carpeta{collection._count.folders !== 1 ? "s" : ""}
+          {collection._count.photos} foto{collection._count.photos !== 1 ? "s" : ""}
         </span>
         <div className="h-px flex-1" style={{ background: "#1a1a2e" }} />
       </div>

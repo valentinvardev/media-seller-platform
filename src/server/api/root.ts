@@ -1,12 +1,10 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { collectionRouter } from "~/server/api/routers/collection";
-import { folderRouter } from "~/server/api/routers/folder";
 import { photoRouter } from "~/server/api/routers/photo";
 import { purchaseRouter } from "~/server/api/routers/purchase";
 
 export const appRouter = createTRPCRouter({
   collection: collectionRouter,
-  folder: folderRouter,
   photo: photoRouter,
   purchase: purchaseRouter,
 });

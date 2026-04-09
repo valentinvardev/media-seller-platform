@@ -23,7 +23,7 @@ export const collectionRouter = createTRPCRouter({
     const cols = await ctx.db.collection.findMany({
       where: { isPublished: true },
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { folders: true } } },
+      include: { _count: { select: { photos: true } } },
     });
     return Promise.all(
       cols.map(async (c) => ({
@@ -40,7 +40,7 @@ export const collectionRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const col = await ctx.db.collection.findFirst({
         where: { slug: input.slug, isPublished: true },
-        include: { _count: { select: { folders: true } } },
+        include: { _count: { select: { photos: true } } },
       });
       if (!col) return null;
       return {
@@ -51,12 +51,23 @@ export const collectionRouter = createTRPCRouter({
       };
     }),
 
+  getPrice: publicProcedure
+    .input(z.object({ collectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const col = await ctx.db.collection.findFirst({
+        where: { id: input.collectionId, isPublished: true },
+        select: { pricePerBib: true, title: true },
+      });
+      if (!col) return null;
+      return { price: Number(col.pricePerBib), title: col.title };
+    }),
+
   // ─── Admin ─────────────────────────────────────────────────────────────────
 
   adminList: protectedProcedure.query(async ({ ctx }) => {
     const cols = await ctx.db.collection.findMany({
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { folders: true } } },
+      include: { _count: { select: { photos: true } } },
     });
     return Promise.all(
       cols.map(async (c) => ({
@@ -74,10 +85,7 @@ export const collectionRouter = createTRPCRouter({
       const col = await ctx.db.collection.findUnique({
         where: { id: input.id },
         include: {
-          folders: {
-            orderBy: { number: "asc" },
-            include: { _count: { select: { photos: true } } },
-          },
+          _count: { select: { photos: true } },
         },
       });
       if (!col) return null;
@@ -96,6 +104,9 @@ export const collectionRouter = createTRPCRouter({
         description: z.string().optional(),
         slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
         coverUrl: z.string().optional(),
+        logoUrl: z.string().optional(),
+        bannerUrl: z.string().optional(),
+        pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
       }),
     )
@@ -111,6 +122,9 @@ export const collectionRouter = createTRPCRouter({
         description: z.string().optional(),
         slug: z.string().min(1).regex(/^[a-z0-9-]+$/).optional(),
         coverUrl: z.string().optional().nullable(),
+        logoUrl: z.string().optional().nullable(),
+        bannerUrl: z.string().optional().nullable(),
+        pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
       }),
     )

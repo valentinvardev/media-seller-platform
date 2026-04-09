@@ -7,7 +7,7 @@ type Photo = { id: string; filename: string; url: string };
 
 type Props = {
   token: string;
-  folderNumber: string;
+  bibNumber: string | null;
   collectionTitle: string;
   buyerName: string | null;
   isPublicInit: boolean;
@@ -16,7 +16,7 @@ type Props = {
 
 const PAGE_SIZE = 24;
 
-export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPublicInit, photos }: Props) {
+export function PhotoGallery({ bibNumber, collectionTitle, buyerName, isPublicInit, photos }: Props) {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
@@ -116,7 +116,7 @@ export function PhotoGallery({ folderNumber, collectionTitle, buyerName, isPubli
           <div className="min-w-0">
             <p className="text-xs truncate" style={{ color: "#64748b" }}>{collectionTitle}</p>
             <h1 className="font-bold text-white text-sm sm:text-base leading-tight">
-              Carpeta #{folderNumber}
+              {bibNumber ? `Dorsal #${bibNumber}` : collectionTitle}
               {buyerName && buyerName !== "public@system" && (
                 <span className="text-slate-400 font-normal"> · {buyerName}</span>
               )}

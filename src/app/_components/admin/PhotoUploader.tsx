@@ -82,7 +82,7 @@ function FileRow({ entry }: { entry: FileEntry }) {
   );
 }
 
-export function PhotoUploader({ folderId, collectionId }: { folderId: string; collectionId: string }) {
+export function PhotoUploader({ collectionId }: { collectionId: string }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [entries, setEntries] = useState<FileEntry[]>([]);
@@ -136,7 +136,7 @@ export function PhotoUploader({ folderId, collectionId }: { folderId: string; co
     for (const entry of newEntries) {
       updateEntry(entry.id, { status: "uploading" });
 
-      const path = `${collectionId}/${folderId}/${Date.now()}-${entry.file.name}`;
+      const path = `${collectionId}/${Date.now()}-${entry.file.name}`;
       try {
         const res = await fetch("/api/uploads/sign", {
           method: "POST",
@@ -172,7 +172,7 @@ export function PhotoUploader({ folderId, collectionId }: { folderId: string; co
       }
     }
 
-    if (uploaded.length > 0) await bulkAdd.mutateAsync({ folderId, photos: uploaded });
+    if (uploaded.length > 0) await bulkAdd.mutateAsync({ collectionId, photos: uploaded });
   };
 
   const isUploading = entries.some((e) => e.status === "uploading" || e.status === "pending");

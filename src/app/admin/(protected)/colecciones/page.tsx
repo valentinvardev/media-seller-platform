@@ -73,7 +73,7 @@ export default async function CollectionsPage() {
                     <h2 className="font-semibold text-white">{col.title}</h2>
                   </div>
                   <p className="text-slate-500 text-sm mt-0.5 truncate">
-                    /colecciones/{col.slug} · <span className="text-slate-400">{col._count.folders} carpeta{col._count.folders !== 1 ? "s" : ""}</span>
+                    /colecciones/{col.slug} · <span className="text-slate-400">{col._count.photos} foto{col._count.photos !== 1 ? "s" : ""}</span>
                   </p>
                 </div>
               </div>

@@ -167,44 +167,34 @@ exports.Prisma.CollectionScalarFieldEnum = {
   logoUrl: 'logoUrl',
   bannerUrl: 'bannerUrl',
   slug: 'slug',
+  pricePerBib: 'pricePerBib',
   isPublished: 'isPublished',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.FolderScalarFieldEnum = {
-  id: 'id',
-  number: 'number',
-  collectionId: 'collectionId',
-  price: 'price',
-  isPublished: 'isPublished',
-  isPublic: 'isPublic',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.PhotoScalarFieldEnum = {
   id: 'id',
-  folderId: 'folderId',
+  collectionId: 'collectionId',
+  bibNumber: 'bibNumber',
   storageKey: 'storageKey',
   filename: 'filename',
   fileSize: 'fileSize',
   width: 'width',
   height: 'height',
   order: 'order',
-  isPreview: 'isPreview',
   previewKey: 'previewKey',
-  previewGeneratedAt: 'previewGeneratedAt',
   createdAt: 'createdAt'
 };
 
 exports.Prisma.PurchaseScalarFieldEnum = {
   id: 'id',
-  folderId: 'folderId',
+  collectionId: 'collectionId',
+  bibNumber: 'bibNumber',
   buyerEmail: 'buyerEmail',
   buyerName: 'buyerName',
-  buyerPhone: 'buyerPhone',
   buyerLastName: 'buyerLastName',
+  buyerPhone: 'buyerPhone',
   amountPaid: 'amountPaid',
   currency: 'currency',
   status: 'status',
@@ -245,7 +235,6 @@ exports.Prisma.ModelName = {
   User: 'User',
   VerificationToken: 'VerificationToken',
   Collection: 'Collection',
-  Folder: 'Folder',
   Photo: 'Photo',
   Purchase: 'Purchase'
 };
