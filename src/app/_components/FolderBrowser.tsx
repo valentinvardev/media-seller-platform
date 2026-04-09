@@ -85,68 +85,78 @@ function PhotoTile({
   price: number;
   inCart: boolean;
   onOpenLightbox: (url: string) => void;
-  onToggleCart: () => void;
+  onToggleCart: (url: string) => void;
 }) {
   const { data, isLoading } = api.photo.getPreviewUrls.useQuery({ ids: [photoId] });
   const url = data?.[0]?.url;
 
   const [cartAnim, setCartAnim] = useState<"add" | "remove" | null>(null);
-  const [showFloat, setShowFloat] = useState(false);
 
   const handleCart = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!url) return;
     setCartAnim(inCart ? "remove" : "add");
-    if (!inCart) setShowFloat(true);
-    onToggleCart();
-    setTimeout(() => setCartAnim(null), 450);
-    setTimeout(() => setShowFloat(false), 650);
+    onToggleCart(url);
+    setTimeout(() => setCartAnim(null), 400);
   };
 
   return (
-    <div
-      className="relative overflow-hidden rounded-2xl bg-gray-100 group cursor-pointer"
-      style={{ aspectRatio: "4/3" }}
-    >
+    <div className="rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200 group flex flex-col">
       {/* Image */}
-      {isLoading || !url ? (
-        <div className="w-full h-full animate-pulse bg-gray-200" />
-      ) : (
-        <img
-          src={url}
-          alt=""
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-          onClick={() => onOpenLightbox(url)}
-        />
-      )}
-
-      {/* Bib badge — top left */}
-      {bibNumber && (
-        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-sm pointer-events-none">
-          #{bibNumber}
-        </div>
-      )}
-
-      {/* Cart button — bottom right, always visible */}
-      <div className="absolute bottom-2 right-2">
-        {showFloat && (
-          <span
-            className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-extrabold pointer-events-none"
-            style={{ color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}
-          >
-            +1
-          </span>
+      <div
+        className="relative overflow-hidden bg-gray-100 cursor-pointer"
+        style={{ aspectRatio: "4/3" }}
+        onClick={() => { if (url) onOpenLightbox(url); }}
+      >
+        {isLoading || !url ? (
+          <div className="w-full h-full animate-pulse bg-gray-200" />
+        ) : (
+          <img
+            src={url}
+            alt=""
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
         )}
+        {/* Bib badge */}
+        {bibNumber && (
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-sm pointer-events-none">
+            #{bibNumber}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom strip — price + cart */}
+      <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-white">
+        <div className="min-w-0">
+          {price > 0 ? (
+            <p className="text-sm font-extrabold leading-tight" style={{ color: "#0057A8" }}>
+              ${price.toLocaleString("es-AR")}
+            </p>
+          ) : (
+            <p className="text-xs text-gray-400">Sin precio</p>
+          )}
+          {bibNumber ? (
+            <p className="text-xs text-gray-400 truncate">Dorsal #{bibNumber}</p>
+          ) : (
+            <p className="text-xs text-gray-300 truncate">Sin dorsal</p>
+          )}
+        </div>
+
+        {/* Cart button */}
         <button
           onClick={handleCart}
-          className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-all active:scale-90 ${
-            inCart ? "text-white" : "bg-white/85 text-blue-700 hover:bg-white backdrop-blur-sm"
+          disabled={!url}
+          className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200 active:scale-90 disabled:opacity-40 ${
+            inCart
+              ? "text-white shadow-md"
+              : "bg-blue-50 text-blue-600 hover:bg-blue-100"
           }`}
-          style={inCart ? { background: "#0057A8" } : {}}
+          style={inCart ? { background: "linear-gradient(135deg, #0057A8, #003D7A)" } : {}}
           title={inCart ? "Quitar del carrito" : "Agregar al carrito"}
         >
           <svg
-            className={`w-4 h-4 ${cartAnim === "add" ? "animate-cart-pop" : cartAnim === "remove" ? "animate-cart-remove" : ""}`}
+            className={`w-4 h-4 transition-transform ${cartAnim === "add" ? "scale-125" : cartAnim === "remove" ? "scale-75" : "scale-100"}`}
             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
           >
             {inCart ? (
@@ -157,13 +167,6 @@ function PhotoTile({
           </svg>
         </button>
       </div>
-
-      {/* Price overlay — bottom left, only when bib + price */}
-      {bibNumber && price > 0 && (
-        <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-xs font-extrabold bg-black/60 text-white backdrop-blur-sm pointer-events-none">
-          ${price.toLocaleString("es-AR")}
-        </div>
-      )}
     </div>
   );
 }
@@ -242,18 +245,18 @@ function BibCard({
 // ─── Floating cart bar ────────────────────────────────────────────────────────
 
 function CartBar({
-  cart,
+  count,
   price,
   onCheckout,
   onClear,
 }: {
-  cart: Set<string>;
+  count: number;
   price: number;
   onCheckout: () => void;
   onClear: () => void;
 }) {
-  if (cart.size === 0) return null;
-  const total = cart.size * price;
+  if (count === 0) return null;
+  const total = count * price;
 
   return (
     <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 animate-slide-up">
@@ -265,7 +268,7 @@ function CartBar({
           </svg>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-gray-900">{cart.size} dorsal{cart.size !== 1 ? "es" : ""} seleccionado{cart.size !== 1 ? "s" : ""}</p>
+          <p className="text-xs font-bold text-gray-900">{count} foto{count !== 1 ? "s" : ""} seleccionada{count !== 1 ? "s" : ""}</p>
           {price > 0 && <p className="text-xs text-gray-400">Total: ${total.toLocaleString("es-AR")}</p>}
         </div>
         <button onClick={onClear} className="text-gray-400 hover:text-gray-600 p-1" title="Vaciar">
@@ -296,7 +299,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   // lightbox: single photo preview
   const [lightbox, setLightbox] = useState<{ url: string; bibNumber: string | null; photoIds: string[] } | null>(null);
   // cart: from shared context (shared with nav)
-  const { cart, toggle: toggleCart, clear: clearCart } = useCart();
+  const { items: cartItems, inCart: isInCart, toggle: toggleCart, clear: clearCart } = useCart();
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -342,14 +345,13 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
 
   const showingFace = faceActive && faceStatus === "done" && faceBibs !== null;
 
-  // Build first bib/photoIds for cart checkout (multi-bib checkout — buy all in cart)
   const cartCheckout = () => {
-    const bibs = Array.from(cart);
-    if (bibs.length === 0) return;
-    // For simplicity open modal for first bib — could extend to multi-bib
-    const firstBib = bibs[0]!;
-    const photoIds = allPhotos?.filter((p) => p.bibNumber === firstBib).map((p) => p.id) ?? [];
-    setModal({ bib: firstBib, photoIds });
+    if (cartItems.length === 0) return;
+    const first = cartItems[0]!;
+    if (first.bibNumber) {
+      const photoIds = allPhotos?.filter((p) => p.bibNumber === first.bibNumber).map((p) => p.id) ?? [];
+      setModal({ bib: first.bibNumber, photoIds });
+    }
   };
 
   return (
@@ -522,14 +524,14 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
                     photoId={p.id}
                     bibNumber={p.bibNumber}
                     price={pricePerBib}
-                    inCart={p.bibNumber ? cart.has(p.bibNumber) : false}
+                    inCart={isInCart(p.id)}
                     onOpenLightbox={(url) => {
                       const allSameBib = p.bibNumber
                         ? allPhotos.filter((ph) => ph.bibNumber === p.bibNumber).map((ph) => ph.id)
                         : [p.id];
                       setLightbox({ url, bibNumber: p.bibNumber, photoIds: allSameBib });
                     }}
-                    onToggleCart={() => { if (p.bibNumber) toggleCart(p.bibNumber); }}
+                    onToggleCart={(url) => toggleCart({ photoId: p.id, bibNumber: p.bibNumber, url })}
                   />
                 ))}
               </div>
@@ -558,7 +560,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       )}
 
       {/* ── Floating cart bar ──────────────────────────────── */}
-      <CartBar cart={cart} price={pricePerBib} onCheckout={cartCheckout} onClear={clearCart} />
+      <CartBar count={cartItems.length} price={pricePerBib} onCheckout={cartCheckout} onClear={clearCart} />
 
       {/* ── Checkout modal ─────────────────────────────────── */}
       {modal && (
