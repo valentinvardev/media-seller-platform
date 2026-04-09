@@ -35,41 +35,41 @@ export function SalesTable({ items }: { items: Sale[] }) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border py-20 text-center" style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}>
-        <p className="text-white font-medium mb-1">Sin ventas aún</p>
-        <p className="text-slate-500 text-sm">Las ventas aparecerán aquí cuando se realice una compra</p>
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm py-20 text-center">
+        <p className="text-gray-900 font-medium mb-1">Sin ventas aún</p>
+        <p className="text-gray-400 text-sm">Las ventas aparecerán aquí cuando se realice una compra</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border overflow-hidden" style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}>
+    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left" style={{ borderColor: "#1e1e35" }}>
+          <tr className="border-b border-gray-100 text-left bg-gray-50">
             {["Email comprador", "Dorsal", "Colección", "Estado", "Monto", "Fecha", "Acciones"].map((h, i) => (
-              <th key={i} className="px-5 py-4 text-xs font-medium text-slate-500 uppercase tracking-wider">{h}</th>
+              <th key={i} className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {items.map((sale) => (
-            <tr key={sale.id} className="border-t transition-colors hover:bg-white/[0.02]" style={{ borderColor: "#1a1a28" }}>
+            <tr key={sale.id} className="border-t border-gray-50 transition-colors hover:bg-gray-50">
               <td className="px-5 py-4">
-                <p className="text-slate-300">{sale.buyerEmail}</p>
-                {sale.buyerName && <p className="text-slate-500 text-xs">{sale.buyerName}</p>}
+                <p className="text-gray-700">{sale.buyerEmail}</p>
+                {sale.buyerName && <p className="text-gray-400 text-xs">{sale.buyerName}</p>}
               </td>
               <td className="px-5 py-4">
-                <span className="font-mono font-bold text-white">
+                <span className="font-mono font-bold text-gray-900">
                   {sale.bibNumber ? `#${sale.bibNumber}` : "—"}
                 </span>
               </td>
-              <td className="px-5 py-4 text-slate-400 text-xs">{sale.collection.title}</td>
+              <td className="px-5 py-4 text-gray-500 text-xs">{sale.collection.title}</td>
               <td className="px-5 py-4"><StatusBadge status={sale.status} /></td>
-              <td className="px-5 py-4 font-medium text-white">
+              <td className="px-5 py-4 font-semibold text-gray-900">
                 ${Number(sale.amountPaid).toLocaleString("es-AR")}
               </td>
-              <td className="px-5 py-4 text-slate-500 text-xs">
+              <td className="px-5 py-4 text-gray-400 text-xs">
                 {new Date(sale.createdAt).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })}
               </td>
               <td className="px-5 py-4">
@@ -78,8 +78,7 @@ export function SalesTable({ items }: { items: Sale[] }) {
                     <button
                       onClick={() => setConfirmSale(sale)}
                       disabled={approve.isPending}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
-                      style={{ background: "#10b98120", color: "#34d399" }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50 bg-green-50 text-green-700 hover:bg-green-100"
                     >
                       ✓ Aprobar
                     </button>
@@ -87,8 +86,7 @@ export function SalesTable({ items }: { items: Sale[] }) {
                   {sale.status === "APPROVED" && sale.downloadToken && (
                     <button
                       onClick={() => copyDownloadLink(sale.downloadToken!, sale.id)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                      style={{ background: "#6366f120", color: "#818cf8" }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-blue-50 text-blue-700 hover:bg-blue-100"
                     >
                       {copiedId === sale.id ? "¡Copiado!" : "↗ Link descarga"}
                     </button>
@@ -115,12 +113,12 @@ export function SalesTable({ items }: { items: Sale[] }) {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
-    APPROVED: { bg: "#10b98120", text: "#34d399", label: "Aprobada" },
-    PENDING:  { bg: "#f59e0b20", text: "#fbbf24", label: "Pendiente" },
-    REJECTED: { bg: "#ef444420", text: "#f87171", label: "Rechazada" },
-    REFUNDED: { bg: "#6366f120", text: "#818cf8", label: "Reembolsada" },
+    APPROVED: { bg: "#f0fdf4", text: "#16a34a", label: "Aprobada" },
+    PENDING:  { bg: "#fef3c7", text: "#92400e", label: "Pendiente" },
+    REJECTED: { bg: "#fef2f2", text: "#ef4444", label: "Rechazada" },
+    REFUNDED: { bg: "#eff6ff", text: "#2563eb", label: "Reembolsada" },
   };
-  const s = map[status] ?? { bg: "#ffffff10", text: "#94a3b8", label: status };
+  const s = map[status] ?? { bg: "#f1f5f9", text: "#64748b", label: status };
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: s.bg, color: s.text }}>
       <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.text }} />

@@ -7,37 +7,43 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session) redirect("/admin/login");
 
   return (
-    <div className="min-h-screen flex text-white" style={{ background: "#080810" }}>
+    <div className="min-h-screen flex text-gray-900" style={{ background: "#f8fafc" }}>
       {/* Sidebar */}
-      <aside className="w-60 shrink-0 flex flex-col border-r" style={{ background: "#0a0a14", borderColor: "#1e1e35" }}>
+      <aside className="w-56 shrink-0 flex flex-col border-r border-gray-100 bg-white">
         {/* Logo */}
-        <div className="px-5 py-5 border-b" style={{ borderColor: "#1e1e35" }}>
+        <div className="px-5 py-5 border-b border-gray-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0" style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 text-white"
+              style={{ background: "linear-gradient(135deg, #1a3a6b, #2563eb)" }}
+            >
               F
             </div>
             <div>
-              <p className="font-bold text-white text-sm leading-tight">FotoDeporte</p>
-              <p className="text-xs leading-tight" style={{ color: "#f59e0b" }}>Admin Panel</p>
+              <p className="font-bold text-gray-900 text-sm leading-tight">FotoDeporte</p>
+              <p className="text-xs leading-tight text-blue-600">Admin Panel</p>
             </div>
           </div>
         </div>
 
         {/* User */}
-        <div className="px-4 py-3 border-b mx-3 my-3 rounded-xl" style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}>
+        <div className="px-3 py-3 border-b border-gray-100 mx-3 my-3 rounded-xl bg-gray-50">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ background: "#f59e0b20", color: "#fbbf24" }}>
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 text-white"
+              style={{ background: "#1a3a6b" }}
+            >
               {session.user?.email?.[0]?.toUpperCase()}
             </div>
-            <p className="text-xs text-slate-400 truncate">{session.user?.email}</p>
+            <p className="text-xs text-gray-500 truncate">{session.user?.email}</p>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-2 flex flex-col gap-1">
-          <p className="text-xs font-medium px-3 py-2" style={{ color: "#3a3a55" }}>NAVEGACIÓN</p>
+        <nav className="flex-1 px-3 py-2 flex flex-col gap-0.5">
+          <p className="text-xs font-semibold px-3 py-2 text-gray-400 tracking-wide">NAVEGACIÓN</p>
           <NavItem href="/admin" label="Dashboard" icon="▦" />
-          <NavItem href="/admin/colecciones" label="Colecciones" icon="◫" />
+          <NavItem href="/admin/colecciones" label="Eventos" icon="◫" />
           <NavItem href="/admin/ventas" label="Ventas" icon="◈" />
           <NavItem href="/admin/configuracion" label="Configuración" svgIcon={
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -48,17 +54,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </nav>
 
         {/* Bottom */}
-        <div className="px-3 py-4 border-t" style={{ borderColor: "#1e1e35" }}>
+        <div className="px-3 py-4 border-t border-gray-100">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-slate-300 transition-colors mb-1"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-gray-700 transition-colors mb-1"
           >
             <span>↗</span> Ver sitio público
           </Link>
           <Link
             href="/api/auth/signout"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-red-400 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-red-500 transition-colors"
           >
             <span>→</span> Cerrar sesión
           </Link>
@@ -77,9 +83,9 @@ function NavItem({ href, label, icon, svgIcon }: { href: string; label: string; 
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white transition-all hover:bg-white/5 group"
+      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:text-gray-900 transition-all hover:bg-blue-50 group"
     >
-      <span className="w-5 flex items-center justify-center flex-shrink-0" style={{ color: "#f59e0b80" }}>
+      <span className="w-5 flex items-center justify-center flex-shrink-0 text-blue-400 group-hover:text-blue-600">
         {svgIcon ?? <span className="text-base">{icon}</span>}
       </span>
       {label}

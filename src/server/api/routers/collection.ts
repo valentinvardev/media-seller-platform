@@ -108,11 +108,15 @@ export const collectionRouter = createTRPCRouter({
         bannerUrl: z.string().optional(),
         pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
+        eventDate: z.string().optional(),
       }),
     )
-    .mutation(({ ctx, input }) =>
-      ctx.db.collection.create({ data: input }),
-    ),
+    .mutation(({ ctx, input }) => {
+      const { eventDate, ...rest } = input;
+      return ctx.db.collection.create({
+        data: { ...rest, eventDate: eventDate ? new Date(eventDate) : undefined },
+      });
+    }),
 
   update: protectedProcedure
     .input(
@@ -126,11 +130,20 @@ export const collectionRouter = createTRPCRouter({
         bannerUrl: z.string().optional().nullable(),
         pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
+        eventDate: z.string().optional().nullable(),
       }),
     )
     .mutation(({ ctx, input }) => {
-      const { id, ...data } = input;
-      return ctx.db.collection.update({ where: { id }, data });
+      const { id, eventDate, ...rest } = input;
+      return ctx.db.collection.update({
+        where: { id },
+        data: {
+          ...rest,
+          ...(eventDate !== undefined
+            ? { eventDate: eventDate ? new Date(eventDate) : null }
+            : {}),
+        },
+      });
     }),
 
   delete: protectedProcedure

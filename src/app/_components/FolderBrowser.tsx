@@ -27,30 +27,28 @@ function PhotoLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(6px)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
+      style={{ background: "rgba(0,0,0,0.82)", backdropFilter: "blur(8px)" }}
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-2xl overflow-hidden shadow-2xl w-full"
-        style={{ maxWidth: 480 }}
+        className="relative overflow-hidden shadow-2xl w-full"
+        style={{ maxWidth: 720, maxHeight: "90vh", borderRadius: 0, background: "transparent" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}
         <button onClick={onClose}
-          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white transition-colors">
+          className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        {/* Image */}
-        <div className="bg-gray-100" style={{ maxHeight: "60vh", overflow: "hidden" }}>
-          <img src={url} alt="" className="w-full object-contain" style={{ maxHeight: "60vh" }} />
-        </div>
+        {/* Image — no frame */}
+        <img src={url} alt="" className="w-full object-contain" style={{ maxHeight: "75vh", display: "block" }} />
 
-        {/* Bottom */}
-        <div className="px-5 py-4 flex items-center justify-between gap-4 border-t border-gray-100 bg-white">
+        {/* Bottom overlay */}
+        <div className="flex items-center justify-between gap-4 px-5 py-4 bg-white/95 backdrop-blur-sm">
           <div>
             {bibNumber && <p className="text-sm font-bold text-gray-900">Dorsal #{bibNumber}</p>}
             <p className="text-xs text-gray-400 mt-0.5">Vista previa · descargá en HD sin marca de agua</p>

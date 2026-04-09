@@ -220,7 +220,7 @@ function PreviewSlider({ urls, photoCount }: { urls: string[]; photoCount: numbe
     <>
       <div
         className="relative overflow-hidden select-none"
-        style={{ height: "220px" }}
+        style={{ height: "360px" }}
         onTouchStart={(e) => setTouchX(e.touches[0]!.clientX)}
         onTouchEnd={(e) => {
           if (touchX === null) return;
@@ -364,13 +364,13 @@ export function BibCheckoutModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
       style={{ background: "rgba(0,0,0,0.85)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl overflow-hidden border"
-        style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}
+        className="w-full sm:max-w-2xl rounded-t-3xl sm:rounded-xl overflow-hidden"
+        style={{ background: "#0f0f1a" }}
       >
         {/* Drag handle — mobile only */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
@@ -378,7 +378,7 @@ export function BibCheckoutModal({
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "#1e1e35" }}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1e1e3560" }}>
           <div>
             {collectionInfo && (
               <p className="text-xs text-slate-500 mb-0.5">{collectionInfo.title}</p>
@@ -396,7 +396,7 @@ export function BibCheckoutModal({
 
         {/* Preview slider */}
         {urlsLoading ? (
-          <div className="flex justify-center items-center" style={{ height: "220px", background: "#0a0a15" }}>
+          <div className="flex justify-center items-center" style={{ height: "360px", background: "#0a0a15" }}>
             <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
           </div>
         ) : (

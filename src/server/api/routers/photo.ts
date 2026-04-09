@@ -16,15 +16,20 @@ export const photoRouter = createTRPCRouter({
    * Returns: exact matches first, then fuzzy (1-digit-different, 3-4 digit bibs).
    * Only metadata (id, bibNumber) returned immediately; URLs resolved on demand.
    */
-  /** All photos in a collection — for public gallery display. */
+  /** All photos in a collection — unidentified bibs first, then identified, ordered by order. */
   listAll: publicProcedure
     .input(z.object({ collectionId: z.string() }))
     .query(async ({ ctx, input }) => {
-      return ctx.db.photo.findMany({
+      const photos = await ctx.db.photo.findMany({
         where: { collectionId: input.collectionId },
         orderBy: { order: "asc" },
         select: { id: true, bibNumber: true },
       });
+      // null bibs first (unidentified), then identified
+      return [
+        ...photos.filter((p) => !p.bibNumber),
+        ...photos.filter((p) => !!p.bibNumber),
+      ];
     }),
 
   searchByBib: publicProcedure
@@ -126,18 +131,25 @@ export const photoRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const count = await ctx.db.photo.count({ where: { collectionId: input.collectionId } });
-      await ctx.db.photo.createMany({
-        data: input.photos.map((p, i) => ({
-          collectionId: input.collectionId,
-          storageKey: p.storageKey,
-          filename: p.filename,
-          bibNumber: p.bibNumber ?? null,
-          fileSize: p.fileSize,
-          width: p.width,
-          height: p.height,
-          order: count + i,
-        })),
-      });
+      // createMany doesn't return IDs in all DBs; create individually so we can return IDs for OCR
+      const created = await Promise.all(
+        input.photos.map((p, i) =>
+          ctx.db.photo.create({
+            data: {
+              collectionId: input.collectionId,
+              storageKey: p.storageKey,
+              filename: p.filename,
+              bibNumber: p.bibNumber ?? null,
+              fileSize: p.fileSize,
+              width: p.width,
+              height: p.height,
+              order: count + i,
+            },
+            select: { id: true },
+          }),
+        ),
+      );
+      return { ids: created.map((c) => c.id) };
     }),
 
   getStorageUsage: protectedProcedure.query(async ({ ctx }) => {

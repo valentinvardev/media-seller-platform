@@ -10,11 +10,13 @@ export default function NewCollectionPage() {
     title: "",
     description: "",
     slug: "",
+    eventDate: "",
+    pricePerBib: "",
     isPublished: false,
   });
 
   const create = api.collection.create.useMutation({
-    onSuccess: () => router.push("/admin/colecciones"),
+    onSuccess: (col) => router.push(`/admin/colecciones/${col.id}`),
   });
 
   const handleTitleChange = (title: string) => {
@@ -32,82 +34,139 @@ export default function NewCollectionPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const price = parseFloat(form.pricePerBib);
     create.mutate({
       title: form.title,
       description: form.description || undefined,
       slug: form.slug,
+      eventDate: form.eventDate || undefined,
+      pricePerBib: isNaN(price) ? undefined : price,
       isPublished: form.isPublished,
     });
   };
 
   return (
-    <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-8">Nueva colección</h1>
+    <div className="max-w-xl">
+      {/* Back */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-6 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Volver a eventos
+      </button>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Field label="Título *">
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Crear evento</h1>
+      <p className="text-gray-500 text-sm mb-8">Completá la información del evento. Después podés subir las fotos y gestionar los dorsales.</p>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {/* Title */}
+        <Field label="Nombre del evento *">
           <input
             value={form.title}
             onChange={(e) => handleTitleChange(e.target.value)}
             required
-            placeholder="ej. Maratón Rosario 2024"
+            placeholder="ej. Maratón Rosario 2025"
             className={inputClass}
           />
         </Field>
 
+        {/* Date + Price in a row */}
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Fecha del evento">
+            <input
+              type="date"
+              value={form.eventDate}
+              onChange={(e) => setForm((f) => ({ ...f, eventDate: e.target.value }))}
+              className={inputClass}
+            />
+          </Field>
+          <Field label="Precio por dorsal (ARS)">
+            <input
+              type="number"
+              min="0"
+              step="100"
+              value={form.pricePerBib}
+              onChange={(e) => setForm((f) => ({ ...f, pricePerBib: e.target.value }))}
+              placeholder="ej. 5000"
+              className={inputClass}
+            />
+          </Field>
+        </div>
+
+        {/* Description */}
         <Field label="Descripción">
           <textarea
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
             rows={3}
-            placeholder="Descripción opcional"
+            placeholder="Descripción breve del evento..."
             className={inputClass}
           />
         </Field>
 
-        <Field label="Slug (URL) *">
+        {/* Slug */}
+        <Field label="URL (slug) *">
           <input
             value={form.slug}
             onChange={(e) =>
               setForm((f) => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") }))
             }
             required
-            placeholder="maraton-rosario-2024"
+            placeholder="maraton-rosario-2025"
             className={inputClass}
           />
-          <p className="text-gray-500 text-xs mt-1">
-            URL: /colecciones/{form.slug || "..."}
+          <p className="text-gray-400 text-xs mt-1.5">
+            URL pública: /colecciones/{form.slug || "..."}
           </p>
         </Field>
 
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.isPublished}
-            onChange={(e) => setForm((f) => ({ ...f, isPublished: e.target.checked }))}
-            className="rounded"
-          />
-          <span className="text-gray-300 text-sm">Publicar inmediatamente</span>
+        {/* Publish toggle */}
+        <label className="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-blue-50 transition-colors">
+          <div className="relative">
+            <input
+              type="checkbox"
+              checked={form.isPublished}
+              onChange={(e) => setForm((f) => ({ ...f, isPublished: e.target.checked }))}
+              className="sr-only"
+            />
+            <div
+              className="w-10 h-5 rounded-full transition-colors"
+              style={{ background: form.isPublished ? "#2563eb" : "#e2e8f0" }}
+            >
+              <div
+                className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                style={{ left: form.isPublished ? "22px" : "2px" }}
+              />
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700">Publicar inmediatamente</p>
+            <p className="text-xs text-gray-400">El evento será visible en el sitio público</p>
+          </div>
         </label>
 
         {create.isError && (
-          <p className="text-red-400 text-sm">Error al crear. Revisá que el slug no esté en uso.</p>
+          <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-100">
+            <p className="text-red-600 text-sm">Error al crear. Revisá que el slug no esté en uso.</p>
+          </div>
         )}
 
-        <div className="flex gap-3 mt-2">
+        <div className="flex gap-3 pt-2">
           <button
             type="submit"
-            disabled={create.isPending}
-            className="disabled:opacity-50 font-semibold text-black text-sm px-6 py-2.5 rounded-xl transition-all hover:scale-[1.02]"
-            style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+            disabled={create.isPending || !form.title || !form.slug}
+            className="disabled:opacity-50 font-semibold text-white text-sm px-6 py-3 rounded-xl transition-all hover:opacity-90 shadow-sm"
+            style={{ background: "linear-gradient(135deg, #1a3a6b, #2563eb)" }}
           >
-            {create.isPending ? "Creando..." : "Crear colección"}
+            {create.isPending ? "Creando..." : "Crear evento →"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-slate-400 hover:text-white px-6 py-2.5 rounded-xl transition-colors"
-            style={{ background: "#1e1e35" }}
+            className="text-gray-500 hover:text-gray-800 px-6 py-3 rounded-xl transition-colors border border-gray-200 hover:border-gray-300 text-sm"
           >
             Cancelar
           </button>
@@ -118,13 +177,12 @@ export default function NewCollectionPage() {
 }
 
 const inputClass =
-  "w-full rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none transition-colors"
-  + " bg-[#0f0f1a] border border-[#1e1e35] focus:border-[#f59e0b40]";
+  "w-full rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all border border-gray-200 bg-white";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-gray-400 text-sm mb-1">{label}</label>
+      <label className="block text-gray-600 text-sm font-medium mb-1.5">{label}</label>
       {children}
     </div>
   );

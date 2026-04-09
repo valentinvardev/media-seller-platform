@@ -21,26 +21,26 @@ const VISIBLE_ROWS = 4; // rows shown before fade/cap
 
 function StatusIcon({ status }: { status: FileStatus }) {
   if (status === "done") return (
-    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#10b98120" }}>
-      <svg className="w-3.5 h-3.5" style={{ color: "#34d399" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-green-100">
+      <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
       </svg>
     </div>
   );
   if (status === "uploading") return (
     <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin flex-shrink-0"
-      style={{ borderColor: "#f59e0b40", borderTopColor: "#f59e0b" }} />
+      style={{ borderColor: "#bfdbfe", borderTopColor: "#2563eb" }} />
   );
   if (status === "error") return (
-    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#ef444420" }}>
-      <svg className="w-3.5 h-3.5" style={{ color: "#f87171" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100">
+      <svg className="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </div>
   );
   return (
-    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#ffffff08" }}>
-      <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#475569" }} />
+    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100">
+      <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
     </div>
   );
 }
@@ -50,26 +50,26 @@ function FileRow({ entry }: { entry: FileEntry }) {
     <div
       className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
       style={{
-        background: "#0f0f1a",
-        border: `1px solid ${entry.status === "error" ? "#ef444430" : entry.status === "done" ? "#10b98115" : "#1e1e35"}`,
+        background: "#f8fafc",
+        border: `1px solid ${entry.status === "error" ? "#fecaca" : entry.status === "done" ? "#bbf7d0" : "#e2e8f0"}`,
         opacity: entry.visible ? 1 : 0,
         transform: entry.visible ? "translateY(0)" : "translateY(-8px)",
         transition: "opacity 0.35s ease, transform 0.35s ease, border-color 0.4s ease",
       }}
     >
-      <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ background: "#1e1e35" }}>
+      <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ background: "#e2e8f0" }}>
         <img src={entry.previewUrl} alt={entry.file.name} className="w-full h-full object-cover" />
         {entry.status === "uploading" && (
           <div className="absolute inset-0 animate-pulse" style={{ background: "rgba(245,158,11,0.25)" }} />
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-white truncate">{entry.file.name}</p>
+        <p className="text-xs text-gray-800 truncate">{entry.file.name}</p>
         <p className="text-xs mt-0.5 truncate" style={{
-          color: entry.status === "uploading" ? "#f59e0b"
-            : entry.status === "done" ? "#34d399"
-            : entry.status === "error" ? "#f87171"
-            : "#475569",
+          color: entry.status === "uploading" ? "#2563eb"
+            : entry.status === "done" ? "#16a34a"
+            : entry.status === "error" ? "#ef4444"
+            : "#94a3b8",
         }}>
           {entry.status === "uploading" ? "Subiendo..."
             : entry.status === "done" ? "Completada"
@@ -172,7 +172,19 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       }
     }
 
-    if (uploaded.length > 0) await bulkAdd.mutateAsync({ collectionId, photos: uploaded });
+    if (uploaded.length > 0) {
+      const result = await bulkAdd.mutateAsync({ collectionId, photos: uploaded });
+      // Trigger OCR for each saved photo (fire-and-forget — no await)
+      if (result?.ids) {
+        for (const photoId of result.ids) {
+          void fetch("/api/ocr", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ photoId }),
+          });
+        }
+      }
+    }
   };
 
   const isUploading = entries.some((e) => e.status === "uploading" || e.status === "pending");
@@ -203,16 +215,16 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         onDragLeave={() => setIsDragging(false)}
         onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) void handleFiles(e.dataTransfer.files); }}
         className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all"
-        style={{ borderColor: isDragging ? "#f59e0b80" : "#1e1e35", background: isDragging ? "#f59e0b08" : "#0a0a15" }}
+        style={{ borderColor: isDragging ? "#2563eb80" : "#e2e8f0", background: isDragging ? "#eff6ff" : "#f8fafc" }}
       >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
-          style={{ background: "#f59e0b15", border: "1px solid #f59e0b30" }}>
-          <svg className="w-5 h-5" style={{ color: "#f59e0b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          style={{ background: "#eff6ff", border: "1px solid #bfdbfe" }}>
+          <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
           </svg>
         </div>
-        <p className="text-white font-medium text-sm">{isUploading ? "Subiendo fotos..." : "Arrastrá fotos aquí"}</p>
-        <p className="text-slate-500 text-xs mt-1">
+        <p className="text-gray-800 font-medium text-sm">{isUploading ? "Subiendo fotos..." : "Arrastrá fotos aquí"}</p>
+        <p className="text-gray-400 text-xs mt-1">
           {isUploading ? `${doneCount} de ${entries.length} completadas` : "o hacé clic para seleccionar"}
         </p>
       </div>
@@ -221,7 +233,7 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         onChange={(e) => { if (e.target.files) void handleFiles(e.target.files); }} />
 
       {globalError && (
-        <div className="mt-3 px-4 py-3 rounded-xl text-sm" style={{ background: "#ef444415", color: "#f87171", border: "1px solid #ef444430" }}>
+        <div className="mt-3 px-4 py-3 rounded-xl text-sm bg-red-50 text-red-600 border border-red-100">
           {globalError}
         </div>
       )}
@@ -230,17 +242,17 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       {entries.length > 0 && (
         <div className="mt-3 flex items-center justify-between">
           <div className="flex items-center gap-3 text-xs">
-            {doneCount > 0 && <span style={{ color: "#34d399" }}>✓ {doneCount} subida{doneCount !== 1 ? "s" : ""}</span>}
-            {errorCount > 0 && <span style={{ color: "#f87171" }}>✕ {errorCount} con error</span>}
+            {doneCount > 0 && <span className="text-green-600">✓ {doneCount} subida{doneCount !== 1 ? "s" : ""}</span>}
+            {errorCount > 0 && <span className="text-red-500">✕ {errorCount} con error</span>}
             {isUploading && (
-              <span style={{ color: "#94a3b8" }}>
-                <span className="inline-block w-2 h-2 rounded-full mr-1 animate-pulse" style={{ background: "#f59e0b" }} />
+              <span className="text-gray-500">
+                <span className="inline-block w-2 h-2 rounded-full mr-1 animate-pulse bg-blue-500" />
                 Subiendo...
               </span>
             )}
           </div>
           {allSettled && (
-            <button onClick={clearAll} className="text-xs px-3 py-1 rounded-lg" style={{ color: "#64748b", background: "#1e1e35" }}>
+            <button onClick={clearAll} className="text-xs px-3 py-1 rounded-lg text-gray-500 bg-gray-100 hover:bg-gray-200">
               Limpiar
             </button>
           )}
@@ -263,14 +275,14 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
               className="absolute bottom-0 left-0 right-0 flex flex-col items-center justify-end pb-3"
               style={{
                 height: "96px",
-                background: "linear-gradient(to top, #07070f 20%, transparent 100%)",
+                background: "linear-gradient(to top, #ffffff 20%, transparent 100%)",
                 pointerEvents: "none",
               }}
             >
               <button
                 onClick={() => setModalOpen(true)}
                 className="text-xs font-medium px-4 py-1.5 rounded-full transition-all hover:scale-105"
-                style={{ background: "#1e1e35", color: "#94a3b8", pointerEvents: "all" }}
+                style={{ background: "#e2e8f0", color: "#475569", pointerEvents: "all" }}
               >
                 Ver todas ({sorted.length})
               </button>
@@ -280,7 +292,7 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       )}
 
       {/* Storage */}
-      <div className="mt-4 pt-3 border-t" style={{ borderColor: "#1e1e35" }}>
+      <div className="mt-4 pt-3 border-t border-gray-100">
         <StorageBar />
       </div>
 
@@ -292,27 +304,27 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           onClick={() => setModalOpen(false)}
         >
           <div
-            className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl overflow-hidden border flex flex-col"
-            style={{ background: "#0f0f1a", borderColor: "#1e1e35", maxHeight: "80vh" }}
+            className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl overflow-hidden border border-gray-100 flex flex-col bg-white"
+            style={{ maxHeight: "80vh" }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{ borderColor: "#1e1e35" }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
               <div>
-                <h2 className="font-bold text-white text-sm">Todas las fotos</h2>
-                <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
+                <h2 className="font-bold text-gray-900 text-sm">Todas las fotos</h2>
+                <p className="text-xs mt-0.5 text-gray-500">
                   {doneCount} completadas · {errorCount} con error · {entries.filter(e => e.status === "uploading" || e.status === "pending").length} en progreso
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 {allSettled && (
                   <button onClick={() => { clearAll(); setModalOpen(false); }}
-                    className="text-xs px-3 py-1.5 rounded-lg" style={{ color: "#64748b", background: "#1e1e35" }}>
+                    className="text-xs px-3 py-1.5 rounded-lg text-gray-500 bg-gray-100 hover:bg-gray-200">
                     Limpiar
                   </button>
                 )}
                 <button onClick={() => setModalOpen(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#16162a", color: "#64748b" }}>
+                  className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:text-gray-800">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
