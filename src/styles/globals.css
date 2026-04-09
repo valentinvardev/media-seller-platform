@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-50: #fffbeb;
+  --color-brand-50:  #fffbeb;
   --color-brand-100: #fef3c7;
   --color-brand-200: #fde68a;
   --color-brand-300: #fcd34d;
@@ -15,40 +15,96 @@
   --color-brand-800: #92400e;
   --color-brand-900: #78350f;
 
-  --color-surface-900: #080810;
-  --color-surface-800: #0f0f1a;
-  --color-surface-700: #16162a;
-  --color-surface-600: #1e1e35;
-  --color-surface-500: #2a2a45;
+  --color-surface-900: #060608;
+  --color-surface-800: #0c0c16;
+  --color-surface-700: #13131f;
+  --color-surface-600: #1a1a2e;
+  --color-surface-500: #252540;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
-  background-color: #080810;
+  background-color: #060608;
   color: #f1f5f9;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #0f0f1a;
-}
-::-webkit-scrollbar-thumb {
-  background: #2a2a45;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #f59e0b;
+/* Display / heading font */
+.font-display {
+  font-family: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.01em;
 }
 
-/* Selection */
-::selection {
-  background: #f59e0b33;
-  color: #fbbf24;
+/* ── Scrollbar ────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #0c0c16; }
+::-webkit-scrollbar-thumb { background: #252540; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+
+/* ── Selection ────────────────────────────────── */
+::selection { background: #f59e0b33; color: #fbbf24; }
+
+/* ── Speed lines (decorative diagonal) ──────────── */
+.speed-lines {
+  background-image: repeating-linear-gradient(
+    72deg,
+    transparent,
+    transparent 40px,
+    rgba(245, 158, 11, 0.03) 40px,
+    rgba(245, 158, 11, 0.03) 41px
+  );
+}
+
+/* ── Diagonal clip ───────────────────────────── */
+.clip-diagonal {
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 0 100%);
+}
+.clip-diagonal-sm {
+  clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
+}
+
+/* ── Animations ───────────────────────────────── */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-right {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+@keyframes dash {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100vw); }
+}
+
+.animate-slide-up   { animation: slide-up   0.5s ease both; }
+.animate-slide-right { animation: slide-right 0.45s ease both; }
+.animate-pulse-glow { animation: pulse-glow 2s ease infinite; }
+
+/* ── Gradient text ───────────────────────────── */
+.text-gradient {
+  background: linear-gradient(90deg, #f59e0b, #fcd34d 60%, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Card hover glow ──────────────────────────── */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 158, 11, 0.25) !important;
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.08);
 }
