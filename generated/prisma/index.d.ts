@@ -5858,6 +5858,7 @@ export namespace Prisma {
     logoUrl: string | null
     bannerUrl: string | null
     slug: string | null
+    eventDate: Date | null
     pricePerBib: Decimal | null
     isPublished: boolean | null
     createdAt: Date | null
@@ -5872,6 +5873,7 @@ export namespace Prisma {
     logoUrl: string | null
     bannerUrl: string | null
     slug: string | null
+    eventDate: Date | null
     pricePerBib: Decimal | null
     isPublished: boolean | null
     createdAt: Date | null
@@ -5886,6 +5888,7 @@ export namespace Prisma {
     logoUrl: number
     bannerUrl: number
     slug: number
+    eventDate: number
     pricePerBib: number
     isPublished: number
     createdAt: number
@@ -5910,6 +5913,7 @@ export namespace Prisma {
     logoUrl?: true
     bannerUrl?: true
     slug?: true
+    eventDate?: true
     pricePerBib?: true
     isPublished?: true
     createdAt?: true
@@ -5924,6 +5928,7 @@ export namespace Prisma {
     logoUrl?: true
     bannerUrl?: true
     slug?: true
+    eventDate?: true
     pricePerBib?: true
     isPublished?: true
     createdAt?: true
@@ -5938,6 +5943,7 @@ export namespace Prisma {
     logoUrl?: true
     bannerUrl?: true
     slug?: true
+    eventDate?: true
     pricePerBib?: true
     isPublished?: true
     createdAt?: true
@@ -6039,6 +6045,7 @@ export namespace Prisma {
     logoUrl: string | null
     bannerUrl: string | null
     slug: string
+    eventDate: Date | null
     pricePerBib: Decimal
     isPublished: boolean
     createdAt: Date
@@ -6072,6 +6079,7 @@ export namespace Prisma {
     logoUrl?: boolean
     bannerUrl?: boolean
     slug?: boolean
+    eventDate?: boolean
     pricePerBib?: boolean
     isPublished?: boolean
     createdAt?: boolean
@@ -6089,6 +6097,7 @@ export namespace Prisma {
     logoUrl?: boolean
     bannerUrl?: boolean
     slug?: boolean
+    eventDate?: boolean
     pricePerBib?: boolean
     isPublished?: boolean
     createdAt?: boolean
@@ -6103,6 +6112,7 @@ export namespace Prisma {
     logoUrl?: boolean
     bannerUrl?: boolean
     slug?: boolean
+    eventDate?: boolean
     pricePerBib?: boolean
     isPublished?: boolean
     createdAt?: boolean
@@ -6117,13 +6127,14 @@ export namespace Prisma {
     logoUrl?: boolean
     bannerUrl?: boolean
     slug?: boolean
+    eventDate?: boolean
     pricePerBib?: boolean
     isPublished?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "slug" | "pricePerBib" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "slug" | "eventDate" | "pricePerBib" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
   export type CollectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     photos?: boolean | Collection$photosArgs<ExtArgs>
     purchases?: boolean | Collection$purchasesArgs<ExtArgs>
@@ -6146,6 +6157,7 @@ export namespace Prisma {
       logoUrl: string | null
       bannerUrl: string | null
       slug: string
+      eventDate: Date | null
       pricePerBib: Prisma.Decimal
       isPublished: boolean
       createdAt: Date
@@ -6582,6 +6594,7 @@ export namespace Prisma {
     readonly logoUrl: FieldRef<"Collection", 'String'>
     readonly bannerUrl: FieldRef<"Collection", 'String'>
     readonly slug: FieldRef<"Collection", 'String'>
+    readonly eventDate: FieldRef<"Collection", 'DateTime'>
     readonly pricePerBib: FieldRef<"Collection", 'Decimal'>
     readonly isPublished: FieldRef<"Collection", 'Boolean'>
     readonly createdAt: FieldRef<"Collection", 'DateTime'>
@@ -9555,6 +9568,7 @@ export namespace Prisma {
     logoUrl: 'logoUrl',
     bannerUrl: 'bannerUrl',
     slug: 'slug',
+    eventDate: 'eventDate',
     pricePerBib: 'pricePerBib',
     isPublished: 'isPublished',
     createdAt: 'createdAt',
@@ -9993,6 +10007,7 @@ export namespace Prisma {
     logoUrl?: StringNullableFilter<"Collection"> | string | null
     bannerUrl?: StringNullableFilter<"Collection"> | string | null
     slug?: StringFilter<"Collection"> | string
+    eventDate?: DateTimeNullableFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
@@ -10009,6 +10024,7 @@ export namespace Prisma {
     logoUrl?: SortOrderInput | SortOrder
     bannerUrl?: SortOrderInput | SortOrder
     slug?: SortOrder
+    eventDate?: SortOrderInput | SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -10028,6 +10044,7 @@ export namespace Prisma {
     coverUrl?: StringNullableFilter<"Collection"> | string | null
     logoUrl?: StringNullableFilter<"Collection"> | string | null
     bannerUrl?: StringNullableFilter<"Collection"> | string | null
+    eventDate?: DateTimeNullableFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
@@ -10044,6 +10061,7 @@ export namespace Prisma {
     logoUrl?: SortOrderInput | SortOrder
     bannerUrl?: SortOrderInput | SortOrder
     slug?: SortOrder
+    eventDate?: SortOrderInput | SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -10066,6 +10084,7 @@ export namespace Prisma {
     logoUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     bannerUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     slug?: StringWithAggregatesFilter<"Collection"> | string
+    eventDate?: DateTimeNullableWithAggregatesFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalWithAggregatesFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolWithAggregatesFilter<"Collection"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
@@ -10561,6 +10580,7 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
@@ -10577,6 +10597,7 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
@@ -10593,6 +10614,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10609,6 +10631,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10625,6 +10648,7 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
@@ -10639,6 +10663,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10653,6 +10678,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11253,6 +11279,7 @@ export namespace Prisma {
     logoUrl?: SortOrder
     bannerUrl?: SortOrder
     slug?: SortOrder
+    eventDate?: SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -11271,6 +11298,7 @@ export namespace Prisma {
     logoUrl?: SortOrder
     bannerUrl?: SortOrder
     slug?: SortOrder
+    eventDate?: SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -11285,6 +11313,7 @@ export namespace Prisma {
     logoUrl?: SortOrder
     bannerUrl?: SortOrder
     slug?: SortOrder
+    eventDate?: SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
     createdAt?: SortOrder
@@ -12414,6 +12443,7 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
@@ -12429,6 +12459,7 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
@@ -12460,6 +12491,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12475,6 +12507,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12490,6 +12523,7 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
@@ -12505,6 +12539,7 @@ export namespace Prisma {
     logoUrl?: string | null
     bannerUrl?: string | null
     slug: string
+    eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
     createdAt?: Date | string
@@ -12536,6 +12571,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12551,6 +12587,7 @@ export namespace Prisma {
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

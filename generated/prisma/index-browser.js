@@ -167,6 +167,7 @@ exports.Prisma.CollectionScalarFieldEnum = {
   logoUrl: 'logoUrl',
   bannerUrl: 'bannerUrl',
   slug: 'slug',
+  eventDate: 'eventDate',
   pricePerBib: 'pricePerBib',
   isPublished: 'isPublished',
   createdAt: 'createdAt',

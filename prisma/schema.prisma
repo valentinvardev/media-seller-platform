@@ -67,6 +67,7 @@ model Collection {
     logoUrl      String?
     bannerUrl    String?
     slug         String   @unique
+    eventDate    DateTime?
     pricePerBib  Decimal  @default(0) @db.Decimal(10, 2)
     isPublished  Boolean  @default(false)
     createdAt    DateTime @default(now())
