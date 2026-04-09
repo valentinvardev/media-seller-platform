@@ -137,8 +137,7 @@ export default async function HomePage() {
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
               alt="MercadoPago"
-              className="h-12 w-auto"
-              style={{ filter: "brightness(0) invert(1)" }}
+              className="h-24 w-auto"
             />
           </div>
           <p className="text-blue-200 text-sm max-w-md mx-auto leading-relaxed mb-7">
@@ -235,12 +234,12 @@ function EventCard({ col }: { col: Collection }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent rounded-t-2xl" />
         </div>
         {/* Circular logo centred at bottom, overflows into content */}
-        <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 z-10 w-14 h-14 rounded-full border-4 border-white shadow-lg overflow-hidden flex items-center justify-center"
+        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 z-10 w-20 h-20 rounded-full border-4 border-white shadow-xl overflow-hidden flex items-center justify-center"
           style={{ background: col.logoUrl ? "#fff" : "#0057A8" }}>
           {col.logoUrl ? (
             <img src={col.logoUrl} alt="" className="w-full h-full object-cover" />
           ) : (
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -249,7 +248,7 @@ function EventCard({ col }: { col: Collection }) {
       </div>
 
       {/* Content */}
-      <div className="pt-10 pb-5 px-5 flex flex-col flex-1 text-center">
+      <div className="pt-14 pb-5 px-5 flex flex-col flex-1 text-center">
         <h3 className="font-display font-700 uppercase text-gray-900 text-xl leading-tight mb-1">{col.title}</h3>
         {dateStr && <p className="text-xs font-semibold mb-1" style={{ color: "#0057A8" }}>{dateStr}</p>}
         {col.description && <p className="text-sm text-gray-500 mb-3 line-clamp-2">{col.description}</p>}

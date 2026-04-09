@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { getAdminClient } from "~/lib/supabase/admin";
 
@@ -7,32 +6,32 @@ import { getAdminClient } from "~/lib/supabase/admin";
  * POST /api/ocr
  * Body: { photoId: string }
  *
- * Downloads the photo from Supabase, sends it to the Modal OCR endpoint,
- * extracts the bib number from Roboflow predictions, and saves it to the DB.
+ * Downloads the photo from Supabase, sends it base64-encoded to the Modal
+ * OCR endpoint, extracts the bib number from Roboflow predictions, and saves
+ * it to the DB.
+ *
+ * Auth: no session required — only photoId is accepted, and only the bib
+ * number field is written. Called fire-and-forget from PhotoUploader.
  */
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
   const { photoId } = (await req.json()) as { photoId?: string };
   if (!photoId) return NextResponse.json({ error: "photoId required" }, { status: 400 });
 
   const modalUrl = process.env.MODAL_OCR_URL;
   if (!modalUrl) {
-    // OCR not configured — return null silently so upload still works
     return NextResponse.json({ bibNumber: null, skipped: true });
   }
 
   const photo = await db.photo.findUnique({ where: { id: photoId } });
   if (!photo) return NextResponse.json({ error: "Photo not found" }, { status: 404 });
 
-  // Already has a bib — skip
+  // Already has a bib — nothing to do
   if (photo.bibNumber) return NextResponse.json({ bibNumber: photo.bibNumber, cached: true });
 
   const client = getAdminClient();
   if (!client) return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
 
-  // Download the original from Supabase
+  // Download original from Supabase
   const { data, error } = await client.storage.from("photos").download(photo.storageKey);
   if (error ?? !data) return NextResponse.json({ error: "Download failed" }, { status: 500 });
 
@@ -44,7 +43,8 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ image_base64: imageBase64 }),
-      signal: AbortSignal.timeout(30_000),
+      // Modal cold start can take up to 90s with ML libs loaded
+      signal: AbortSignal.timeout(120_000),
     });
 
     if (modalRes.ok) {
@@ -55,8 +55,9 @@ export async function POST(req: NextRequest) {
       };
 
       const preds = result.roboflow_results?.predictions ?? [];
-      // Take the first bib-class prediction with a valid digit string
-      for (const pred of preds) {
+      // Take the highest-confidence bib prediction with a valid digit string
+      const sorted = [...preds].sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0));
+      for (const pred of sorted) {
         if (pred.class?.toLowerCase() !== "bib") continue;
         const text = pred.bib_text?.trim();
         if (text && text !== "Unknown" && /^\d+$/.test(text)) {
@@ -64,10 +65,11 @@ export async function POST(req: NextRequest) {
           break;
         }
       }
+    } else {
+      console.error("Modal OCR non-ok:", modalRes.status, await modalRes.text().catch(() => ""));
     }
   } catch (err) {
     console.error("OCR request failed:", err);
-    // Non-fatal — photo stays with null bib
   }
 
   if (bibNumber) {

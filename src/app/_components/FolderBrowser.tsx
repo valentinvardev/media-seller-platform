@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { BibCheckoutModal } from "~/app/_components/FolderModal";
+import { useCart } from "~/app/_components/CartContext";
 
 // ─── Photo lightbox ───────────────────────────────────────────────────────────
 
@@ -102,7 +103,7 @@ function PhotoTile({
   };
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-200 transition-all duration-200 group flex flex-col">
+    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group flex flex-col">
       {/* Image area */}
       <div
         className="relative overflow-hidden cursor-pointer bg-gray-100"
@@ -322,8 +323,8 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const [modal, setModal] = useState<{ bib: string; photoIds: string[] } | null>(null);
   // lightbox: single photo preview
   const [lightbox, setLightbox] = useState<{ url: string; bibNumber: string | null; photoIds: string[] } | null>(null);
-  // cart: set of bibNumbers
-  const [cart, setCart] = useState<Set<string>>(new Set());
+  // cart: from shared context (shared with nav)
+  const { cart, toggle: toggleCart, clear: clearCart } = useCart();
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -343,14 +344,6 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const exactGroups = searchData?.exact ?? [];
   const fuzzyGroups = searchData?.fuzzy ?? [];
   const noResults = hasSearch && !searchLoading && exactGroups.length === 0 && fuzzyGroups.length === 0;
-
-  const toggleCart = useCallback((bib: string) => {
-    setCart((prev) => {
-      const next = new Set(prev);
-      if (next.has(bib)) next.delete(bib); else next.add(bib);
-      return next;
-    });
-  }, []);
 
   const handleFaceUpload = async (file: File) => {
     setFaceStatus("uploading");
@@ -599,7 +592,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       )}
 
       {/* ── Floating cart bar ──────────────────────────────── */}
-      <CartBar cart={cart} price={pricePerBib} onCheckout={cartCheckout} onClear={() => setCart(new Set())} />
+      <CartBar cart={cart} price={pricePerBib} onCheckout={cartCheckout} onClear={clearCart} />
 
       {/* ── Checkout modal ─────────────────────────────────── */}
       {modal && (

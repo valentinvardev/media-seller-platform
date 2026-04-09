@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { api } from "~/trpc/server";
 import { FolderBrowser } from "~/app/_components/FolderBrowser";
+import { CartProvider } from "~/app/_components/CartContext";
+import { NavCartButton } from "~/app/_components/NavCartButton";
 
 export default async function CollectionPage({
   params,
@@ -19,6 +21,7 @@ export default async function CollectionPage({
     : null;
 
   return (
+    <CartProvider>
     <div className="min-h-screen bg-gray-50">
 
       {/* ── Nav ───────────────────────────────────────────────── */}
@@ -33,6 +36,7 @@ export default async function CollectionPage({
           </Link>
           <span className="text-gray-300">/</span>
           <span className="text-sm text-gray-900 font-semibold truncate">{collection.title}</span>
+          <NavCartButton price={Number(collection.pricePerBib)} />
         </div>
       </nav>
 
@@ -137,7 +141,7 @@ export default async function CollectionPage({
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
             alt="MercadoPago"
-            className="h-8 w-auto brightness-0 invert opacity-90"
+            className="h-20 w-auto"
           />
         </div>
       </div>
@@ -154,5 +158,6 @@ export default async function CollectionPage({
         </div>
       </footer>
     </div>
+    </CartProvider>
   );
 }
