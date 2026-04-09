@@ -485,7 +485,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           {searchLoading && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-10">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-2xl overflow-hidden border border-gray-200 bg-white">
+                <div key={i} className="rounded-2xl overflow-hidden bg-white shadow-sm">
                   <div className="bg-gray-100 animate-pulse" style={{ aspectRatio: "4/3" }} />
                   <div className="p-3"><div className="h-4 w-16 rounded animate-pulse bg-gray-100" /></div>
                 </div>
@@ -529,7 +529,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           {galleryLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden bg-white border border-gray-200">
+                <div key={i} className="rounded-2xl overflow-hidden bg-white shadow-sm">
                   <div className="bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
                   <div className="p-3 h-12 animate-pulse bg-gray-50" />
                 </div>
