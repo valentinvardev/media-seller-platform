@@ -103,95 +103,67 @@ function PhotoTile({
   };
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group flex flex-col">
-      {/* Image area */}
-      <div
-        className="relative overflow-hidden cursor-pointer bg-gray-100"
-        style={{ aspectRatio: "4/3" }}
-        onClick={() => { if (url) onOpenLightbox(url); }}
-      >
-        {isLoading || !url ? (
-          <div className="w-full h-full animate-pulse bg-gray-200" />
-        ) : (
-          <img
-            src={url}
-            alt=""
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
-        )}
+    <div
+      className="relative overflow-hidden rounded-2xl bg-gray-100 group cursor-pointer"
+      style={{ aspectRatio: "4/3" }}
+    >
+      {/* Image */}
+      {isLoading || !url ? (
+        <div className="w-full h-full animate-pulse bg-gray-200" />
+      ) : (
+        <img
+          src={url}
+          alt=""
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          onClick={() => onOpenLightbox(url)}
+        />
+      )}
 
-        {/* Bib badge */}
-        {bibNumber && (
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold bg-black/55 text-white backdrop-blur-sm">
-            #{bibNumber}
-          </div>
-        )}
-
-        {/* Eye icon overlay — desktop hover */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-              <svg className="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </div>
-            <span className="text-white text-xs font-semibold bg-black/50 rounded-full px-2 py-0.5">
-              Vista previa
-            </span>
-          </div>
+      {/* Bib badge — top left */}
+      {bibNumber && (
+        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-sm pointer-events-none">
+          #{bibNumber}
         </div>
-      </div>
+      )}
 
-      {/* Frame bottom — price + cart */}
-      <div className="px-3 py-2.5 flex items-center justify-between gap-2 border-t border-gray-100">
-        <div className="min-w-0">
-          {bibNumber ? (
-            <p className="text-xs font-bold text-gray-700 truncate">Dorsal #{bibNumber}</p>
-          ) : (
-            <p className="text-xs text-gray-400 truncate">Sin dorsal</p>
-          )}
-          {price > 0 && bibNumber && (
-            <p className="text-sm font-extrabold" style={{ color: "#0057A8" }}>
-              ${price.toLocaleString("es-AR")}
-            </p>
-          )}
-        </div>
-
-        {bibNumber && (
-          <div className="relative shrink-0">
-            {/* Floating +1 */}
-            {showFloat && (
-              <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-extrabold animate-float-up pointer-events-none"
-                style={{ color: "#0057A8" }}>
-                +1
-              </span>
+      {/* Cart button — bottom right, always visible */}
+      <div className="absolute bottom-2 right-2">
+        {showFloat && (
+          <span
+            className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-extrabold pointer-events-none"
+            style={{ color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}
+          >
+            +1
+          </span>
+        )}
+        <button
+          onClick={handleCart}
+          className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-all active:scale-90 ${
+            inCart ? "text-white" : "bg-white/85 text-blue-700 hover:bg-white backdrop-blur-sm"
+          }`}
+          style={inCart ? { background: "#0057A8" } : {}}
+          title={inCart ? "Quitar del carrito" : "Agregar al carrito"}
+        >
+          <svg
+            className={`w-4 h-4 ${cartAnim === "add" ? "animate-cart-pop" : cartAnim === "remove" ? "animate-cart-remove" : ""}`}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+          >
+            {inCart ? (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             )}
-            <button
-              onClick={handleCart}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-                inCart
-                  ? "text-white"
-                  : "text-blue-700 bg-blue-50 hover:bg-blue-100"
-              }`}
-              style={inCart ? { background: "#0057A8" } : {}}
-              title={inCart ? "Quitar del carrito" : "Agregar al carrito"}
-            >
-              <svg
-                className={`w-4 h-4 ${cartAnim === "add" ? "animate-cart-pop" : cartAnim === "remove" ? "animate-cart-remove" : ""}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-              >
-                {inCart ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                )}
-              </svg>
-            </button>
-          </div>
-        )}
+          </svg>
+        </button>
       </div>
+
+      {/* Price overlay — bottom left, only when bib + price */}
+      {bibNumber && price > 0 && (
+        <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-xs font-extrabold bg-black/60 text-white backdrop-blur-sm pointer-events-none">
+          ${price.toLocaleString("es-AR")}
+        </div>
+      )}
     </div>
   );
 }
@@ -485,10 +457,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           {searchLoading && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-10">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-2xl overflow-hidden bg-white shadow-sm">
-                  <div className="bg-gray-100 animate-pulse" style={{ aspectRatio: "4/3" }} />
-                  <div className="p-3"><div className="h-4 w-16 rounded animate-pulse bg-gray-100" /></div>
-                </div>
+                <div key={i} className="rounded-2xl overflow-hidden bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
               ))}
             </div>
           )}
@@ -529,10 +498,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           {galleryLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden bg-white shadow-sm">
-                  <div className="bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
-                  <div className="p-3 h-12 animate-pulse bg-gray-50" />
-                </div>
+                <div key={i} className="rounded-2xl overflow-hidden bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
               ))}
             </div>
           ) : allPhotos && allPhotos.length > 0 ? (
