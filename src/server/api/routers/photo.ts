@@ -16,6 +16,17 @@ export const photoRouter = createTRPCRouter({
    * Returns: exact matches first, then fuzzy (1-digit-different, 3-4 digit bibs).
    * Only metadata (id, bibNumber) returned immediately; URLs resolved on demand.
    */
+  /** All photos in a collection — for public gallery display. */
+  listAll: publicProcedure
+    .input(z.object({ collectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.photo.findMany({
+        where: { collectionId: input.collectionId },
+        orderBy: { order: "asc" },
+        select: { id: true, bibNumber: true },
+      });
+    }),
+
   searchByBib: publicProcedure
     .input(
       z.object({
@@ -165,6 +176,18 @@ export const photoRouter = createTRPCRouter({
         if (keys.length) await client.storage.from("photos").remove(keys);
       }
       await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });
+    }),
+
+  /** IDs of photos in a collection that have no watermark preview yet. */
+  listUnwatermarked: protectedProcedure
+    .input(z.object({ collectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const photos = await ctx.db.photo.findMany({
+        where: { collectionId: input.collectionId, previewKey: null },
+        select: { id: true },
+        orderBy: { order: "asc" },
+      });
+      return photos.map((p) => p.id);
     }),
 
   setBibNumber: protectedProcedure
