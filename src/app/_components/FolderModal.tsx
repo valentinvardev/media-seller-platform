@@ -5,25 +5,53 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useCart } from "~/app/_components/CartContext";
 
+// ─── Animations injected once ─────────────────────────────────────────────────
+
+const STYLE_ID = "folder-modal-styles";
+
+function injectStyles() {
+  if (typeof document === "undefined" || document.getElementById(STYLE_ID)) return;
+  const s = document.createElement("style");
+  s.id = STYLE_ID;
+  s.textContent = `
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0.96); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+    .modal-sheet   { animation: slideUp 0.32s cubic-bezier(0.32,0,0.15,1) both; }
+    .modal-center  { animation: scaleIn 0.22s cubic-bezier(0.32,0,0.15,1) both; }
+    .modal-overlay { animation: fadeIn  0.22s ease both; }
+    .lightbox-in   { animation: fadeIn  0.18s ease both; }
+  `;
+  document.head.appendChild(s);
+}
+
 // ─── Single-photo fullscreen lightbox ────────────────────────────────────────
 
 function PhotoLightbox({ url, onClose }: { url: string; onClose: () => void }) {
   useEffect(() => {
+    injectStyles();
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", h);
-    return () => { window.removeEventListener("keydown", h); document.body.style.overflow = prev; };
+    return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center"
-      style={{ background: "rgba(0,0,0,0.92)", backdropFilter: "blur(6px)" }}
+      className="fixed inset-0 z-[70] flex items-center justify-center lightbox-in"
+      style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(6px)" }}
       onClick={onClose}
     >
       <button
-        className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+        className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
         onClick={onClose}
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -42,7 +70,7 @@ function PhotoLightbox({ url, onClose }: { url: string; onClose: () => void }) {
   );
 }
 
-// ─── Photo row in the list ────────────────────────────────────────────────────
+// ─── Photo row in the cart list ───────────────────────────────────────────────
 
 function PhotoRow({
   photoId,
@@ -84,7 +112,7 @@ function PhotoRow({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-1.5 flex-shrink-0">
         <button
           onClick={() => { if (url) onPreview(url); }}
           disabled={!url}
@@ -133,21 +161,19 @@ export function BibCheckoutModal({
   const [emailInput, setEmailInput] = useState("");
   const [emailError, setEmailError] = useState("");
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
-
-  // Local photo list — user can remove items before paying
   const [photoIds, setPhotoIds] = useState(initialPhotoIds);
-  const { items: cartItems, toggle: toggleCart } = useCart();
 
+  const { items: cartItems, toggle: toggleCart } = useCart();
   const router = useRouter();
 
-  // Lock body scroll
+  useEffect(() => { injectStyles(); }, []);
+
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
   }, []);
 
-  // If all photos removed, close modal
   useEffect(() => {
     if (photoIds.length === 0) onClose();
   }, [photoIds, onClose]);
@@ -172,7 +198,6 @@ export function BibCheckoutModal({
 
   const handleRemove = (photoId: string) => {
     setPhotoIds((prev) => prev.filter((id) => id !== photoId));
-    // Also remove from global cart
     const item = cartItems.find((i) => i.photoId === photoId);
     if (item) toggleCart(item);
   };
@@ -199,14 +224,18 @@ export function BibCheckoutModal({
 
   return (
     <>
+      {/* Overlay */}
       <div
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
-        style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
-        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      >
+        className="fixed inset-0 z-50 modal-overlay"
+        style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}
+        onClick={onClose}
+      />
+
+      {/* Sheet — slides up on mobile, centered on desktop */}
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none">
         <div
-          className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col"
-          style={{ maxHeight: "92vh" }}
+          className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl flex flex-col pointer-events-auto modal-sheet sm:modal-center"
+          style={{ maxHeight: "82vh", minHeight: "60vh" }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Drag handle — mobile */}
@@ -221,7 +250,7 @@ export function BibCheckoutModal({
                 <p className="text-xs text-gray-400 mb-0.5">{collectionInfo.title}</p>
               )}
               <h2 className="font-bold text-gray-900 text-base">
-                {bib ? `Dorsal #${bib}` : "Foto sin dorsal"}
+                {step === "buy" ? "Tus datos" : step === "email" ? "Ya compré" : bib ? `Dorsal #${bib}` : `${photoIds.length} foto${photoIds.length !== 1 ? "s" : ""} seleccionada${photoIds.length !== 1 ? "s" : ""}`}
               </h2>
             </div>
             <button
@@ -237,15 +266,15 @@ export function BibCheckoutModal({
           {/* ── Cart step ── */}
           {step === "cart" && (
             <>
-              {/* Photo list — scrollable */}
-              <div className="overflow-y-auto flex-1 px-5" style={{ scrollbarWidth: "thin" }}>
+              {/* Scrollable photo list */}
+              <div className="flex-1 overflow-y-auto px-5 min-h-0" style={{ scrollbarWidth: "thin" }}>
                 {photoIds.map((id) => {
                   const cartItem = cartItems.find((i) => i.photoId === id);
                   return (
                     <PhotoRow
                       key={id}
                       photoId={id}
-                      bibNumber={cartItem?.bibNumber ?? bib ?? null}
+                      bibNumber={cartItem?.bibNumber ?? null}
                       price={price}
                       onRemove={() => handleRemove(id)}
                       onPreview={(url) => setLightboxUrl(url)}
@@ -254,14 +283,14 @@ export function BibCheckoutModal({
                 })}
               </div>
 
-              {/* Footer — total + actions */}
+              {/* Footer */}
               <div className="flex-shrink-0 px-5 pb-6 pt-4 border-t border-gray-100">
                 {price > 0 && (
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm text-gray-500">
                       {photoIds.length} foto{photoIds.length !== 1 ? "s" : ""} · HD sin marca de agua
                     </p>
-                    <p className="font-bold text-lg" style={{ color: "#0057A8" }}>
+                    <p className="font-bold text-xl" style={{ color: "#0057A8" }}>
                       ${total.toLocaleString("es-AR")}
                     </p>
                   </div>
@@ -289,10 +318,10 @@ export function BibCheckoutModal({
 
           {/* ── Buy step ── */}
           {step === "buy" && (
-            <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
+            <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3 min-h-0">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-sm font-semibold text-gray-700">Tus datos</p>
-                <p className="text-xs text-gray-400">{photoIds.length} foto{photoIds.length !== 1 ? "s" : ""} · <span className="font-semibold" style={{ color: "#0057A8" }}>${total.toLocaleString("es-AR")}</span></p>
+                <p className="text-xs text-gray-400">{photoIds.length} foto{photoIds.length !== 1 ? "s" : ""}</p>
+                <p className="text-sm font-bold" style={{ color: "#0057A8" }}>${total.toLocaleString("es-AR")}</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)}
@@ -305,7 +334,6 @@ export function BibCheckoutModal({
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email *" required className={inp}
                 onKeyDown={(e) => { if (e.key === "Enter" && email && name) handleBuy(); }} />
-
               <button
                 onClick={handleBuy}
                 disabled={!email || !name || createPreference.isPending}
@@ -317,8 +345,7 @@ export function BibCheckoutModal({
               {createPreference.isError && (
                 <p className="text-red-500 text-xs text-center">Ocurrió un error. Intentá de nuevo.</p>
               )}
-              <button onClick={() => setStep("cart")}
-                className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors mt-1">
+              <button onClick={() => setStep("cart")} className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors mt-1">
                 ← Volver
               </button>
             </div>
@@ -326,11 +353,11 @@ export function BibCheckoutModal({
 
           {/* ── Email access step ── */}
           {step === "email" && (
-            <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-3">
+            <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-3 min-h-0">
               <div className="text-center mb-2">
                 <p className="text-base font-bold text-gray-900">Acceder a tus fotos</p>
                 <p className="text-sm text-gray-400 mt-1">
-                  Ingresá el email con el que compraste {bib ? `el dorsal #${bib}` : "esta foto"}
+                  Ingresá el email con el que compraste {bib ? `el dorsal #${bib}` : "estas fotos"}
                 </p>
               </div>
               <input
@@ -351,8 +378,7 @@ export function BibCheckoutModal({
               >
                 {accessByEmail.isPending ? "Buscando..." : "Acceder a mis fotos"}
               </button>
-              <button onClick={() => setStep("cart")}
-                className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors">
+              <button onClick={() => setStep("cart")} className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors">
                 ← Volver
               </button>
             </div>

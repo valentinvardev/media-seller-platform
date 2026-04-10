@@ -190,7 +190,8 @@ function CartBar({
   const total = count * price;
 
   return (
-    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 animate-slide-up">
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40" style={{ animation: "cartSlideUp 0.35s cubic-bezier(0.32,0,0.15,1) both" }}>
+      <style>{`@keyframes cartSlideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }`}</style>
       <div className="flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl border border-blue-100"
         style={{ background: "white", minWidth: 280 }}>
         <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#0057A8" }}>
@@ -281,12 +282,10 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
 
   const cartCheckout = () => {
     if (cartItems.length === 0) return;
-    const first = cartItems[0]!;
-    const bib = first.bibNumber ?? "";
-    const photoIds = first.bibNumber && allPhotos
-      ? allPhotos.filter((p) => p.bibNumber === first.bibNumber).map((p) => p.id)
-      : [first.photoId];
-    setModal({ bib, photoIds });
+    // Pass all cart photo IDs; bib is empty string when mixed/no bibs
+    const allBibs = [...new Set(cartItems.map((i) => i.bibNumber).filter(Boolean))];
+    const bib = allBibs.length === 1 ? (allBibs[0] ?? "") : "";
+    setModal({ bib, photoIds: cartItems.map((i) => i.photoId) });
   };
 
   // Shared tile handler factory
