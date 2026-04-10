@@ -15,13 +15,10 @@ const YEARS = Array.from({ length: 6 }, (_, i) => currentYear - 1 + i);
 // ── DatePicker ────────────────────────────────────────────────────────────────
 
 function DatePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [day, month, year] = value
-    ? [
-        String(parseInt(value.split("-")[2] ?? "0")),
-        String(parseInt(value.split("-")[1] ?? "0") - 1),
-        value.split("-")[0] ?? "",
-      ]
-    : ["", "", ""];
+  // Local state for each part — emit only when all three are set
+  const [day, setDay] = useState(() => value ? String(parseInt(value.split("-")[2] ?? "0")) : "");
+  const [month, setMonth] = useState(() => value ? String(parseInt(value.split("-")[1] ?? "0") - 1) : "");
+  const [year, setYear] = useState(() => value ? (value.split("-")[0] ?? "") : "");
 
   const daysInMonth = month !== "" && year !== ""
     ? new Date(parseInt(year), parseInt(month) + 1, 0).getDate()
@@ -29,24 +26,42 @@ function DatePicker({ value, onChange }: { value: string; onChange: (v: string) 
 
   const emit = (d: string, m: string, y: string) => {
     if (d && m !== "" && y) {
-      onChange(`${y}-${String(parseInt(m) + 1).padStart(2, "0")}-${String(parseInt(d)).padStart(2, "0")}`);
+      const dayNum = parseInt(d);
+      const maxDay = new Date(parseInt(y), parseInt(m) + 1, 0).getDate();
+      const safeDay = String(Math.min(dayNum, maxDay)).padStart(2, "0");
+      onChange(`${y}-${String(parseInt(m) + 1).padStart(2, "0")}-${safeDay}`);
     } else {
       onChange("");
     }
   };
 
+  const handleDay = (d: string) => { setDay(d); emit(d, month, year); };
+  const handleMonth = (m: string) => {
+    setMonth(m);
+    // Clamp day if needed when month changes
+    if (day && year && m !== "") {
+      const maxDay = new Date(parseInt(year), parseInt(m) + 1, 0).getDate();
+      const clamped = String(Math.min(parseInt(day), maxDay));
+      setDay(clamped);
+      emit(clamped, m, year);
+    } else {
+      emit(day, m, year);
+    }
+  };
+  const handleYear = (y: string) => { setYear(y); emit(day, month, y); };
+
   const sel = "flex-1 appearance-none bg-white border border-gray-200 rounded-xl px-3 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all cursor-pointer";
   return (
     <div className="flex gap-2">
-      <select className={sel} value={day} onChange={(e) => emit(e.target.value, month, year)}>
+      <select className={sel} value={day} onChange={(e) => handleDay(e.target.value)}>
         <option value="">Día</option>
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => <option key={d} value={String(d)}>{d}</option>)}
       </select>
-      <select className={`${sel} flex-[2]`} value={month} onChange={(e) => emit(day, e.target.value, year)}>
+      <select className={`${sel} flex-[2]`} value={month} onChange={(e) => handleMonth(e.target.value)}>
         <option value="">Mes</option>
         {MONTHS.map((m, i) => <option key={i} value={String(i)}>{m}</option>)}
       </select>
-      <select className={sel} value={year} onChange={(e) => emit(day, month, e.target.value)}>
+      <select className={sel} value={year} onChange={(e) => handleYear(e.target.value)}>
         <option value="">Año</option>
         {YEARS.map((y) => <option key={y} value={String(y)}>{y}</option>)}
       </select>
@@ -321,7 +336,7 @@ export default function NewCollectionPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start xl:min-h-screen">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
 
       {/* ── Form ── */}
       <div className="max-w-xl w-full">
@@ -427,7 +442,7 @@ export default function NewCollectionPage() {
       </div>
 
       {/* ── Live preview ── */}
-      <div className="xl:sticky xl:top-0 self-start">
+      <div className="hidden xl:block" style={{ position: "sticky", top: 0, alignSelf: "start" }}>
         <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Vista previa de la tarjeta</p>
         <div className="max-w-xs mx-auto xl:mx-0">
           {/* Intercept the card's banner area with a draggable version */}
