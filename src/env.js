@@ -19,6 +19,8 @@ export const env = createEnv({
     ADMIN_PASSWORD: z.string().optional(),
     MODAL_OCR_URL: z.string().url().optional(),
     MODAL_OCR_SAVE_URL: z.string().url().optional(),
+    AZURE_VISION_KEY: z.string().optional(),
+    AZURE_VISION_ENDPOINT: z.string().url().optional(),
   },
 
   client: {
@@ -40,6 +42,8 @@ export const env = createEnv({
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
     MODAL_OCR_URL: process.env.MODAL_OCR_URL,
     MODAL_OCR_SAVE_URL: process.env.MODAL_OCR_SAVE_URL,
+    AZURE_VISION_KEY: process.env.AZURE_VISION_KEY,
+    AZURE_VISION_ENDPOINT: process.env.AZURE_VISION_ENDPOINT,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY: process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY,
