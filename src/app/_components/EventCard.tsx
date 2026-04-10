@@ -6,6 +6,7 @@ export type EventCardCol = {
   slug?: string;
   coverUrl?: string | null;
   bannerUrl?: string | null;
+  bannerFocalY?: number | null;
   logoUrl?: string | null;
   eventDate?: Date | string | null;
   _count?: { photos: number };
@@ -16,6 +17,9 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
     ? new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "long", year: "numeric" })
         .format(new Date(col.eventDate))
     : null;
+
+  const focalY = col.bannerFocalY ?? 0.5;
+  const objectPosition = `center ${Math.round(focalY * 100)}%`;
 
   const cardBody = (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-visible hover:shadow-lg hover:border-blue-200 transition-all duration-200 group flex flex-col card-hover">
@@ -28,6 +32,7 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
               src={(col.bannerUrl ?? col.coverUrl)!}
               alt={col.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              style={{ objectPosition }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -40,7 +45,7 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
           <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent rounded-t-2xl" />
         </div>
 
-        {/* Logo circle — bigger so logos are visible */}
+        {/* Logo circle */}
         <div
           className="absolute -bottom-14 left-1/2 -translate-x-1/2 z-10 w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden flex items-center justify-center"
           style={{ background: col.logoUrl ? "#fff" : "#0057A8" }}
@@ -57,7 +62,7 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
         </div>
       </div>
 
-      {/* Content — extra top padding to clear bigger logo */}
+      {/* Content */}
       <div className="pt-20 pb-5 px-5 flex flex-col flex-1 text-center">
         <h3 className="font-display font-700 uppercase text-gray-900 text-xl leading-tight mb-1">
           {col.title || <span className="text-gray-300">Nombre del evento</span>}

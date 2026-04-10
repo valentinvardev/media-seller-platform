@@ -5843,10 +5843,12 @@ export namespace Prisma {
   }
 
   export type CollectionAvgAggregateOutputType = {
+    bannerFocalY: number | null
     pricePerBib: Decimal | null
   }
 
   export type CollectionSumAggregateOutputType = {
+    bannerFocalY: number | null
     pricePerBib: Decimal | null
   }
 
@@ -5857,6 +5859,7 @@ export namespace Prisma {
     coverUrl: string | null
     logoUrl: string | null
     bannerUrl: string | null
+    bannerFocalY: number | null
     slug: string | null
     eventDate: Date | null
     pricePerBib: Decimal | null
@@ -5872,6 +5875,7 @@ export namespace Prisma {
     coverUrl: string | null
     logoUrl: string | null
     bannerUrl: string | null
+    bannerFocalY: number | null
     slug: string | null
     eventDate: Date | null
     pricePerBib: Decimal | null
@@ -5887,6 +5891,7 @@ export namespace Prisma {
     coverUrl: number
     logoUrl: number
     bannerUrl: number
+    bannerFocalY: number
     slug: number
     eventDate: number
     pricePerBib: number
@@ -5898,10 +5903,12 @@ export namespace Prisma {
 
 
   export type CollectionAvgAggregateInputType = {
+    bannerFocalY?: true
     pricePerBib?: true
   }
 
   export type CollectionSumAggregateInputType = {
+    bannerFocalY?: true
     pricePerBib?: true
   }
 
@@ -5912,6 +5919,7 @@ export namespace Prisma {
     coverUrl?: true
     logoUrl?: true
     bannerUrl?: true
+    bannerFocalY?: true
     slug?: true
     eventDate?: true
     pricePerBib?: true
@@ -5927,6 +5935,7 @@ export namespace Prisma {
     coverUrl?: true
     logoUrl?: true
     bannerUrl?: true
+    bannerFocalY?: true
     slug?: true
     eventDate?: true
     pricePerBib?: true
@@ -5942,6 +5951,7 @@ export namespace Prisma {
     coverUrl?: true
     logoUrl?: true
     bannerUrl?: true
+    bannerFocalY?: true
     slug?: true
     eventDate?: true
     pricePerBib?: true
@@ -6044,6 +6054,7 @@ export namespace Prisma {
     coverUrl: string | null
     logoUrl: string | null
     bannerUrl: string | null
+    bannerFocalY: number | null
     slug: string
     eventDate: Date | null
     pricePerBib: Decimal
@@ -6078,6 +6089,7 @@ export namespace Prisma {
     coverUrl?: boolean
     logoUrl?: boolean
     bannerUrl?: boolean
+    bannerFocalY?: boolean
     slug?: boolean
     eventDate?: boolean
     pricePerBib?: boolean
@@ -6096,6 +6108,7 @@ export namespace Prisma {
     coverUrl?: boolean
     logoUrl?: boolean
     bannerUrl?: boolean
+    bannerFocalY?: boolean
     slug?: boolean
     eventDate?: boolean
     pricePerBib?: boolean
@@ -6111,6 +6124,7 @@ export namespace Prisma {
     coverUrl?: boolean
     logoUrl?: boolean
     bannerUrl?: boolean
+    bannerFocalY?: boolean
     slug?: boolean
     eventDate?: boolean
     pricePerBib?: boolean
@@ -6126,6 +6140,7 @@ export namespace Prisma {
     coverUrl?: boolean
     logoUrl?: boolean
     bannerUrl?: boolean
+    bannerFocalY?: boolean
     slug?: boolean
     eventDate?: boolean
     pricePerBib?: boolean
@@ -6134,7 +6149,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "slug" | "eventDate" | "pricePerBib" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "bannerFocalY" | "slug" | "eventDate" | "pricePerBib" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
   export type CollectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     photos?: boolean | Collection$photosArgs<ExtArgs>
     purchases?: boolean | Collection$purchasesArgs<ExtArgs>
@@ -6156,6 +6171,7 @@ export namespace Prisma {
       coverUrl: string | null
       logoUrl: string | null
       bannerUrl: string | null
+      bannerFocalY: number | null
       slug: string
       eventDate: Date | null
       pricePerBib: Prisma.Decimal
@@ -6593,6 +6609,7 @@ export namespace Prisma {
     readonly coverUrl: FieldRef<"Collection", 'String'>
     readonly logoUrl: FieldRef<"Collection", 'String'>
     readonly bannerUrl: FieldRef<"Collection", 'String'>
+    readonly bannerFocalY: FieldRef<"Collection", 'Float'>
     readonly slug: FieldRef<"Collection", 'String'>
     readonly eventDate: FieldRef<"Collection", 'DateTime'>
     readonly pricePerBib: FieldRef<"Collection", 'Decimal'>
@@ -9567,6 +9584,7 @@ export namespace Prisma {
     coverUrl: 'coverUrl',
     logoUrl: 'logoUrl',
     bannerUrl: 'bannerUrl',
+    bannerFocalY: 'bannerFocalY',
     slug: 'slug',
     eventDate: 'eventDate',
     pricePerBib: 'pricePerBib',
@@ -9691,6 +9709,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Decimal'
    */
   export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -9722,20 +9754,6 @@ export namespace Prisma {
    * Reference to a field of type 'PurchaseStatus[]'
    */
   export type ListEnumPurchaseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PurchaseStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -10006,6 +10024,7 @@ export namespace Prisma {
     coverUrl?: StringNullableFilter<"Collection"> | string | null
     logoUrl?: StringNullableFilter<"Collection"> | string | null
     bannerUrl?: StringNullableFilter<"Collection"> | string | null
+    bannerFocalY?: FloatNullableFilter<"Collection"> | number | null
     slug?: StringFilter<"Collection"> | string
     eventDate?: DateTimeNullableFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
@@ -10023,6 +10042,7 @@ export namespace Prisma {
     coverUrl?: SortOrderInput | SortOrder
     logoUrl?: SortOrderInput | SortOrder
     bannerUrl?: SortOrderInput | SortOrder
+    bannerFocalY?: SortOrderInput | SortOrder
     slug?: SortOrder
     eventDate?: SortOrderInput | SortOrder
     pricePerBib?: SortOrder
@@ -10044,6 +10064,7 @@ export namespace Prisma {
     coverUrl?: StringNullableFilter<"Collection"> | string | null
     logoUrl?: StringNullableFilter<"Collection"> | string | null
     bannerUrl?: StringNullableFilter<"Collection"> | string | null
+    bannerFocalY?: FloatNullableFilter<"Collection"> | number | null
     eventDate?: DateTimeNullableFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Collection"> | boolean
@@ -10060,6 +10081,7 @@ export namespace Prisma {
     coverUrl?: SortOrderInput | SortOrder
     logoUrl?: SortOrderInput | SortOrder
     bannerUrl?: SortOrderInput | SortOrder
+    bannerFocalY?: SortOrderInput | SortOrder
     slug?: SortOrder
     eventDate?: SortOrderInput | SortOrder
     pricePerBib?: SortOrder
@@ -10083,6 +10105,7 @@ export namespace Prisma {
     coverUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     logoUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     bannerUrl?: StringNullableWithAggregatesFilter<"Collection"> | string | null
+    bannerFocalY?: FloatNullableWithAggregatesFilter<"Collection"> | number | null
     slug?: StringWithAggregatesFilter<"Collection"> | string
     eventDate?: DateTimeNullableWithAggregatesFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalWithAggregatesFilter<"Collection"> | Decimal | DecimalJsLike | number | string
@@ -10579,6 +10602,7 @@ export namespace Prisma {
     coverUrl?: string | null
     logoUrl?: string | null
     bannerUrl?: string | null
+    bannerFocalY?: number | null
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
@@ -10596,6 +10620,7 @@ export namespace Prisma {
     coverUrl?: string | null
     logoUrl?: string | null
     bannerUrl?: string | null
+    bannerFocalY?: number | null
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
@@ -10613,6 +10638,7 @@ export namespace Prisma {
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10630,6 +10656,7 @@ export namespace Prisma {
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10647,6 +10674,7 @@ export namespace Prisma {
     coverUrl?: string | null
     logoUrl?: string | null
     bannerUrl?: string | null
+    bannerFocalY?: number | null
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
@@ -10662,6 +10690,7 @@ export namespace Prisma {
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10677,6 +10706,7 @@ export namespace Prisma {
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -11235,6 +11265,17 @@ export namespace Prisma {
     expires?: SortOrder
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type DecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -11278,6 +11319,7 @@ export namespace Prisma {
     coverUrl?: SortOrder
     logoUrl?: SortOrder
     bannerUrl?: SortOrder
+    bannerFocalY?: SortOrder
     slug?: SortOrder
     eventDate?: SortOrder
     pricePerBib?: SortOrder
@@ -11287,6 +11329,7 @@ export namespace Prisma {
   }
 
   export type CollectionAvgOrderByAggregateInput = {
+    bannerFocalY?: SortOrder
     pricePerBib?: SortOrder
   }
 
@@ -11297,6 +11340,7 @@ export namespace Prisma {
     coverUrl?: SortOrder
     logoUrl?: SortOrder
     bannerUrl?: SortOrder
+    bannerFocalY?: SortOrder
     slug?: SortOrder
     eventDate?: SortOrder
     pricePerBib?: SortOrder
@@ -11312,6 +11356,7 @@ export namespace Prisma {
     coverUrl?: SortOrder
     logoUrl?: SortOrder
     bannerUrl?: SortOrder
+    bannerFocalY?: SortOrder
     slug?: SortOrder
     eventDate?: SortOrder
     pricePerBib?: SortOrder
@@ -11321,7 +11366,24 @@ export namespace Prisma {
   }
 
   export type CollectionSumOrderByAggregateInput = {
+    bannerFocalY?: SortOrder
     pricePerBib?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -11688,6 +11750,14 @@ export namespace Prisma {
     connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type DecimalFieldUpdateOperationsInput = {
     set?: Decimal | DecimalJsLike | number | string
     increment?: Decimal | DecimalJsLike | number | string
@@ -11971,6 +12041,22 @@ export namespace Prisma {
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -12442,6 +12528,7 @@ export namespace Prisma {
     coverUrl?: string | null
     logoUrl?: string | null
     bannerUrl?: string | null
+    bannerFocalY?: number | null
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
@@ -12458,6 +12545,7 @@ export namespace Prisma {
     coverUrl?: string | null
     logoUrl?: string | null
     bannerUrl?: string | null
+    bannerFocalY?: number | null
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
@@ -12490,6 +12578,7 @@ export namespace Prisma {
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -12506,6 +12595,7 @@ export namespace Prisma {
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -12522,6 +12612,7 @@ export namespace Prisma {
     coverUrl?: string | null
     logoUrl?: string | null
     bannerUrl?: string | null
+    bannerFocalY?: number | null
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
@@ -12538,6 +12629,7 @@ export namespace Prisma {
     coverUrl?: string | null
     logoUrl?: string | null
     bannerUrl?: string | null
+    bannerFocalY?: number | null
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
@@ -12570,6 +12662,7 @@ export namespace Prisma {
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -12586,6 +12679,7 @@ export namespace Prisma {
     coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string

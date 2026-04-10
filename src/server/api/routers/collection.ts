@@ -31,6 +31,7 @@ export const collectionRouter = createTRPCRouter({
         coverUrl: await resolveCover(c.coverUrl),
         logoUrl: await resolveUrl(c.logoUrl),
         bannerUrl: await resolveUrl(c.bannerUrl),
+        bannerFocalY: c.bannerFocalY ?? 0.5,
       })),
     );
   }),
@@ -75,6 +76,7 @@ export const collectionRouter = createTRPCRouter({
         coverUrl: await resolveCover(c.coverUrl),
         logoUrl: await resolveUrl(c.logoUrl),
         bannerUrl: await resolveUrl(c.bannerUrl),
+        bannerFocalY: c.bannerFocalY ?? 0.5,
       })),
     );
   }),
@@ -106,6 +108,7 @@ export const collectionRouter = createTRPCRouter({
         coverUrl: z.string().optional(),
         logoUrl: z.string().optional(),
         bannerUrl: z.string().optional(),
+        bannerFocalY: z.number().min(0).max(1).optional(),
         pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
         eventDate: z.string().optional(),
@@ -128,6 +131,7 @@ export const collectionRouter = createTRPCRouter({
         coverUrl: z.string().optional().nullable(),
         logoUrl: z.string().optional().nullable(),
         bannerUrl: z.string().optional().nullable(),
+        bannerFocalY: z.number().min(0).max(1).optional().nullable(),
         pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
         eventDate: z.string().optional().nullable(),
