@@ -37,7 +37,6 @@ function PhotoLightbox({
         style={{ maxWidth: 720, maxHeight: "90vh", borderRadius: 0, background: "transparent" }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close */}
         <button onClick={onClose}
           className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -45,10 +44,8 @@ function PhotoLightbox({
           </svg>
         </button>
 
-        {/* Image — no frame */}
         <img src={url} alt="" className="w-full object-contain" style={{ maxHeight: "75vh", display: "block" }} />
 
-        {/* Bottom overlay */}
         <div className="flex items-center justify-between gap-4 px-5 py-4 bg-white/95 backdrop-blur-sm">
           <div>
             {bibNumber && <p className="text-sm font-bold text-gray-900">Dorsal #{bibNumber}</p>}
@@ -70,13 +67,14 @@ function PhotoLightbox({
   );
 }
 
-// ─── Photo frame tile ─────────────────────────────────────────────────────────
+// ─── Photo tile — borderless, object-top ──────────────────────────────────────
 
 function PhotoTile({
   photoId,
   bibNumber,
   price,
   inCart,
+  isFuzzy,
   onOpenLightbox,
   onToggleCart,
 }: {
@@ -84,6 +82,7 @@ function PhotoTile({
   bibNumber: string | null;
   price: number;
   inCart: boolean;
+  isFuzzy?: boolean;
   onOpenLightbox: (url: string) => void;
   onToggleCart: (url: string) => void;
 }) {
@@ -101,45 +100,50 @@ function PhotoTile({
   };
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200 group flex flex-col">
+    <div
+      className="relative overflow-hidden group cursor-pointer rounded-lg"
+      style={{ aspectRatio: "4/3", background: "#e2e8f0" }}
+      onClick={() => { if (url) onOpenLightbox(url); }}
+    >
       {/* Image */}
-      <div
-        className="relative overflow-hidden bg-gray-100 cursor-pointer"
-        style={{ aspectRatio: "4/3" }}
-        onClick={() => { if (url) onOpenLightbox(url); }}
-      >
-        {isLoading || !url ? (
-          <div className="w-full h-full animate-pulse bg-gray-200" />
-        ) : (
-          <img
-            src={url}
-            alt=""
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
-        )}
-        {/* Bib badge */}
-        {bibNumber && (
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-sm pointer-events-none">
-            #{bibNumber}
-          </div>
-        )}
-      </div>
+      {isLoading || !url ? (
+        <div className="w-full h-full animate-pulse bg-gray-200" />
+      ) : (
+        <img
+          src={url}
+          alt=""
+          className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+      )}
 
-      {/* Bottom strip — price + cart */}
-      <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-white">
-        <div className="min-w-0">
+      {/* Bib badge top-left */}
+      {bibNumber && (
+        <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-sm pointer-events-none">
+          #{bibNumber}
+        </div>
+      )}
+
+      {/* Fuzzy badge */}
+      {isFuzzy && (
+        <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-400/90 text-white pointer-events-none">
+          similar
+        </div>
+      )}
+
+      {/* Bottom overlay — always visible, price + cart */}
+      <div
+        className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between px-2.5 py-2.5"
+        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div>
           {price > 0 ? (
-            <p className="text-sm font-extrabold leading-tight" style={{ color: "#0057A8" }}>
+            <p className="text-sm font-extrabold text-white leading-tight drop-shadow">
               ${price.toLocaleString("es-AR")}
             </p>
           ) : (
-            <p className="text-xs text-gray-400">Sin precio</p>
-          )}
-          {bibNumber ? (
-            <p className="text-xs text-gray-400 truncate">Dorsal #{bibNumber}</p>
-          ) : (
-            <p className="text-xs text-gray-300 truncate">Sin dorsal</p>
+            <p className="text-xs text-white/50">Sin precio</p>
           )}
         </div>
 
@@ -147,10 +151,8 @@ function PhotoTile({
         <button
           onClick={handleCart}
           disabled={!url}
-          className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200 active:scale-90 disabled:opacity-40 ${
-            inCart
-              ? "text-white shadow-md"
-              : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+          className={`relative w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 active:scale-90 disabled:opacity-40 ${
+            inCart ? "text-white shadow-md" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
           }`}
           style={inCart ? { background: "linear-gradient(135deg, #0057A8, #003D7A)" } : {}}
           title={inCart ? "Quitar del carrito" : "Agregar al carrito"}
@@ -168,77 +170,6 @@ function PhotoTile({
         </button>
       </div>
     </div>
-  );
-}
-
-// ─── Bib group card (search results) ─────────────────────────────────────────
-
-function BibCard({
-  bib,
-  photoIds,
-  price,
-  isFuzzy,
-  onOpen,
-}: {
-  bib: string;
-  photoIds: string[];
-  price: number;
-  isFuzzy: boolean;
-  onOpen: () => void;
-}) {
-  const { data: urls, isLoading } = api.photo.getPreviewUrls.useQuery(
-    { ids: photoIds.slice(0, 4) },
-    { enabled: photoIds.length > 0 },
-  );
-
-  return (
-    <button onClick={onOpen}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border text-left bg-white hover:border-blue-300 hover:shadow-lg transition-all duration-200 card-hover"
-      style={{ borderColor: isFuzzy ? "#fde68a" : "#e5e7eb" }}>
-      {isFuzzy && (
-        <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
-          similar
-        </div>
-      )}
-      <div className="relative w-full overflow-hidden bg-gray-100" style={{ aspectRatio: "4/3" }}>
-        {isLoading ? (
-          <div className="w-full h-full grid grid-cols-2 gap-px">
-            {[0, 1, 2, 3].map((i) => <div key={i} className="animate-pulse bg-gray-200" />)}
-          </div>
-        ) : urls && urls.length > 0 ? (
-          <div className="grid grid-cols-2 w-full h-full gap-px">
-            {urls.slice(0, 4).map((u, i) => (
-              <div key={i} className="overflow-hidden bg-gray-100">
-                <img src={u.url} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <span className="px-4 py-2 rounded-xl font-display font-700 uppercase tracking-wider text-white text-xs shadow-lg" style={{ background: "#0057A8" }}>
-            Ver fotos
-          </span>
-        </div>
-      </div>
-      <div className="p-3 border-t border-gray-100 flex items-center justify-between">
-        <div>
-          <span className="font-bold text-gray-900 text-sm block">#{bib}</span>
-          <span className="text-xs text-gray-400">{photoIds.length} foto{photoIds.length !== 1 ? "s" : ""}</span>
-        </div>
-        {price > 0 && (
-          <span className="font-extrabold text-sm" style={{ color: "#0057A8" }}>
-            ${price.toLocaleString("es-AR")}
-          </span>
-        )}
-      </div>
-    </button>
   );
 }
 
@@ -294,11 +225,8 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const [faceActive, setFaceActive] = useState(false);
   const [faceStatus, setFaceStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
   const [faceBibs, setFaceBibs] = useState<{ bib: string; photoIds: string[] }[] | null>(null);
-  // modal: bib checkout
   const [modal, setModal] = useState<{ bib: string; photoIds: string[] } | null>(null);
-  // lightbox: single photo preview
   const [lightbox, setLightbox] = useState<{ url: string; bibNumber: string | null; photoIds: string[] } | null>(null);
-  // cart: from shared context (shared with nav)
   const { items: cartItems, inCart: isInCart, toggle: toggleCart, clear: clearCart } = useCart();
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -316,9 +244,15 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
     { enabled: hasSearch },
   );
 
-  const exactGroups = searchData?.exact ?? [];
-  const fuzzyGroups = searchData?.fuzzy ?? [];
-  const noResults = hasSearch && !searchLoading && exactGroups.length === 0 && fuzzyGroups.length === 0;
+  // Flatten search results into individual photo entries (same as gallery)
+  const exactPhotos = searchData?.exact.flatMap((g) =>
+    g.photos.map((p) => ({ ...p, isFuzzy: false })),
+  ) ?? [];
+  const fuzzyPhotos = searchData?.fuzzy.flatMap((g) =>
+    g.photos.map((p) => ({ ...p, isFuzzy: true })),
+  ) ?? [];
+  const allSearchPhotos = [...exactPhotos, ...fuzzyPhotos];
+  const noResults = hasSearch && !searchLoading && allSearchPhotos.length === 0;
 
   const handleFaceUpload = async (file: File) => {
     setFaceStatus("uploading");
@@ -353,6 +287,19 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       setModal({ bib: first.bibNumber, photoIds });
     }
   };
+
+  // Shared tile handler factory
+  const makeTileHandlers = (p: { id: string; bibNumber: string | null }) => ({
+    onOpenLightbox: (url: string) => {
+      const sameBibIds = p.bibNumber && allPhotos
+        ? allPhotos.filter((ph) => ph.bibNumber === p.bibNumber).map((ph) => ph.id)
+        : [p.id];
+      setLightbox({ url, bibNumber: p.bibNumber, photoIds: sameBibIds });
+    },
+    onToggleCart: (url: string) => toggleCart({ photoId: p.id, bibNumber: p.bibNumber, url }),
+  });
+
+  const GRID = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5";
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-5 py-8 pb-24">
@@ -444,22 +391,27 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       {showingFace && faceBibs && faceBibs.length > 0 && (
         <div className="mb-10">
           <SectionLabel label="Resultados por reconocimiento facial" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {faceBibs.map((g) => (
-              <BibCard key={g.bib} bib={g.bib} photoIds={g.photoIds} price={pricePerBib} isFuzzy={false}
-                onOpen={() => setModal({ bib: g.bib, photoIds: g.photoIds })} />
-            ))}
+          <div className={GRID}>
+            {faceBibs.flatMap((g) =>
+              g.photoIds.map((id) => {
+                const p = { id, bibNumber: g.bib };
+                return (
+                  <PhotoTile key={id} photoId={id} bibNumber={g.bib} price={pricePerBib}
+                    inCart={isInCart(id)} {...makeTileHandlers(p)} />
+                );
+              }),
+            )}
           </div>
         </div>
       )}
 
-      {/* ── Bib search results ─────────────────────────────── */}
+      {/* ── Bib search results — same tiles as gallery ─────── */}
       {hasSearch && (
         <>
           {searchLoading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-10">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-2xl overflow-hidden bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
+            <div className={GRID}>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="rounded-lg overflow-hidden bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
               ))}
             </div>
           )}
@@ -469,24 +421,27 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
               <p className="text-sm text-gray-400">Verificá el número o usá la búsqueda por selfie</p>
             </div>
           )}
-          {!searchLoading && exactGroups.length > 0 && (
+          {!searchLoading && allSearchPhotos.length > 0 && (
             <div className="mb-10">
-              {fuzzyGroups.length > 0 && <SectionLabel label="Resultado exacto" />}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {exactGroups.map((g) => (
-                  <BibCard key={g.bib} bib={g.bib} photoIds={g.photos.map((p) => p.id)} price={pricePerBib} isFuzzy={false}
-                    onOpen={() => setModal({ bib: g.bib, photoIds: g.photos.map((p) => p.id) })} />
-                ))}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+                  {exactPhotos.length} foto{exactPhotos.length !== 1 ? "s" : ""} para #{debouncedSearch}
+                  {fuzzyPhotos.length > 0 && ` · ${fuzzyPhotos.length} similares`}
+                </span>
+                <div className="h-px flex-1 bg-gray-200" />
               </div>
-            </div>
-          )}
-          {!searchLoading && fuzzyGroups.length > 0 && (
-            <div className="mb-10">
-              <SectionLabel label="Números similares — ¿es el tuyo?" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {fuzzyGroups.map((g) => (
-                  <BibCard key={g.bib} bib={g.bib} photoIds={g.photos.map((p) => p.id)} price={pricePerBib} isFuzzy
-                    onOpen={() => setModal({ bib: g.bib, photoIds: g.photos.map((p) => p.id) })} />
+              <div className={GRID}>
+                {allSearchPhotos.map((p) => (
+                  <PhotoTile
+                    key={p.id}
+                    photoId={p.id}
+                    bibNumber={p.bibNumber}
+                    price={pricePerBib}
+                    inCart={isInCart(p.id)}
+                    isFuzzy={p.isFuzzy}
+                    {...makeTileHandlers(p)}
+                  />
                 ))}
               </div>
             </div>
@@ -498,26 +453,17 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       {!hasSearch && !showingFace && (
         <>
           {galleryLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div className={GRID}>
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
+                <div key={i} className="rounded-lg overflow-hidden bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
               ))}
             </div>
           ) : allPhotos && allPhotos.length > 0 ? (
             <>
-              {/* Desktop legend */}
-              <p className="hidden sm:block text-xs text-gray-400 mb-5 text-center">
-                {allPhotos.length} foto{allPhotos.length !== 1 ? "s" : ""} ·
-                <span className="inline-flex items-center gap-1 ml-1">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                  clic para vista previa ·
-                </span>
-                <span className="inline-flex items-center gap-1 ml-1">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                  carrito para comprar
-                </span>
+              <p className="hidden sm:block text-xs text-gray-400 mb-4 text-center">
+                {allPhotos.length} foto{allPhotos.length !== 1 ? "s" : ""} · clic para vista previa · carrito para comprar
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div className={GRID}>
                 {allPhotos.map((p) => (
                   <PhotoTile
                     key={p.id}
@@ -525,13 +471,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
                     bibNumber={p.bibNumber}
                     price={pricePerBib}
                     inCart={isInCart(p.id)}
-                    onOpenLightbox={(url) => {
-                      const allSameBib = p.bibNumber
-                        ? allPhotos.filter((ph) => ph.bibNumber === p.bibNumber).map((ph) => ph.id)
-                        : [p.id];
-                      setLightbox({ url, bibNumber: p.bibNumber, photoIds: allSameBib });
-                    }}
-                    onToggleCart={(url) => toggleCart({ photoId: p.id, bibNumber: p.bibNumber, url })}
+                    {...makeTileHandlers(p)}
                   />
                 ))}
               </div>
