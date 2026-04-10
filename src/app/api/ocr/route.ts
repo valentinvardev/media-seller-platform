@@ -6,8 +6,8 @@ import { getAdminClient } from "~/lib/supabase/admin";
 /**
  * POST /api/ocr  { photoId }
  *
- * Uses AWS Rekognition DetectText to extract the bib number from a photo.
- * Fully synchronous — returns { bib } immediately.
+ * Uses AWS Rekognition DetectText to extract ALL bib numbers from a photo.
+ * Returns { bib } as comma-separated string (e.g. "1234,5678").
  */
 
 const rekognition = new RekognitionClient({
@@ -21,22 +21,21 @@ const rekognition = new RekognitionClient({
 // ── Bib extraction ────────────────────────────────────────────────────────────
 
 /**
- * Given Rekognition TextDetection results, find the most likely bib number.
- * Strategy:
- *  1. Only look at LINE detections (not WORD — lines give more context)
- *  2. Prefer large isolated numbers (2-5 digits)
- *  3. Prefer detections with higher confidence
- *  4. Ignore obvious non-bib text (times, percentages, km markers)
+ * Given Rekognition TextDetection results, return ALL likely bib numbers
+ * as a deduplicated array, sorted by confidence score descending.
  */
-function extractBib(
+function extractAllBibs(
   detections: Array<{ DetectedText?: string; Type?: string; Confidence?: number }>
-): string | null {
+): string[] {
   const candidates: { value: string; score: number }[] = [];
 
   for (const d of detections) {
     if (d.Type !== "LINE") continue;
     const text = (d.DetectedText ?? "").trim();
     const confidence = d.Confidence ?? 0;
+
+    // Skip low-confidence detections
+    if (confidence < 50) continue;
 
     const matches = text.match(/\b\d{2,5}\b/g) ?? [];
     for (const m of matches) {
@@ -47,19 +46,30 @@ function extractBib(
 
       const len = m.length;
       const lenScore = len === 3 ? 4 : len === 4 ? 5 : len === 2 ? 3 : len === 5 ? 2 : 1;
-      // Boost score if the entire line is just this number
       const isolatedBonus = text === m ? 3 : 0;
-      // Factor in Rekognition confidence (0-100 → 0-2)
       const confBonus = confidence / 50;
 
       candidates.push({ value: m, score: lenScore + isolatedBonus + confBonus });
     }
   }
 
-  if (candidates.length === 0) return null;
-  candidates.sort((a, b) => b.score - a.score);
-  console.log("[Rekognition] candidates:", JSON.stringify(candidates.slice(0, 5)));
-  return candidates[0]!.value;
+  if (candidates.length === 0) return [];
+
+  // Deduplicate keeping highest score per value
+  const best = new Map<string, number>();
+  for (const c of candidates) {
+    if (!best.has(c.value) || best.get(c.value)! < c.score) {
+      best.set(c.value, c.score);
+    }
+  }
+
+  // Sort by score descending
+  const sorted = Array.from(best.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([v]) => v);
+
+  console.log("[Rekognition] all bib candidates:", sorted);
+  return sorted;
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
@@ -99,18 +109,19 @@ export async function POST(req: NextRequest) {
     const response = await rekognition.send(command);
     const detections = response.TextDetections ?? [];
 
-    console.log("[Rekognition] detections:", detections
+    console.log("[Rekognition] lines:", detections
       .filter(d => d.Type === "LINE")
       .map(d => `"${d.DetectedText}" (${d.Confidence?.toFixed(1)}%)`));
 
-    const bib = extractBib(detections);
+    const bibs = extractAllBibs(detections);
 
-    if (bib) {
-      await db.photo.update({ where: { id: photoId }, data: { bibNumber: bib } });
-      return NextResponse.json({ bib, source: "rekognition" });
+    if (bibs.length > 0) {
+      const bibString = bibs.join(",");
+      await db.photo.update({ where: { id: photoId }, data: { bibNumber: bibString } });
+      return NextResponse.json({ bib: bibString, bibs, source: "Amazon Rekognition" });
     }
 
-    return NextResponse.json({ bib: null, source: "rekognition", found: false });
+    return NextResponse.json({ bib: null, source: "Amazon Rekognition", found: false });
   } catch (err) {
     console.error("[Rekognition] error:", err);
     return NextResponse.json({ error: "Rekognition failed", detail: String(err) }, { status: 500 });

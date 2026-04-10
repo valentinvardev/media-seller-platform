@@ -65,17 +65,19 @@ function OcrBadge({ status, bib, ocrSource }: { status: OcrStatus; bib?: string;
       Leyendo dorsal...
     </span>
   );
-  if (status === "found" && bib) return (
-    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold" title={ocrSource ? `vía ${ocrSource}` : undefined}>
-      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-      </svg>
-      #{bib}
-      {ocrSource && <span className="font-normal opacity-60 ml-0.5">{ocrSource}</span>}
-    </span>
-  );
+  if (status === "found" && bib) {
+    const bibs = bib.split(",").map(b => b.trim()).filter(Boolean);
+    return (
+      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold" title={ocrSource ?? undefined}>
+        <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        {bibs.map(b => `#${b}`).join(" · ")}
+      </span>
+    );
+  }
   if (status === "not-found") return (
-    <span className="text-xs text-gray-300">Sin dorsal {ocrSource && <span className="opacity-50">({ocrSource})</span>}</span>
+    <span className="text-xs text-gray-300">Sin dorsal{ocrSource && <span className="opacity-50"> ({ocrSource})</span>}</span>
   );
   if (status === "error") return (
     <span className="text-xs text-red-400">OCR falló</span>

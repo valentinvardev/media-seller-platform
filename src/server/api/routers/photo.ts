@@ -42,11 +42,11 @@ export const photoRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const q = input.bib.trim();
 
-      // Exact match group
+      // Exact/contains match (supports comma-separated multi-bib strings)
       const exact = await ctx.db.photo.findMany({
         where: {
           collectionId: input.collectionId,
-          bibNumber: { equals: q, mode: "insensitive" },
+          bibNumber: { contains: q, mode: "insensitive" },
         },
         orderBy: { order: "asc" },
         select: { id: true, bibNumber: true, storageKey: true, previewKey: true, filename: true },
