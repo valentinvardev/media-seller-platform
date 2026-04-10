@@ -1,17 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { getAdminClient } from "~/lib/supabase/admin";
 
 /**
  * POST /api/ocr
  * Body: { photoId: string }
  *
- * Downloads the photo from Supabase, sends it base64-encoded to the Modal
- * OCR endpoint, extracts the bib number from Roboflow predictions, and saves
- * it to the DB.
+ * Fires a request to the Modal `process_and_save` endpoint which:
+ *   1. Downloads the photo from Supabase directly
+ *   2. Runs Roboflow bib detection + EasyOCR
+ *   3. Writes the bib number straight to the DB
  *
- * Auth: no session required — only photoId is accepted, and only the bib
- * number field is written. Called fire-and-forget from PhotoUploader.
+ * The Modal endpoint does all the heavy lifting — this route returns
+ * immediately so it never hits Vercel's function timeout.
  */
 export async function POST(req: NextRequest) {
   const { photoId } = (await req.json()) as { photoId?: string };
@@ -19,62 +19,36 @@ export async function POST(req: NextRequest) {
 
   const modalUrl = process.env.MODAL_OCR_URL;
   if (!modalUrl) {
-    return NextResponse.json({ bibNumber: null, skipped: true });
+    return NextResponse.json({ skipped: true, reason: "MODAL_OCR_URL not set" });
   }
 
-  const photo = await db.photo.findUnique({ where: { id: photoId } });
+  const photo = await db.photo.findUnique({
+    where: { id: photoId },
+    select: { id: true, storageKey: true, bibNumber: true },
+  });
   if (!photo) return NextResponse.json({ error: "Photo not found" }, { status: 404 });
+  if (photo.bibNumber) return NextResponse.json({ bib: photo.bibNumber, cached: true });
 
-  // Already has a bib — nothing to do
-  if (photo.bibNumber) return NextResponse.json({ bibNumber: photo.bibNumber, cached: true });
-
-  const client = getAdminClient();
-  if (!client) return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
-
-  // Download original from Supabase
-  const { data, error } = await client.storage.from("photos").download(photo.storageKey);
-  if (error ?? !data) return NextResponse.json({ error: "Download failed" }, { status: 500 });
-
-  const imageBase64 = Buffer.from(await data.arrayBuffer()).toString("base64");
-
-  let bibNumber: string | null = null;
-  try {
-    const modalRes = await fetch(modalUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image_base64: imageBase64 }),
-      // Modal cold start can take up to 90s with ML libs loaded
-      signal: AbortSignal.timeout(120_000),
-    });
-
-    if (modalRes.ok) {
-      const result = await modalRes.json() as {
-        roboflow_results?: {
-          predictions?: Array<{ class?: string; bib_text?: string; confidence?: number }>;
-        };
-      };
-
-      const preds = result.roboflow_results?.predictions ?? [];
-      // Take the highest-confidence bib prediction with a valid digit string
-      const sorted = [...preds].sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0));
-      for (const pred of sorted) {
-        if (pred.class?.toLowerCase() !== "bib") continue;
-        const text = pred.bib_text?.trim();
-        if (text && text !== "Unknown" && /^\d+$/.test(text)) {
-          bibNumber = text;
-          break;
-        }
-      }
-    } else {
-      console.error("Modal OCR non-ok:", modalRes.status, await modalRes.text().catch(() => ""));
-    }
-  } catch (err) {
-    console.error("OCR request failed:", err);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    return NextResponse.json({ error: "Supabase env vars missing" }, { status: 500 });
   }
 
-  if (bibNumber) {
-    await db.photo.update({ where: { id: photoId }, data: { bibNumber } });
-  }
+  const saveUrl = process.env.MODAL_OCR_SAVE_URL ?? modalUrl;
 
-  return NextResponse.json({ bibNumber });
+  // Fire to Modal — don't await, return instantly so Vercel doesn't time out.
+  // Modal downloads the photo, runs OCR, and writes the bib directly to Supabase.
+  void fetch(saveUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      storage_key: photo.storageKey,
+      photo_id: photo.id,
+      supabase_url: supabaseUrl,
+      supabase_service_key: serviceKey,
+    }),
+  }).catch((err) => console.error("Modal OCR trigger failed:", err));
+
+  return NextResponse.json({ accepted: true, photoId });
 }

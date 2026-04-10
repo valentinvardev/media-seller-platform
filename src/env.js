@@ -18,6 +18,7 @@ export const env = createEnv({
     ADMIN_EMAIL: z.string().email().optional(),
     ADMIN_PASSWORD: z.string().optional(),
     MODAL_OCR_URL: z.string().url().optional(),
+    MODAL_OCR_SAVE_URL: z.string().url().optional(),
   },
 
   client: {
@@ -38,6 +39,7 @@ export const env = createEnv({
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
     MODAL_OCR_URL: process.env.MODAL_OCR_URL,
+    MODAL_OCR_SAVE_URL: process.env.MODAL_OCR_SAVE_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY: process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY,
