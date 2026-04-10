@@ -18,6 +18,7 @@ type FileEntry = {
   photoId?: string;
   ocrStatus: OcrStatus;
   bib?: string;
+  ocrSource?: string;
 };
 
 const ROW_HEIGHT = 64;
@@ -49,7 +50,7 @@ function UploadIcon({ status }: { status: UploadStatus }) {
   return <div className="w-5 h-5 rounded-full bg-gray-100 flex-shrink-0" />;
 }
 
-function OcrBadge({ status, bib }: { status: OcrStatus; bib?: string }) {
+function OcrBadge({ status, bib, ocrSource }: { status: OcrStatus; bib?: string; ocrSource?: string }) {
   if (status === "idle") return null;
 
   if (status === "queued") return (
@@ -65,15 +66,16 @@ function OcrBadge({ status, bib }: { status: OcrStatus; bib?: string }) {
     </span>
   );
   if (status === "found" && bib) return (
-    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold">
+    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold" title={ocrSource ? `vía ${ocrSource}` : undefined}>
       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
       </svg>
       #{bib}
+      {ocrSource && <span className="font-normal opacity-60 ml-0.5">{ocrSource}</span>}
     </span>
   );
   if (status === "not-found") return (
-    <span className="text-xs text-gray-300">Sin dorsal</span>
+    <span className="text-xs text-gray-300">Sin dorsal {ocrSource && <span className="opacity-50">({ocrSource})</span>}</span>
   );
   if (status === "error") return (
     <span className="text-xs text-red-400">OCR falló</span>
@@ -118,7 +120,7 @@ function FileRow({ entry }: { entry: FileEntry }) {
               : entry.status === "error" ? (entry.errorMsg ?? "Error")
               : "En cola"}
           </p>
-          {entry.status === "done" && <OcrBadge status={entry.ocrStatus} bib={entry.bib} />}
+          {entry.status === "done" && <OcrBadge status={entry.ocrStatus} bib={entry.bib} ocrSource={entry.ocrSource} />}
         </div>
       </div>
       <UploadIcon status={entry.status} />
@@ -172,18 +174,32 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ photoId }),
       });
-      const data = await res.json() as { accepted?: boolean; skipped?: boolean; error?: string };
-      if (data.accepted) {
+      const data = await res.json() as {
+        bib?: string | null;
+        source?: string;
+        found?: boolean;
+        accepted?: boolean;
+        skipped?: boolean;
+        cached?: boolean;
+        error?: string;
+      };
+
+      if (data.bib) {
+        // Synchronous response (Azure) — bib returned immediately
+        updateEntry(entryId, { ocrStatus: "found", bib: data.bib, ocrSource: data.source ?? "azure" });
+        router.refresh();
+      } else if (data.accepted) {
+        // Async response (Modal) — poll for result
         void pollBib(entryId, photoId);
-      } else if (data.skipped) {
-        updateEntry(entryId, { ocrStatus: "not-found" });
+      } else if (data.skipped || data.found === false) {
+        updateEntry(entryId, { ocrStatus: "not-found", ocrSource: data.source });
       } else {
         updateEntry(entryId, { ocrStatus: "error" });
       }
     } catch {
       updateEntry(entryId, { ocrStatus: "error" });
     }
-  }, [updateEntry, pollBib]);
+  }, [updateEntry, pollBib, router]);
 
   const handleFiles = async (files: FileList) => {
     if (!files.length) return;
