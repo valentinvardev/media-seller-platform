@@ -101,7 +101,7 @@ function PhotoTile({
 
   return (
     <div
-      className="relative overflow-hidden group cursor-pointer rounded-lg"
+      className="relative overflow-hidden group cursor-pointer"
       style={{ aspectRatio: "4/3", background: "#e2e8f0" }}
       onClick={() => { if (url) onOpenLightbox(url); }}
     >
