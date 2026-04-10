@@ -326,7 +326,7 @@ export default function NewCollectionPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start xl:min-h-screen">
 
       {/* ── Form ── */}
       <div className="max-w-xl w-full">
@@ -432,7 +432,7 @@ export default function NewCollectionPage() {
       </div>
 
       {/* ── Live preview ── */}
-      <div className="xl:sticky xl:top-8">
+      <div className="xl:sticky xl:top-0 self-start">
         <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Vista previa de la tarjeta</p>
         <div className="max-w-xs mx-auto xl:mx-0">
           {/* Intercept the card's banner area with a draggable version */}
