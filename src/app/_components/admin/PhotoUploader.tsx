@@ -282,12 +282,18 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
 
     if (!result?.ids) return;
 
-    // Trigger OCR per photo — each shows its own progress
+    // Trigger OCR + face indexing per photo in parallel
     for (let i = 0; i < result.ids.length; i++) {
       const photoId = result.ids[i];
       const entryId = uploaded[i]?.entryId;
       if (photoId && entryId) {
         void triggerOcr(entryId, photoId);
+        // Fire-and-forget face indexing (no UI feedback needed)
+        void fetch("/api/face-index", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ photoId, collectionId }),
+        });
       }
     }
   };

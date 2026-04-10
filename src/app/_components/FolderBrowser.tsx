@@ -270,8 +270,11 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
         body: JSON.stringify({ imageBase64: base64, collectionId }),
       });
       if (!resp.ok) throw new Error();
-      const json = await resp.json() as { folderIds: string[] };
-      setFaceBibs(json.folderIds.map((id) => ({ bib: id, photoIds: [id] })));
+      const json = await resp.json() as {
+        groups: { bib: string; photoIds: string[] }[];
+        noFaceDetected?: boolean;
+      };
+      setFaceBibs(json.groups);
       setFaceStatus("done");
     } catch {
       setFaceStatus("error");
