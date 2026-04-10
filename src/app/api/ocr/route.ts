@@ -5,21 +5,18 @@ import { db } from "~/server/db";
  * POST /api/ocr
  * Body: { photoId: string }
  *
- * Fires a request to the Modal `process_and_save` endpoint which:
- *   1. Downloads the photo from Supabase directly
- *   2. Runs Roboflow bib detection + EasyOCR
- *   3. Writes the bib number straight to the DB
- *
- * The Modal endpoint does all the heavy lifting — this route returns
- * immediately so it never hits Vercel's function timeout.
+ * Calls the Modal OCRGateway.trigger endpoint (cold start ~2s — no ML libs).
+ * The gateway spawns MarathonPipeline.do_ocr_and_save asynchronously inside
+ * Modal, which runs with no timeout. This route awaits the gateway (fast) so
+ * Vercel doesn't kill the outgoing connection before it lands.
  */
 export async function POST(req: NextRequest) {
   const { photoId } = (await req.json()) as { photoId?: string };
   if (!photoId) return NextResponse.json({ error: "photoId required" }, { status: 400 });
 
-  const modalUrl = process.env.MODAL_OCR_URL;
-  if (!modalUrl) {
-    return NextResponse.json({ skipped: true, reason: "MODAL_OCR_URL not set" });
+  const gatewayUrl = process.env.MODAL_OCR_SAVE_URL;
+  if (!gatewayUrl) {
+    return NextResponse.json({ skipped: true, reason: "MODAL_OCR_SAVE_URL not set" });
   }
 
   const photo = await db.photo.findUnique({
@@ -35,20 +32,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Supabase env vars missing" }, { status: 500 });
   }
 
-  const saveUrl = process.env.MODAL_OCR_SAVE_URL ?? modalUrl;
+  try {
+    // Await the gateway — it returns immediately after spawning the ML job.
+    // This ensures the HTTP connection is established before Vercel returns.
+    const res = await fetch(gatewayUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        storage_key: photo.storageKey,
+        photo_id: photo.id,
+        supabase_url: supabaseUrl,
+        supabase_service_key: serviceKey,
+      }),
+      signal: AbortSignal.timeout(15_000), // gateway is fast, 15s is generous
+    });
 
-  // Fire to Modal — don't await, return instantly so Vercel doesn't time out.
-  // Modal downloads the photo, runs OCR, and writes the bib directly to Supabase.
-  void fetch(saveUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      storage_key: photo.storageKey,
-      photo_id: photo.id,
-      supabase_url: supabaseUrl,
-      supabase_service_key: serviceKey,
-    }),
-  }).catch((err) => console.error("Modal OCR trigger failed:", err));
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error("Gateway error:", res.status, text);
+      return NextResponse.json({ error: "Gateway rejected request", status: res.status }, { status: 502 });
+    }
 
-  return NextResponse.json({ accepted: true, photoId });
+    const data = await res.json() as { status?: string; photo_id?: string };
+    return NextResponse.json({ accepted: true, photoId, gateway: data });
+  } catch (err) {
+    console.error("Gateway call failed:", err);
+    return NextResponse.json({ error: "Gateway unreachable" }, { status: 502 });
+  }
 }
