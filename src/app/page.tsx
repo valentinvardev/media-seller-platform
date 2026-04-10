@@ -40,41 +40,42 @@ export default async function HomePage() {
         </div>
       </nav>
 
-      {/* ════════ HERO — full-height split ════════ */}
-      <section className="relative" style={{ minHeight: "calc(100vh - 56px)" }}>
-        <div className="grid grid-cols-1 lg:grid-cols-2 h-full" style={{ minHeight: "calc(100vh - 56px)" }}>
+      {/* ════════ HERO — 40vh split ════════ */}
+      <section className="relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2" style={{ minHeight: "40vh" }}>
 
           {/* Left — content */}
-          <div className="flex flex-col justify-center px-8 sm:px-14 py-16 speed-lines"
+          <div className="flex flex-col justify-center px-8 sm:px-14 py-8 speed-lines"
             style={{ background: "linear-gradient(150deg, #F0F6FF 0%, #ffffff 80%)" }}>
-            <h1 className="font-display font-800 uppercase leading-none text-gray-900 mb-4"
-              style={{ fontSize: "clamp(3.2rem, 7vw, 6rem)", letterSpacing: "-0.01em" }}>
+            <h1 className="font-display font-800 uppercase leading-none text-gray-900 mb-3"
+              style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", letterSpacing: "-0.01em" }}>
               <span className="block">Corriste.</span>
               <span className="block text-gradient">Lo capturamos.</span>
             </h1>
 
-            <p className="text-gray-500 text-lg leading-relaxed mb-8 max-w-sm">
+            <p className="text-gray-500 text-sm leading-relaxed mb-5 max-w-sm">
               Buscá tu dorsal, comprá y descargá tus fotos en HD al instante.
             </p>
 
-            {/* Steps */}
-            <div className="flex flex-col gap-3 mb-10">
+            {/* Steps — horizontal row */}
+            <div className="flex items-center gap-6 mb-6">
               {[
                 { num: "01", label: "Elegí el evento" },
                 { num: "02", label: "Ingresá tu dorsal" },
                 { num: "03", label: "Descargá en HD" },
-              ].map((s) => (
-                <div key={s.num} className="flex items-center gap-3">
-                  <span className="font-display font-800 text-3xl leading-none w-12 shrink-0"
+              ].map((s, i) => (
+                <div key={s.num} className="flex items-center gap-2 shrink-0">
+                  {i > 0 && <span className="text-gray-200 text-sm mr-2">›</span>}
+                  <span className="font-display font-800 text-xl leading-none"
                     style={{ color: "#0057A8" }}>{s.num}</span>
-                  <span className="text-sm font-semibold text-gray-700">{s.label}</span>
+                  <span className="text-xs font-semibold text-gray-600">{s.label}</span>
                 </div>
               ))}
             </div>
 
             <a href="#eventos"
-              className="self-start inline-flex items-center gap-2 px-8 py-4 rounded-xl font-display font-700 uppercase tracking-wider text-white text-base transition-all hover:scale-105"
-              style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)", boxShadow: "0 6px 24px rgba(0,87,168,0.28)" }}>
+              className="self-start inline-flex items-center gap-2 px-6 py-3 rounded-xl font-display font-700 uppercase tracking-wider text-white text-sm transition-all hover:scale-105"
+              style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)", boxShadow: "0 4px 16px rgba(0,87,168,0.28)" }}>
               Ver eventos
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -83,17 +84,17 @@ export default async function HomePage() {
           </div>
 
           {/* Right — full bleed photo area */}
-          <div className="relative hidden lg:block" style={{ background: "linear-gradient(135deg, #002D6E 0%, #0057A8 60%, #60A5FA 100%)", minHeight: "100%" }}>
+          <div className="relative hidden lg:flex items-center justify-center" style={{ background: "linear-gradient(135deg, #002D6E 0%, #0057A8 60%, #60A5FA 100%)", minHeight: "40vh" }}>
             <div className="absolute inset-0 speed-lines opacity-10" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white/60">
-              <svg className="w-28 h-28 mb-4 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={0.75}>
+            <div className="flex flex-col items-center justify-center text-white/60 relative z-10">
+              <svg className="w-16 h-16 mb-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={0.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <p className="font-display font-600 uppercase tracking-widest text-sm opacity-50">Tu foto de carrera</p>
+              <p className="font-display font-600 uppercase tracking-widest text-xs opacity-50">Tu foto de carrera</p>
             </div>
             {/* Corner badge */}
-            <div className="absolute top-6 right-6 px-4 py-2 rounded-full text-xs font-bold text-white"
+            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold text-white"
               style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.2)" }}>
               HD · Alta resolución
             </div>
