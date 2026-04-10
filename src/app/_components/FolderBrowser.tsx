@@ -48,19 +48,19 @@ function PhotoLightbox({
 
         <div className="flex items-center justify-between gap-4 px-5 py-4 bg-white/95 backdrop-blur-sm">
           <div>
-            {bibNumber && <p className="text-sm font-bold text-gray-900">Dorsal #{bibNumber}</p>}
+            {bibNumber
+            ? <p className="text-sm font-bold text-gray-900">Dorsal #{bibNumber}</p>
+            : <p className="text-sm font-bold text-gray-900">Foto sin dorsal</p>}
             <p className="text-xs text-gray-400 mt-0.5">Vista previa · descargá en HD sin marca de agua</p>
           </div>
-          {bibNumber && (
-            <button onClick={onBuy}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-700 uppercase tracking-wide text-white text-xs transition-all hover:scale-105 shrink-0"
-              style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              Comprar
-            </button>
-          )}
+          <button onClick={onBuy}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-700 uppercase tracking-wide text-white text-xs transition-all hover:scale-105 shrink-0"
+            style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Comprar
+          </button>
         </div>
       </div>
     </div>
@@ -134,7 +134,7 @@ function PhotoTile({
       {/* Bottom overlay — always visible, price + cart */}
       <div
         className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between px-2.5 py-2.5"
-        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }}
+        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 45%, transparent 100%)" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div>
@@ -282,10 +282,11 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const cartCheckout = () => {
     if (cartItems.length === 0) return;
     const first = cartItems[0]!;
-    if (first.bibNumber) {
-      const photoIds = allPhotos?.filter((p) => p.bibNumber === first.bibNumber).map((p) => p.id) ?? [];
-      setModal({ bib: first.bibNumber, photoIds });
-    }
+    const bib = first.bibNumber ?? "";
+    const photoIds = first.bibNumber && allPhotos
+      ? allPhotos.filter((p) => p.bibNumber === first.bibNumber).map((p) => p.id)
+      : [first.photoId];
+    setModal({ bib, photoIds });
   };
 
   // Shared tile handler factory
@@ -491,10 +492,8 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           bibNumber={lightbox.bibNumber}
           onClose={() => setLightbox(null)}
           onBuy={() => {
-            if (lightbox.bibNumber) {
-              setModal({ bib: lightbox.bibNumber, photoIds: lightbox.photoIds });
-              setLightbox(null);
-            }
+            setModal({ bib: lightbox.bibNumber ?? "", photoIds: lightbox.photoIds });
+            setLightbox(null);
           }}
         />
       )}

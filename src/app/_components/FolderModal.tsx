@@ -383,7 +383,7 @@ export function BibCheckoutModal({
             {collectionInfo && (
               <p className="text-xs text-slate-500 mb-0.5">{collectionInfo.title}</p>
             )}
-            <h2 className="font-bold text-white text-lg">Dorsal #{bib}</h2>
+            <h2 className="font-bold text-white text-lg">{bib ? `Dorsal #${bib}` : "Foto sin dorsal"}</h2>
           </div>
           <button
             onClick={onClose}
@@ -518,7 +518,7 @@ export function BibCheckoutModal({
               <div className="text-center mb-1">
                 <p className="text-white font-medium text-sm">Acceder a tus fotos</p>
                 <p className="text-slate-500 text-xs mt-1">
-                  Ingresá el email con el que compraste el dorsal #{bib}
+                  Ingresá el email con el que compraste {bib ? `el dorsal #${bib}` : "esta foto"}
                 </p>
               </div>
               <input
