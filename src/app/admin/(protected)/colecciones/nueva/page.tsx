@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { EventCard } from "~/app/_components/EventCard";
@@ -141,60 +141,55 @@ function BannerDragger({
 
   const clamp = (v: number) => Math.min(1, Math.max(0, v));
 
-  const applyDelta = useCallback((clientY: number) => {
-    const el = containerRef.current;
-    if (!el) return;
-    const delta = clientY - startY.current;
-    // Moving down = anchor moves down = focalY increases
-    const frac = delta / el.clientHeight;
-    onChange(clamp(startFocal.current + frac));
-  }, [onChange]);
-
-  const onMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     dragging.current = true;
     startY.current = e.clientY;
     startFocal.current = focalY;
     e.preventDefault();
   };
 
-  const onMouseMove = useCallback((e: MouseEvent) => {
-    if (!dragging.current) return;
-    applyDelta(e.clientY);
-  }, [applyDelta]);
-
-  const onMouseUp = useCallback(() => { dragging.current = false; }, []);
-
-  const onTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     dragging.current = true;
     startY.current = e.touches[0]!.clientY;
     startFocal.current = focalY;
   };
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (!dragging.current) return;
-    applyDelta(e.touches[0]!.clientY);
-  };
-  const onTouchEnd = () => { dragging.current = false; };
 
-  // Attach global mouse events so drag works even outside the element
-  const bindGlobal = () => {
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  };
-  const unbindGlobal = () => {
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
-  };
+  // Global move/up via useEffect so cleanup is guaranteed
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const delta = e.clientY - startY.current;
+      const frac = delta / containerRef.current.clientHeight;
+      onChange(clamp(startFocal.current + frac));
+    };
+    const onUp = () => { dragging.current = false; };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const delta = e.touches[0]!.clientY - startY.current;
+      const frac = delta / containerRef.current.clientHeight;
+      onChange(clamp(startFocal.current + frac));
+    };
+    const onTouchEnd = () => { dragging.current = false; };
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [onChange]);
 
   return (
     <div
       ref={containerRef}
       className="relative h-44 rounded-t-2xl overflow-hidden cursor-ns-resize select-none"
       style={{ background: "#e2e8f0" }}
-      onMouseDown={(e) => { bindGlobal(); onMouseDown(e); }}
-      onMouseUp={unbindGlobal}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
