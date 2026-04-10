@@ -63,7 +63,7 @@ async function runAzureOcr(imageBuffer: Buffer): Promise<string | null> {
       "Ocp-Apim-Subscription-Key": AZURE_KEY,
       "Content-Type": "application/octet-stream",
     },
-    body: new Blob([imageBuffer.buffer as ArrayBuffer]),
+    body: new Blob([new Uint8Array(imageBuffer)]),
     signal: AbortSignal.timeout(15_000),
   });
 
@@ -103,7 +103,10 @@ async function runAzureOcr(imageBuffer: Buffer): Promise<string | null> {
     const lines = result.analyzeResult?.readResults
       .flatMap((r) => r.lines.map((l) => l.text)) ?? [];
 
-    return extractBib(lines);
+    console.log("[Azure OCR] lines:", JSON.stringify(lines));
+    const bib = extractBib(lines);
+    console.log("[Azure OCR] extracted bib:", bib);
+    return bib;
   }
 
   return null; // timed out
