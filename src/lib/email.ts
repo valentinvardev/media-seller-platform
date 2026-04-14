@@ -152,7 +152,7 @@ export async function sendPurchaseApprovedEmail({
       from: FROM,
       to,
       bcc: BCC_EMAIL,
-      subject: `📸 Tus fotos de ${bib} están listas — ALTAFOTO`,
+      subject: `Tus fotos de ${bib} están listas — ALTAFOTO`,
       html: purchaseApprovedHtml({ buyerName, bibNumber, collectionTitle, downloadUrl, photoCount }),
     });
   } catch (err) {
