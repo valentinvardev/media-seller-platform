@@ -60,14 +60,14 @@ export function MercadoPagoConnect() {
       )}
       <a
         href="/api/mercadopago/connect"
-        className="inline-flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:opacity-90 w-fit select-none"
-        style={{ background: "#009ee3" }}
+        className="inline-flex items-center justify-center px-8 py-2 rounded-xl transition-all hover:opacity-90 w-fit select-none"
+        style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
           alt="Mercado Pago"
-          className="h-6 w-auto brightness-0 invert"
+          className="h-8 w-auto"
         />
       </a>
       <p className="text-xs text-gray-400">
