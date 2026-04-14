@@ -52,13 +52,13 @@ export default async function HomePage() {
             </p>
 
             {/* Steps — horizontal row */}
-            <div className="flex items-center gap-6 mb-6">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6">
               {[
                 { num: "01", label: "Elegí el evento" },
                 { num: "02", label: "Ingresá tu dorsal" },
                 { num: "03", label: "Descargá en HD" },
               ].map((s, i) => (
-                <div key={s.num} className="flex items-center gap-2 shrink-0">
+                <div key={s.num} className="flex items-center gap-2">
                   {i > 0 && <span className="text-gray-200 text-sm mr-2">›</span>}
                   <span className="font-display font-800 text-xl leading-none"
                     style={{ color: "#0057A8" }}>{s.num}</span>
