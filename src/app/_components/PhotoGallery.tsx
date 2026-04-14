@@ -5,16 +5,6 @@ import Link from "next/link";
 
 type Photo = { id: string; filename: string; url: string };
 
-type Suggestion = {
-  id: string;
-  slug: string;
-  title: string;
-  coverUrl: string | null;
-  pricePerBib: number;
-  eventDate: Date | null;
-  photoCount: number;
-};
-
 type Props = {
   token: string;
   bibNumber: string | null;
@@ -22,12 +12,13 @@ type Props = {
   buyerName: string | null;
   isPublicInit: boolean;
   photos: Photo[];
-  suggestions: Suggestion[];
+  suggestions: unknown[];
 };
 
 const PAGE_SIZE = 24;
 
-export function PhotoGallery({ bibNumber, collectionTitle, buyerName, photos, suggestions }: Props) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function PhotoGallery({ bibNumber, collectionTitle, buyerName, photos, suggestions: _ }: Props) {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
@@ -292,54 +283,6 @@ export function PhotoGallery({ bibNumber, collectionTitle, buyerName, photos, su
         <p className="text-center text-xs text-gray-300 mt-8 mb-4">
           Este link es permanente y no expira.
         </p>
-
-        {/* ── Suggestions ───────────────────────────────────────────── */}
-        {suggestions.length > 0 && (
-          <div className="mt-10 pt-8 border-t border-gray-200">
-            <h2 className="font-bold text-gray-900 text-base mb-1">
-              Más fotos de tu dorsal #{bibNumber}
-            </h2>
-            <p className="text-sm text-gray-400 mb-5">Encontramos fotos tuyas en otros eventos que todavía no compraste.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {suggestions.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/colecciones/${s.slug}?bib=${bibNumber ?? ""}`}
-                  className="group bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md hover:border-blue-100 transition-all"
-                >
-                  <div className="relative h-36 bg-gray-100 overflow-hidden">
-                    {s.coverUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={s.coverUrl} alt={s.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #dbeafe, #eff6ff)" }}>
-                        <svg className="w-10 h-10 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        </svg>
-                      </div>
-                    )}
-                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white" style={{ background: "rgba(0,87,168,0.85)", backdropFilter: "blur(4px)" }}>
-                      {s.photoCount} foto{s.photoCount !== 1 ? "s" : ""}
-                    </div>
-                  </div>
-                  <div className="p-4 flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-semibold text-gray-900 text-sm truncate">{s.title}</p>
-                      {s.eventDate && (
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {new Date(s.eventDate).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}
-                        </p>
-                      )}
-                    </div>
-                    <span className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all group-hover:opacity-90" style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}>
-                      $ {s.pricePerBib.toLocaleString("es-AR")}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ── Bottom bar (select mode) ──────────────────────────────────────── */}
