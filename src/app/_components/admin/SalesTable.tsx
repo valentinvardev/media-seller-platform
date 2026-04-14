@@ -21,9 +21,17 @@ export function SalesTable({ items }: { items: Sale[] }) {
   const router = useRouter();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [confirmSale, setConfirmSale] = useState<Sale | null>(null);
+  const [emailSentId, setEmailSentId] = useState<string | null>(null);
 
   const approve = api.purchase.manualApprove.useMutation({
     onSuccess: () => router.refresh(),
+  });
+
+  const resendEmail = api.settings.resendPurchaseEmail.useMutation({
+    onSuccess: (_, { purchaseId }) => {
+      setEmailSentId(purchaseId);
+      setTimeout(() => setEmailSentId(null), 2500);
+    },
   });
 
   const copyDownloadLink = (token: string, id: string) => {
@@ -84,12 +92,21 @@ export function SalesTable({ items }: { items: Sale[] }) {
                     </button>
                   )}
                   {sale.status === "APPROVED" && sale.downloadToken && (
-                    <button
-                      onClick={() => copyDownloadLink(sale.downloadToken!, sale.id)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-blue-50 text-blue-700 hover:bg-blue-100"
-                    >
-                      {copiedId === sale.id ? "¡Copiado!" : "↗ Link descarga"}
-                    </button>
+                    <>
+                      <button
+                        onClick={() => copyDownloadLink(sale.downloadToken!, sale.id)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-blue-50 text-blue-700 hover:bg-blue-100"
+                      >
+                        {copiedId === sale.id ? "¡Copiado!" : "↗ Link"}
+                      </button>
+                      <button
+                        onClick={() => resendEmail.mutate({ purchaseId: sale.id })}
+                        disabled={resendEmail.isPending}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-violet-50 text-violet-700 hover:bg-violet-100 disabled:opacity-50"
+                      >
+                        {emailSentId === sale.id ? "✓ Enviado" : "✉ Email"}
+                      </button>
+                    </>
                   )}
                 </div>
               </td>
