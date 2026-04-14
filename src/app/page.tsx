@@ -83,7 +83,7 @@ export default async function HomePage() {
               src="/banner.jpg"
               alt="Foto de carrera"
               fill
-              className="object-cover object-center"
+              className="object-cover object-top"
               priority
             />
             {/* Corner badge */}
