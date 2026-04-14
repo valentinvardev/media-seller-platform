@@ -4,7 +4,7 @@ import { sendPurchaseApprovedEmail } from "~/lib/email";
 export async function GET() {
 
   await sendPurchaseApprovedEmail({
-    to: "valentinvarela0508@gmail.com",
+    to: "gatucarpinlila@gmail.com",
     buyerName: "Valentin",
     bibNumber: "1234",
     collectionTitle: "Maratón Buenos Aires 2025",
