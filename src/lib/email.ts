@@ -36,81 +36,73 @@ function purchaseApprovedHtml({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tus fotos están listas — ALTAFOTO</title>
 </head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;padding:40px 24px;">
+<body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:48px 24px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
 
-          <!-- Logo dentro del recuadro -->
+          <!-- Logo -->
           <tr>
             <td align="center" style="padding-bottom:32px;">
-              <img src="${BASE_URL}/logo-altafoto.png" alt="ALTAFOTO" height="40" style="height:40px;width:auto;display:block;" />
+              <img src="${BASE_URL}/logo-altafoto.png" alt="ALTAFOTO" height="36" style="height:36px;width:auto;display:block;" />
             </td>
           </tr>
 
-          <!-- Hero banner -->
+          <!-- Card -->
           <tr>
-            <td style="background:linear-gradient(135deg,#003D7A 0%,#0057A8 60%,#1a7fd4 100%);border-radius:16px 16px 0 0;padding:32px 36px 28px;">
-              <p style="margin:0 0 8px;color:rgba(255,255,255,0.55);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">📸 ¡Ya están disponibles!</p>
-              <h1 style="margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;line-height:1.2;letter-spacing:-0.01em;">
-                ${collectionTitle}
-              </h1>
-              ${bib ? `<p style="margin:0;color:rgba(255,255,255,0.7);font-size:14px;font-weight:600;">Dorsal ${bib}</p>` : ""}
-            </td>
-          </tr>
+            <td style="background:#ffffff;border-radius:16px;padding:40px 40px 36px;">
 
-          <!-- Body -->
-          <tr>
-            <td style="background:#ffffff;border-radius:0 0 16px 16px;padding:36px 36px 32px;border:1px solid #f1f5f9;border-top:none;">
+              <!-- Ilustración cámara -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding-bottom:28px;">
+                    <div style="display:inline-block;width:64px;height:64px;background:#eff6ff;border-radius:16px;text-align:center;line-height:64px;font-size:30px;">
+                      📷
+                    </div>
+                  </td>
+                </tr>
+              </table>
 
-              <p style="margin:0 0 6px;color:#111827;font-size:17px;font-weight:700;">
-                ¡Hola, ${name}! 👋
+              <!-- Título -->
+              <p style="margin:0 0 6px;color:#111827;font-size:22px;font-weight:800;text-align:center;line-height:1.3;">
+                ¡Tus fotos están listas!
               </p>
-              <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.7;">
-                Capturamos ${photoText} en <strong>${collectionTitle}</strong> y ya las tenés disponibles para ver y descargar en alta resolución.
+              <p style="margin:0 0 28px;color:#6b7280;font-size:14px;text-align:center;line-height:1.6;">
+                ${collectionTitle}${bib ? ` &middot; Dorsal ${bib}` : ""}
+              </p>
+
+              <!-- Divider -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr><td style="border-top:1px solid #f1f5f9;"></td></tr>
+              </table>
+
+              <!-- Texto -->
+              <p style="margin:0 0 8px;color:#111827;font-size:15px;line-height:1.7;">
+                Hola, <strong>${name}</strong> 👋
               </p>
               <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.7;">
-                Entrá a tu galería, revisalas, y bajate las que más te gusten. Son todas tuyas.
+                Capturamos ${photoText} y ya las tenés disponibles en alta resolución, sin marca de agua y listas para descargar.
               </p>
 
               <!-- CTA -->
-              <table cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
                 <tr>
-                  <td style="background:linear-gradient(135deg,#0057A8,#003D7A);border-radius:12px;box-shadow:0 4px 14px rgba(0,87,168,0.3);">
-                    <a href="${downloadUrl}" style="display:inline-block;padding:15px 34px;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">
-                      Ver mis fotos &nbsp;→
+                  <td align="center">
+                    <a href="${downloadUrl}" style="display:inline-block;padding:14px 36px;background:#0057A8;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:10px;">
+                      Ver mis fotos →
                     </a>
                   </td>
                 </tr>
               </table>
 
               <!-- Divider -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
                 <tr><td style="border-top:1px solid #f1f5f9;"></td></tr>
               </table>
 
-              <!-- Info boxes -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10px;">
-                <tr>
-                  <td style="background:#f0f9ff;border-radius:10px;border-left:3px solid #0057A8;padding:12px 16px;">
-                    <p style="margin:0 0 2px;color:#0057A8;font-size:12px;font-weight:700;">🔗 Tu link es permanente</p>
-                    <p style="margin:0;color:#374151;font-size:12px;line-height:1.5;">No expira nunca. Guardá este email para acceder a tus fotos cuando quieras.</p>
-                  </td>
-                </tr>
-              </table>
-
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
-                <tr>
-                  <td style="background:#f0fdf4;border-radius:10px;border-left:3px solid #16a34a;padding:12px 16px;">
-                    <p style="margin:0 0 2px;color:#15803d;font-size:12px;font-weight:700;">📥 Alta resolución sin marca de agua</p>
-                    <p style="margin:0;color:#374151;font-size:12px;line-height:1.5;">Listas para imprimir o compartir.</p>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">
-                ¿Alguna duda? Respondé este email y te ayudamos. ¡Gracias por confiar en ALTAFOTO! 🏃
+              <p style="margin:0;color:#9ca3af;font-size:13px;line-height:1.6;text-align:center;">
+                El link no expira. ¿Alguna duda? Respondé este email y te ayudamos.
               </p>
 
             </td>
@@ -119,10 +111,10 @@ function purchaseApprovedHtml({
           <!-- Footer -->
           <tr>
             <td style="padding:24px 0 0;text-align:center;">
-              <p style="margin:0 0 3px;color:#cbd5e1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">
-                ALTAFOTO · Fotografía deportiva en Argentina
+              <p style="margin:0 0 4px;color:#9ca3af;font-size:12px;">
+                © ${new Date().getFullYear()} ALTAFOTO · Fotografía deportiva en Argentina
               </p>
-              <a href="${BASE_URL}" style="color:#cbd5e1;font-size:11px;text-decoration:none;">${BASE_URL.replace("https://", "")}</a>
+              <a href="${BASE_URL}" style="color:#9ca3af;font-size:12px;text-decoration:none;">${BASE_URL.replace("https://", "")}</a>
             </td>
           </tr>
 
