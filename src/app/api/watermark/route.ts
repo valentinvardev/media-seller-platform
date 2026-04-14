@@ -29,6 +29,7 @@ async function buildWatermark(
 
     const scaled = await sharp(wmPng)
       .resize(targetW, targetH, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .rotate(-35, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .png()
       .toBuffer();
 
