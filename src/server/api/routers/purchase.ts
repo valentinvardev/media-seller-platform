@@ -1,6 +1,7 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
 import { env } from "~/env";
+import { sendPurchaseApprovedEmail } from "~/lib/email";
 import { createSignedUrl } from "~/lib/supabase/admin";
 import {
   createTRPCRouter,
@@ -227,9 +228,22 @@ export const purchaseRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const token = crypto.randomUUID();
-      return ctx.db.purchase.update({
+      const updated = await ctx.db.purchase.update({
         where: { id: input.id },
         data: { status: "APPROVED", downloadToken: token, downloadTokenExpires: null },
+        include: { collection: { select: { title: true } } },
       });
+      const photoCount = await ctx.db.photo.count({
+        where: { collectionId: updated.collectionId, bibNumber: updated.bibNumber ?? undefined },
+      });
+      void sendPurchaseApprovedEmail({
+        to: updated.buyerEmail,
+        buyerName: updated.buyerName,
+        bibNumber: updated.bibNumber,
+        collectionTitle: updated.collection.title,
+        downloadToken: token,
+        photoCount,
+      });
+      return updated;
     }),
 });

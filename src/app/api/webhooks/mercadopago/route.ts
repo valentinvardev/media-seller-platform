@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "~/server/db";
+import { sendPurchaseApprovedEmail } from "~/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,10 +59,25 @@ export async function POST(request: NextRequest) {
       updateData.downloadTokenExpires = null;
     }
 
-    await db.purchase.update({
+    const updated = await db.purchase.update({
       where: { id: purchaseId },
       data: updateData,
+      include: { collection: { select: { title: true } } },
     });
+
+    if (newStatus === "APPROVED" && updated.downloadToken) {
+      const photoCount = await db.photo.count({
+        where: { collectionId: updated.collectionId, bibNumber: updated.bibNumber ?? undefined },
+      });
+      void sendPurchaseApprovedEmail({
+        to: updated.buyerEmail,
+        buyerName: updated.buyerName,
+        bibNumber: updated.bibNumber,
+        collectionTitle: updated.collection.title,
+        downloadToken: updated.downloadToken,
+        photoCount,
+      });
+    }
 
     return NextResponse.json({ received: true });
   } catch {
