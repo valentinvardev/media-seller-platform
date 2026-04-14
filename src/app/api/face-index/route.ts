@@ -6,6 +6,7 @@ import {
 } from "@aws-sdk/client-rekognition";
 import { db } from "~/server/db";
 import { getAdminClient } from "~/lib/supabase/admin";
+import { auth } from "~/server/auth";
 
 /**
  * POST /api/face-index  { photoId, collectionId }
@@ -38,6 +39,8 @@ async function ensureCollection(collId: string) {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { photoId, collectionId } = (await req.json()) as {
     photoId?: string;
     collectionId?: string;

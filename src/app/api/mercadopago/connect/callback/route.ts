@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { auth } from "~/server/auth";
 import { env } from "~/env";
 import { db } from "~/server/db";
@@ -9,9 +10,19 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+  const state = searchParams.get("state");
   const error = searchParams.get("error");
 
-  if (error || !code) {
+  // Validate CSRF state
+  const cookieStore = await cookies();
+  const savedState = cookieStore.get("mp_oauth_state")?.value;
+  cookieStore.delete("mp_oauth_state");
+
+  if (!state || !savedState || state !== savedState) {
+    redirect("/admin/configuracion?mp=error");
+  }
+
+  if (error ?? !code) {
     redirect("/admin/configuracion?mp=error");
   }
 

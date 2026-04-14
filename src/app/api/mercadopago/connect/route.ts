@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { auth } from "~/server/auth";
 import { env } from "~/env";
 
@@ -10,6 +11,16 @@ export async function GET() {
     return new Response("MP_CLIENT_ID o NEXT_PUBLIC_BASE_URL no configurados", { status: 500 });
   }
 
+  const state = crypto.randomUUID();
+  const cookieStore = await cookies();
+  cookieStore.set("mp_oauth_state", state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600, // 10 minutes
+    path: "/",
+  });
+
   const callbackUrl = `${env.NEXT_PUBLIC_BASE_URL}/api/mercadopago/connect/callback`;
 
   const url = new URL("https://auth.mercadopago.com/authorization");
@@ -17,6 +28,7 @@ export async function GET() {
   url.searchParams.set("response_type", "code");
   url.searchParams.set("platform_id", "mp");
   url.searchParams.set("redirect_uri", callbackUrl);
+  url.searchParams.set("state", state);
 
   redirect(url.toString());
 }

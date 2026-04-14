@@ -78,19 +78,18 @@ export default async function HomePage() {
           </div>
 
           {/* Right — full bleed photo area */}
-          <div className="relative hidden lg:flex items-center justify-center" style={{ background: "linear-gradient(135deg, #002D6E 0%, #0057A8 60%, #60A5FA 100%)", minHeight: "40vh" }}>
-            <div className="absolute inset-0 speed-lines opacity-10" />
-            <div className="flex flex-col items-center justify-center text-white/60 relative z-10">
-              <svg className="w-16 h-16 mb-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={0.75}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <p className="font-display font-600 uppercase tracking-widest text-xs opacity-50">Tu foto de carrera</p>
-            </div>
+          <div className="relative hidden lg:flex items-center justify-center overflow-hidden" style={{ minHeight: "40vh" }}>
+            <Image
+              src="/banner.jpg"
+              alt="Foto de carrera"
+              fill
+              className="object-cover object-center"
+              priority
+            />
             {/* Corner badge */}
-            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold text-white"
-              style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.2)" }}>
-              HD · Alta resolución
+            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold text-white z-10"
+              style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.2)" }}>
+              Ultra alta definición
             </div>
           </div>
         </div>

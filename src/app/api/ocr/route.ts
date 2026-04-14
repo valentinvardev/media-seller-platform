@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { RekognitionClient, DetectTextCommand } from "@aws-sdk/client-rekognition";
 import { db } from "~/server/db";
 import { getAdminClient } from "~/lib/supabase/admin";
+import { auth } from "~/server/auth";
 
 /**
  * POST /api/ocr  { photoId }
@@ -75,6 +76,8 @@ function extractAllBibs(
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { photoId } = (await req.json()) as { photoId?: string };
   if (!photoId) return NextResponse.json({ error: "photoId required" }, { status: 400 });
 

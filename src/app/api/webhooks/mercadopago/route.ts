@@ -1,10 +1,38 @@
+import { createHmac } from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "~/server/db";
 import { sendPurchaseApprovedEmail } from "~/lib/email";
 
+function verifyWebhookSignature(request: NextRequest, rawBody: string): boolean {
+  const { env } = require("~/env") as { env: { MERCADOPAGO_WEBHOOK_SECRET?: string } };
+  const secret = env.MERCADOPAGO_WEBHOOK_SECRET;
+  if (!secret) return true; // Skip if not configured
+
+  const signature = request.headers.get("x-signature");
+  const requestId = request.headers.get("x-request-id");
+  if (!signature || !requestId) return false;
+
+  const tsMatch = /ts=([^,]+)/.exec(signature);
+  const v1Match = /v1=([^,]+)/.exec(signature);
+  if (!tsMatch?.[1] || !v1Match?.[1]) return false;
+
+  const ts = tsMatch[1];
+  const expectedHash = v1Match[1];
+  const manifest = `id:${requestId};request-id:${requestId};ts:${ts};${rawBody}`;
+  const calculated = createHmac("sha256", secret).update(manifest).digest("hex");
+
+  return calculated === expectedHash;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as {
+    const rawBody = await request.text();
+
+    if (!verifyWebhookSignature(request, rawBody)) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody) as {
       type?: string;
       data?: { id?: string };
     };
