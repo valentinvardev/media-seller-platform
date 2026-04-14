@@ -1,5 +1,6 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
+import { type PrismaClient } from "../../../../generated/prisma";
 import { env } from "~/env";
 import { createSignedUrl } from "~/lib/supabase/admin";
 import {
@@ -8,9 +9,11 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-const getMp = () => {
-  if (!env.MERCADOPAGO_ACCESS_TOKEN) throw new Error("MERCADOPAGO_ACCESS_TOKEN not set");
-  return new MercadoPagoConfig({ accessToken: env.MERCADOPAGO_ACCESS_TOKEN });
+const getMp = async (db: PrismaClient) => {
+  const setting = await db.setting.findUnique({ where: { key: "mp_access_token" } });
+  const token = setting?.value ?? env.MERCADOPAGO_ACCESS_TOKEN;
+  if (!token) throw new Error("MercadoPago no está conectado. Configuralo en /admin/configuracion.");
+  return new MercadoPagoConfig({ accessToken: token });
 };
 
 export const purchaseRouter = createTRPCRouter({
@@ -45,7 +48,7 @@ export const purchaseRouter = createTRPCRouter({
         },
       });
 
-      const preference = await new Preference(getMp()).create({
+      const preference = await new Preference(await getMp(ctx.db)).create({
         body: {
           items: [
             {

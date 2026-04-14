@@ -1,4 +1,5 @@
 import { WatermarkSettings } from "~/app/_components/admin/WatermarkSettings";
+import { MercadoPagoConnect } from "~/app/_components/admin/MercadoPagoConnect";
 
 export default function ConfigPage() {
   return (
@@ -9,6 +10,14 @@ export default function ConfigPage() {
       </div>
 
       <div className="max-w-lg flex flex-col gap-8">
+        <section className="rounded-2xl border border-gray-100 bg-white shadow-sm p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-1">MercadoPago</h2>
+          <p className="text-xs mb-5 text-gray-500">
+            Conectá tu cuenta de MercadoPago para recibir pagos. Solo necesitás autorizar el acceso una vez.
+          </p>
+          <MercadoPagoConnect />
+        </section>
+
         <section className="rounded-2xl border border-gray-100 bg-white shadow-sm p-6">
           <h2 className="text-base font-semibold text-gray-900 mb-1">Marca de agua</h2>
           <p className="text-xs mb-5 text-gray-500">
