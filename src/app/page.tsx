@@ -14,7 +14,7 @@ export default async function HomePage() {
       <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center shrink-0">
-            <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={140} height={40} className="h-9 w-auto" priority />
+            <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={182} height={52} className="h-12 w-auto" priority />
           </Link>
 
           <div className="hidden md:flex items-center gap-7">
