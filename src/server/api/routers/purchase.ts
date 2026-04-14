@@ -1,6 +1,5 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
-import { type PrismaClient } from "../../../../generated/prisma";
 import { env } from "~/env";
 import { createSignedUrl } from "~/lib/supabase/admin";
 import {
@@ -8,8 +7,9 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { db as dbInstance } from "~/server/db";
 
-const getMp = async (db: PrismaClient) => {
+const getMp = async (db: typeof dbInstance) => {
   const setting = await db.setting.findUnique({ where: { key: "mp_access_token" } });
   const token = setting?.value ?? env.MERCADOPAGO_ACCESS_TOKEN;
   if (!token) throw new Error("MercadoPago no está conectado. Configuralo en /admin/configuracion.");
@@ -119,11 +119,6 @@ export const purchaseRouter = createTRPCRouter({
 
       if (!purchase) return null;
       if (purchase.status !== "APPROVED") return null;
-      if (
-        !purchase.isPublic &&
-        purchase.downloadTokenExpires &&
-        purchase.downloadTokenExpires < new Date()
-      ) return null;
 
       // Fetch all photos for this bib in this collection
       const photos = await ctx.db.photo.findMany({
@@ -141,12 +136,48 @@ export const purchaseRouter = createTRPCRouter({
         }),
       );
 
+      // Suggest other published collections with the same bib that haven't been purchased
+      const suggestions = purchase.bibNumber
+        ? await ctx.db.collection.findMany({
+            where: {
+              isPublished: true,
+              id: { not: purchase.collectionId },
+              photos: { some: { bibNumber: purchase.bibNumber } },
+              purchases: {
+                none: {
+                  buyerEmail: purchase.buyerEmail,
+                  bibNumber: purchase.bibNumber,
+                  status: "APPROVED",
+                },
+              },
+            },
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              coverUrl: true,
+              pricePerBib: true,
+              eventDate: true,
+              _count: { select: { photos: { where: { bibNumber: purchase.bibNumber } } } },
+            },
+          })
+        : [];
+
       return {
         bibNumber: purchase.bibNumber,
         collectionTitle: purchase.collection.title,
         buyerName: purchase.buyerName,
         isPublic: purchase.isPublic,
         photos: photoUrls.filter((p): p is { id: string; filename: string; url: string } => p.url !== null),
+        suggestions: suggestions.map((s) => ({
+          id: s.id,
+          slug: s.slug,
+          title: s.title,
+          coverUrl: s.coverUrl,
+          pricePerBib: Number(s.pricePerBib),
+          eventDate: s.eventDate,
+          photoCount: s._count.photos,
+        })),
       };
     }),
 
@@ -196,10 +227,9 @@ export const purchaseRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const token = crypto.randomUUID();
-      const expires = new Date(Date.now() + 1000 * 60 * 60 * 72);
       return ctx.db.purchase.update({
         where: { id: input.id },
-        data: { status: "APPROVED", downloadToken: token, downloadTokenExpires: expires },
+        data: { status: "APPROVED", downloadToken: token, downloadTokenExpires: null },
       });
     }),
 });

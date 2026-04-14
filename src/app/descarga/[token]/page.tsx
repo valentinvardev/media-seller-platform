@@ -45,6 +45,7 @@ export default async function DownloadPage({
       buyerName={info.buyerName}
       isPublicInit={info.isPublic}
       photos={info.photos}
+      suggestions={info.suggestions}
     />
   );
 }

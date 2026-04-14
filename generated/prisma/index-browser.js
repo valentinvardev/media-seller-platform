@@ -210,6 +210,12 @@ exports.Prisma.PurchaseScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SettingScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -238,7 +244,8 @@ exports.Prisma.ModelName = {
   VerificationToken: 'VerificationToken',
   Collection: 'Collection',
   Photo: 'Photo',
-  Purchase: 'Purchase'
+  Purchase: 'Purchase',
+  Setting: 'Setting'
 };
 
 /**

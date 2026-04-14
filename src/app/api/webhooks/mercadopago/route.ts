@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     if (newStatus === "APPROVED") {
       updateData.downloadToken = crypto.randomUUID();
-      updateData.downloadTokenExpires = new Date(Date.now() + 1000 * 60 * 60 * 72);
+      updateData.downloadTokenExpires = null;
     }
 
     await db.purchase.update({
