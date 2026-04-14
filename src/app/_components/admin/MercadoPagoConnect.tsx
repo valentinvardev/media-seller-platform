@@ -60,17 +60,15 @@ export function MercadoPagoConnect() {
       )}
       <a
         href="/api/mercadopago/connect"
-        className="inline-flex items-center gap-3 px-5 py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90 w-fit select-none"
-        style={{ background: "#009ee3", color: "#fff", letterSpacing: "-0.01em" }}
+        className="inline-flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:opacity-90 w-fit select-none"
+        style={{ background: "#009ee3" }}
       >
-        {/* MP badge */}
-        <span
-          className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-black shrink-0"
-          style={{ background: "rgba(255,255,255,0.25)", color: "#fff" }}
-        >
-          mp
-        </span>
-        Conectar con Mercado Pago
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
+          alt="Mercado Pago"
+          className="h-6 w-auto brightness-0 invert"
+        />
       </a>
       <p className="text-xs text-gray-400">
         Se abrirá MercadoPago para que autoricés el acceso. Tus credenciales quedan guardadas de forma segura.
