@@ -25,8 +25,8 @@ export default async function EditCollectionPage({
 
   const photos = await Promise.all(
     rawPhotos.map(async (p) => {
-      const key = p.previewKey ?? p.storageKey;
-      const url = key.startsWith("http") ? key : await createSignedUrl(key, 3600);
+      // Admin always shows the original (non-watermarked) photo
+      const url = p.storageKey.startsWith("http") ? p.storageKey : await createSignedUrl(p.storageKey, 3600);
       return { ...p, url };
     }),
   );

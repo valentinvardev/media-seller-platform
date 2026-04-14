@@ -6,7 +6,7 @@ import { Barlow_Condensed, Inter } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
-  title: "FotoDeporte — Tus fotos de carrera",
+  title: "ALTAFOTO — Tus fotos de carrera",
   description: "Encontrá y descargá tus fotos deportivas en alta resolución",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

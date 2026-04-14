@@ -43,8 +43,8 @@ export function SalesTable({ items }: { items: Sale[] }) {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-      <table className="w-full text-sm">
+    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-x-auto">
+      <table className="w-full text-sm min-w-[640px]">
         <thead>
           <tr className="border-b border-gray-100 text-left bg-gray-50">
             {["Email comprador", "Dorsal", "Colección", "Estado", "Monto", "Fecha", "Acciones"].map((h, i) => (

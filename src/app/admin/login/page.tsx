@@ -30,15 +30,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4"
-      style={{ background: "#07070f" }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gray-50">
       {/* Back to site */}
       <Link
         href="/"
-        className="absolute top-5 left-5 flex items-center gap-2 text-xs transition-colors"
-        style={{ color: "#475569" }}
+        className="absolute top-5 left-5 flex items-center gap-2 text-xs text-gray-400 hover:text-gray-700 transition-colors"
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -47,28 +43,28 @@ export default function LoginPage() {
       </Link>
 
       <div className="w-full max-w-sm">
-        {/* Logo / icon */}
+        {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "#f59e0b18", border: "1px solid #f59e0b35" }}
-          >
-            <svg className="w-7 h-7" style={{ color: "#f59e0b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-            </svg>
+          <div className="flex items-center gap-3 mb-5">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-bold shrink-0 text-white"
+              style={{ background: "linear-gradient(135deg, #1a3a6b, #2563eb)" }}
+            >
+              A
+            </div>
+            <div>
+              <p className="font-bold text-gray-900 leading-tight">ALTAFOTO</p>
+              <p className="text-xs leading-tight text-blue-600">Admin Panel</p>
+            </div>
           </div>
-          <h1 className="text-xl font-bold text-white">Panel de administración</h1>
-          <p className="text-sm mt-1" style={{ color: "#475569" }}>Ingresá con tus credenciales</p>
+          <p className="text-sm text-gray-500">Ingresá con tus credenciales</p>
         </div>
 
         {/* Form card */}
-        <div
-          className="rounded-2xl p-6 border"
-          style={{ background: "#0f0f1a", borderColor: "#1e1e35" }}
-        >
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "#64748b" }}>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
                 Email
               </label>
               <input
@@ -78,15 +74,12 @@ export default function LoginPage() {
                 placeholder="admin@ejemplo.com"
                 required
                 autoFocus
-                className="w-full rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none transition-colors text-sm"
-                style={{ background: "#07070f", border: "1px solid #1e1e35" }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#f59e0b40")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "#1e1e35")}
+                className="w-full rounded-xl px-4 py-3 text-gray-900 placeholder-gray-300 bg-gray-50 border border-gray-200 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-colors text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "#64748b" }}>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
                 Contraseña
               </label>
               <input
@@ -95,18 +88,12 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none transition-colors text-sm"
-                style={{ background: "#07070f", border: "1px solid #1e1e35" }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#f59e0b40")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "#1e1e35")}
+                className="w-full rounded-xl px-4 py-3 text-gray-900 placeholder-gray-300 bg-gray-50 border border-gray-200 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-colors text-sm"
               />
             </div>
 
             {error && (
-              <div
-                className="px-4 py-3 rounded-xl text-sm text-center"
-                style={{ background: "#ef444415", color: "#f87171", border: "1px solid #ef444430" }}
-              >
+              <div className="px-4 py-3 rounded-xl text-sm text-center bg-red-50 text-red-600 border border-red-100">
                 {error}
               </div>
             )}
@@ -114,8 +101,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl font-bold text-black text-sm transition-all disabled:opacity-50 hover:scale-[1.02] mt-1"
-              style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}
+              className="w-full py-3 rounded-xl font-bold text-white text-sm transition-all disabled:opacity-50 hover:opacity-90 mt-1"
+              style={{ background: "linear-gradient(135deg, #1a3a6b, #2563eb)" }}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

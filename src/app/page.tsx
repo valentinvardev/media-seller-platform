@@ -20,7 +20,7 @@ export default async function HomePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <span className="font-display font-700 text-gray-900 text-xl uppercase tracking-wider">FotoDeporte</span>
+            <span className="font-display font-700 text-gray-900 text-xl uppercase tracking-wider">ALTAFOTO</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-7">
@@ -166,7 +166,7 @@ export default async function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <span className="font-display font-700 uppercase tracking-wider text-white text-base">FotoDeporte</span>
+                <span className="font-display font-700 uppercase tracking-wider text-white text-base">ALTAFOTO</span>
               </div>
               <p className="text-blue-300 text-xs leading-relaxed">Fotografía deportiva profesional en Argentina.</p>
             </div>
@@ -185,7 +185,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="border-t border-blue-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-blue-500 text-xs">© {new Date().getFullYear()} FotoDeporte. Todos los derechos reservados.</p>
+            <p className="text-blue-500 text-xs">© {new Date().getFullYear()} ALTAFOTO. Todos los derechos reservados.</p>
             <div className="flex items-center gap-4">
               <Link href="/terminos" className="text-blue-600 text-xs hover:text-blue-400 transition-colors">Términos</Link>
               <Link href="/privacidad" className="text-blue-600 text-xs hover:text-blue-400 transition-colors">Privacidad</Link>

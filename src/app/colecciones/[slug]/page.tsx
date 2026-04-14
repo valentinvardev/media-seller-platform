@@ -149,8 +149,8 @@ export default async function CollectionPage({
       {/* ── Footer ────────────────────────────────────────────── */}
       <footer style={{ background: "#001A4D" }} className="py-8 px-5">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="font-display font-700 uppercase tracking-wider text-blue-300 text-sm">FotoDeporte</span>
-          <p className="text-blue-500 text-xs">© {new Date().getFullYear()} FotoDeporte. Todos los derechos reservados.</p>
+          <span className="font-display font-700 uppercase tracking-wider text-blue-300 text-sm">ALTAFOTO</span>
+          <p className="text-blue-500 text-xs">© {new Date().getFullYear()} ALTAFOTO. Todos los derechos reservados.</p>
           <div className="flex items-center gap-4">
             <Link href="/terminos" className="text-blue-600 text-xs hover:text-blue-400 transition-colors">Términos</Link>
             <Link href="/privacidad" className="text-blue-600 text-xs hover:text-blue-400 transition-colors">Privacidad</Link>
