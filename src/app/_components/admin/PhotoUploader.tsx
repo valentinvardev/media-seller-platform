@@ -256,20 +256,20 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       const chunkUploaded = results.filter((r): r is UploadResult => r !== null);
       if (chunkUploaded.length === 0) continue;
 
-      // Save this chunk to DB immediately → triggers background processing + gallery refresh
-      const result = await bulkAdd.mutateAsync({
+      // Save to DB without blocking — uploads keep going while this resolves in background
+      void bulkAdd.mutateAsync({
         collectionId,
         photos: chunkUploaded.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
+      }).then((result) => {
+        if (!result?.ids) return;
+        // Start OCR polling after a short delay so uploads finish first
+        for (let j = 0; j < result.ids.length; j++) {
+          const photoId = result.ids[j];
+          const entryId = chunkUploaded[j]?.entryId;
+          if (!photoId || !entryId) continue;
+          setTimeout(() => startOcrPolling(entryId, photoId), j * 400 + 1500);
+        }
       });
-      if (!result?.ids) continue;
-
-      // Start OCR polling for this chunk
-      for (let j = 0; j < result.ids.length; j++) {
-        const photoId = result.ids[j];
-        const entryId = chunkUploaded[j]?.entryId;
-        if (!photoId || !entryId) continue;
-        setTimeout(() => startOcrPolling(entryId, photoId), j * 300 + 500);
-      }
     }
   };
 
