@@ -39,8 +39,13 @@ async function ensureCollection(collId: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { env } = await import("~/env");
+  const internalSecret = env.INTERNAL_API_SECRET;
+  const isInternal = internalSecret && req.headers.get("x-internal-secret") === internalSecret;
+  if (!isInternal) {
+    const session = await auth();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { photoId, collectionId } = (await req.json()) as {
     photoId?: string;
     collectionId?: string;

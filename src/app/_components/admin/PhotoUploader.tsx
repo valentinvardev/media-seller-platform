@@ -26,7 +26,6 @@ const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
 const UPLOAD_CONCURRENCY = 5;
-const OCR_MAX_RETRIES = 3;
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -170,49 +169,11 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
     router.refresh();
   }, [updateEntry, router]);
 
-  // Trigger OCR with automatic retry on error (up to OCR_MAX_RETRIES)
-  const triggerOcr = useCallback(async (entryId: string, photoId: string, attempt = 0) => {
-    updateEntry(entryId, { photoId, ocrStatus: attempt === 0 ? "queued" : "processing" });
-    try {
-      const res = await fetch("/api/ocr", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ photoId }),
-      });
-      const data = await res.json() as {
-        bib?: string | null;
-        source?: string;
-        found?: boolean;
-        accepted?: boolean;
-        skipped?: boolean;
-        cached?: boolean;
-        error?: string;
-      };
-
-      if (data.bib) {
-        updateEntry(entryId, { ocrStatus: "found", bib: data.bib, ocrSource: data.source ?? "amazon" });
-        router.refresh();
-      } else if (data.accepted) {
-        void pollBib(entryId, photoId);
-      } else if (data.skipped ?? data.found === false) {
-        // OCR ran successfully — no bib in this photo, that's fine
-        updateEntry(entryId, { ocrStatus: "not-found", ocrSource: data.source });
-      } else {
-        // Error — retry with exponential backoff
-        if (attempt < OCR_MAX_RETRIES) {
-          await new Promise((r) => setTimeout(r, 2_000 * (attempt + 1)));
-          return triggerOcr(entryId, photoId, attempt + 1);
-        }
-        updateEntry(entryId, { ocrStatus: "error" });
-      }
-    } catch {
-      if (attempt < OCR_MAX_RETRIES) {
-        await new Promise((r) => setTimeout(r, 2_000 * (attempt + 1)));
-        return triggerOcr(entryId, photoId, attempt + 1);
-      }
-      updateEntry(entryId, { ocrStatus: "error" });
-    }
-  }, [updateEntry, pollBib, router]);
+  // Start polling OCR status — server triggers OCR automatically after bulkAdd
+  const startOcrPolling = useCallback((entryId: string, photoId: string) => {
+    updateEntry(entryId, { photoId, ocrStatus: "processing" });
+    void pollBib(entryId, photoId);
+  }, [updateEntry, pollBib]);
 
   const handleFiles = async (files: FileList) => {
     if (!files.length) return;
@@ -310,27 +271,14 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
 
     if (!result?.ids) return;
 
-    // Trigger OCR + face indexing + watermark per photo.
-    // Stagger by 300ms each to avoid saturating the DB connection pool.
+    // OCR/watermark/face-index are triggered server-side inside bulkAdd.
+    // Client only polls ocr-status for bib badge feedback.
     for (let i = 0; i < result.ids.length; i++) {
       const photoId = result.ids[i];
       const entryId = uploaded[i]?.entryId;
       if (!photoId || !entryId) continue;
-
-      const delay = i * 300;
-      setTimeout(() => {
-        void triggerOcr(entryId, photoId);
-        void fetch("/api/face-index", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ photoId, collectionId }),
-        });
-        void fetch("/api/watermark", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ photoId }),
-        });
-      }, delay);
+      // Small delay before starting poll so server has time to kick off OCR
+      setTimeout(() => startOcrPolling(entryId, photoId), i * 300 + 500);
     }
   };
 

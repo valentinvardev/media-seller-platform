@@ -3,7 +3,6 @@ import Link from "next/link";
 import { api } from "~/trpc/server";
 import { PhotoUploader } from "~/app/_components/admin/PhotoUploader";
 import { PhotoManager } from "~/app/_components/admin/PhotoManager";
-import { WatermarkAllButton } from "~/app/_components/admin/WatermarkAllButton";
 import { CollectionActions } from "~/app/_components/admin/CollectionActions";
 import { createSignedUrl } from "~/lib/supabase/admin";
 
@@ -127,7 +126,7 @@ export default async function EditCollectionPage({
         {/* Right: gallery with bib assignment */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h2 className="font-semibold text-gray-900 text-sm">
                 Galería
                 {unidentifiedCount > 0 && (
@@ -136,7 +135,6 @@ export default async function EditCollectionPage({
                   </span>
                 )}
               </h2>
-              <WatermarkAllButton collectionId={id} />
             </div>
             {sortedPhotos.length === 0 ? (
               <div className="py-12 text-center">

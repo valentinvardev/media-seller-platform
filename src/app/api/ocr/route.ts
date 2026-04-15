@@ -76,8 +76,13 @@ function extractAllBibs(
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { env } = await import("~/env");
+  const internalSecret = env.INTERNAL_API_SECRET;
+  const isInternal = internalSecret && req.headers.get("x-internal-secret") === internalSecret;
+  if (!isInternal) {
+    const session = await auth();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { photoId } = (await req.json()) as { photoId?: string };
   if (!photoId) return NextResponse.json({ error: "photoId required" }, { status: 400 });
 

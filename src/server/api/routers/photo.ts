@@ -149,7 +149,31 @@ export const photoRouter = createTRPCRouter({
           }),
         ),
       );
-      return { ids: created.map((c) => c.id) };
+      const ids = created.map((c) => c.id);
+
+      // Kick off OCR + watermark + face-index in background (server-side).
+      // These run in the Node.js process after the response is sent — unaffected by browser close.
+      void (async () => {
+        const { env } = await import("~/env");
+        const baseUrl = env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+        const secret = env.INTERNAL_API_SECRET ?? "";
+        const headers = { "Content-Type": "application/json", "x-internal-secret": secret };
+
+        for (let i = 0; i < ids.length; i++) {
+          const photoId = ids[i]!;
+          // Stagger 300ms per photo to avoid DB connection pool exhaustion
+          await new Promise((r) => setTimeout(r, i * 300));
+
+          void fetch(`${baseUrl}/api/ocr`, { method: "POST", headers, body: JSON.stringify({ photoId }) });
+          void fetch(`${baseUrl}/api/watermark`, { method: "POST", headers, body: JSON.stringify({ photoId }) });
+          void fetch(`${baseUrl}/api/face-index`, {
+            method: "POST", headers,
+            body: JSON.stringify({ photoId, collectionId: input.collectionId }),
+          });
+        }
+      })();
+
+      return { ids };
     }),
 
   getStorageUsage: protectedProcedure.query(async ({ ctx }) => {
