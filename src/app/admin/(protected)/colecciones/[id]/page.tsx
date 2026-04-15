@@ -6,41 +6,60 @@ import { PhotoManager } from "~/app/_components/admin/PhotoManager";
 import { CollectionActions } from "~/app/_components/admin/CollectionActions";
 import { createSignedUrl } from "~/lib/supabase/admin";
 
+const PAGE_SIZE = 48;
+
 export default async function EditCollectionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }) {
   const { id } = await params;
+  const { page: pageParam, q } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
   const collection = await api.collection.adminGetById({ id });
   if (!collection) notFound();
 
   const { db } = await import("~/server/db");
-  const rawPhotos = await db.photo.findMany({
-    where: { collectionId: id },
-    orderBy: { order: "asc" },
-    select: { id: true, filename: true, bibNumber: true, storageKey: true, previewKey: true },
-  });
 
+  // Build filter — search by bib number if q is set
+  const where = {
+    collectionId: id,
+    ...(q ? { bibNumber: { contains: q } } : {}),
+  };
+
+  const [totalCount, unidentifiedCount, rawPhotos] = await Promise.all([
+    db.photo.count({ where: { collectionId: id } }),
+    db.photo.count({ where: { collectionId: id, bibNumber: null } }),
+    db.photo.findMany({
+      where,
+      orderBy: [{ bibNumber: "asc" }, { order: "asc" }],
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      select: { id: true, filename: true, bibNumber: true, storageKey: true },
+    }),
+  ]);
+
+  // Generate signed URLs only for the current page
   const photos = await Promise.all(
     rawPhotos.map(async (p) => {
-      // Admin always shows the original (non-watermarked) photo
-      const url = p.storageKey.startsWith("http") ? p.storageKey : await createSignedUrl(p.storageKey, 3600);
+      const url = p.storageKey.startsWith("http")
+        ? p.storageKey
+        : await createSignedUrl(p.storageKey, 3600);
       return { ...p, url };
     }),
   );
 
-  // Sort: null bib first (unidentified), then identified
-  const sortedPhotos = [
-    ...photos.filter((p) => !p.bibNumber),
-    ...photos.filter((p) => !!p.bibNumber),
-  ];
+  const filteredTotal = q
+    ? await db.photo.count({ where })
+    : totalCount;
+  const totalPages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));
 
   const eventDate = collection.eventDate
     ? new Date(collection.eventDate).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
     : null;
-
-  const unidentifiedCount = photos.filter((p) => !p.bibNumber).length;
 
   return (
     <div>
@@ -99,7 +118,7 @@ export default async function EditCollectionPage({
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-gray-100">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">{photos.length}</p>
+            <p className="text-2xl font-bold text-gray-900">{totalCount}</p>
             <p className="text-xs text-gray-400 mt-0.5">Fotos totales</p>
           </div>
           <div className="text-center">
@@ -113,9 +132,8 @@ export default async function EditCollectionPage({
         </div>
       </div>
 
-      {/* Two-column layout: uploader left, gallery right */}
+      {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: upload */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <h2 className="font-semibold text-gray-900 text-sm mb-4">Subir fotos</h2>
@@ -123,7 +141,6 @@ export default async function EditCollectionPage({
           </div>
         </div>
 
-        {/* Right: gallery with bib assignment */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <div className="mb-4">
@@ -136,13 +153,14 @@ export default async function EditCollectionPage({
                 )}
               </h2>
             </div>
-            {sortedPhotos.length === 0 ? (
-              <div className="py-12 text-center">
-                <p className="text-gray-400 text-sm">Subí fotos para empezar</p>
-              </div>
-            ) : (
-              <PhotoManager collectionId={id} photos={sortedPhotos} />
-            )}
+            <PhotoManager
+              collectionId={id}
+              photos={photos}
+              page={page}
+              totalPages={totalPages}
+              totalCount={filteredTotal}
+              q={q ?? ""}
+            />
           </div>
         </div>
       </div>
