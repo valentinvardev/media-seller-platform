@@ -157,8 +157,8 @@ export const photoRouter = createTRPCRouter({
         const { runOcr, runWatermark, runFaceIndex } = await import("~/lib/photo-processing");
         for (let i = 0; i < ids.length; i++) {
           const photoId = ids[i]!;
-          // Stagger 300ms per photo to avoid DB connection pool exhaustion
-          if (i > 0) await new Promise((r) => setTimeout(r, 300));
+          // Stagger all photos (including first) to avoid DB connection pool exhaustion
+          await new Promise((r) => setTimeout(r, i * 400));
           void runOcr(photoId);
           void runWatermark(photoId);
           void runFaceIndex(photoId, input.collectionId);
