@@ -25,6 +25,8 @@ const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
+const UPLOAD_CONCURRENCY = 5;
+const OCR_MAX_RETRIES = 3;
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -168,8 +170,9 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
     router.refresh();
   }, [updateEntry, router]);
 
-  const triggerOcr = useCallback(async (entryId: string, photoId: string) => {
-    updateEntry(entryId, { photoId, ocrStatus: "queued" });
+  // Trigger OCR with automatic retry on error (up to OCR_MAX_RETRIES)
+  const triggerOcr = useCallback(async (entryId: string, photoId: string, attempt = 0) => {
+    updateEntry(entryId, { photoId, ocrStatus: attempt === 0 ? "queued" : "processing" });
     try {
       const res = await fetch("/api/ocr", {
         method: "POST",
@@ -187,18 +190,26 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       };
 
       if (data.bib) {
-        // Synchronous response (Azure) — bib returned immediately
-        updateEntry(entryId, { ocrStatus: "found", bib: data.bib, ocrSource: data.source ?? "azure" });
+        updateEntry(entryId, { ocrStatus: "found", bib: data.bib, ocrSource: data.source ?? "amazon" });
         router.refresh();
       } else if (data.accepted) {
-        // Async response (Modal) — poll for result
         void pollBib(entryId, photoId);
-      } else if (data.skipped || data.found === false) {
+      } else if (data.skipped ?? data.found === false) {
+        // OCR ran successfully — no bib in this photo, that's fine
         updateEntry(entryId, { ocrStatus: "not-found", ocrSource: data.source });
       } else {
+        // Error — retry with exponential backoff
+        if (attempt < OCR_MAX_RETRIES) {
+          await new Promise((r) => setTimeout(r, 2_000 * (attempt + 1)));
+          return triggerOcr(entryId, photoId, attempt + 1);
+        }
         updateEntry(entryId, { ocrStatus: "error" });
       }
     } catch {
+      if (attempt < OCR_MAX_RETRIES) {
+        await new Promise((r) => setTimeout(r, 2_000 * (attempt + 1)));
+        return triggerOcr(entryId, photoId, attempt + 1);
+      }
       updateEntry(entryId, { ocrStatus: "error" });
     }
   }, [updateEntry, pollBib, router]);
@@ -236,10 +247,13 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       setTimeout(() => updateEntry(id, { visible: true }), i * 60);
     }
 
-    // Upload one by one
-    const uploaded: { storageKey: string; filename: string; fileSize: number; entryId: string }[] = [];
+    // ── Upload files in parallel (UPLOAD_CONCURRENCY at a time) ───────────────
+    type UploadResult = { storageKey: string; filename: string; fileSize: number; entryId: string };
+    const uploaded: UploadResult[] = [];
+    let serviceRoleError = false;
 
-    for (const entry of newEntries) {
+    const uploadOne = async (entry: FileEntry): Promise<UploadResult | null> => {
+      if (serviceRoleError) return null;
       updateEntry(entry.id, { status: "uploading" });
       const path = `${collectionId}/${Date.now()}-${entry.file.name}`;
       try {
@@ -252,8 +266,11 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           const body = await signRes.json() as { error?: string };
           const msg = body.error ?? "Error al obtener URL.";
           updateEntry(entry.id, { status: "error", errorMsg: msg });
-          if (msg.includes("SERVICE_ROLE")) { setGlobalError(msg); return; }
-          continue;
+          if (msg.includes("SERVICE_ROLE")) {
+            serviceRoleError = true;
+            setGlobalError(msg);
+          }
+          return null;
         }
         const { signedUrl } = await signRes.json() as { signedUrl: string };
         const uploadRes = await fetch(signedUrl, {
@@ -263,12 +280,23 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         });
         if (!uploadRes.ok) {
           updateEntry(entry.id, { status: "error", errorMsg: uploadRes.statusText });
-          continue;
+          return null;
         }
-        uploaded.push({ storageKey: path, filename: entry.file.name, fileSize: entry.file.size, entryId: entry.id });
         updateEntry(entry.id, { status: "done" });
+        return { storageKey: path, filename: entry.file.name, fileSize: entry.file.size, entryId: entry.id };
       } catch {
         updateEntry(entry.id, { status: "error", errorMsg: "Error de red." });
+        return null;
+      }
+    };
+
+    // Process in chunks of UPLOAD_CONCURRENCY
+    for (let i = 0; i < newEntries.length; i += UPLOAD_CONCURRENCY) {
+      if (serviceRoleError) break;
+      const chunk = newEntries.slice(i, i + UPLOAD_CONCURRENCY);
+      const results = await Promise.all(chunk.map(uploadOne));
+      for (const r of results) {
+        if (r) uploaded.push(r);
       }
     }
 
@@ -282,19 +310,28 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
 
     if (!result?.ids) return;
 
-    // Trigger OCR + face indexing per photo in parallel
+    // Trigger OCR + face indexing + watermark per photo in parallel
     for (let i = 0; i < result.ids.length; i++) {
       const photoId = result.ids[i];
       const entryId = uploaded[i]?.entryId;
-      if (photoId && entryId) {
-        void triggerOcr(entryId, photoId);
-        // Fire-and-forget face indexing (no UI feedback needed)
-        void fetch("/api/face-index", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ photoId, collectionId }),
-        });
-      }
+      if (!photoId || !entryId) continue;
+
+      // OCR with retry
+      void triggerOcr(entryId, photoId);
+
+      // Face indexing (fire-and-forget)
+      void fetch("/api/face-index", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photoId, collectionId }),
+      });
+
+      // Watermark — automatic, no UI needed
+      void fetch("/api/watermark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photoId }),
+      });
     }
   };
 

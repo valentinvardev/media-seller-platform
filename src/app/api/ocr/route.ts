@@ -86,7 +86,9 @@ export async function POST(req: NextRequest) {
     select: { id: true, storageKey: true, bibNumber: true },
   });
   if (!photo) return NextResponse.json({ error: "Photo not found" }, { status: 404 });
-  if (photo.bibNumber) return NextResponse.json({ bib: photo.bibNumber, cached: true });
+  // Only skip if bib was already confirmed (prevents re-running on already-processed photos).
+  // New uploads always have bibNumber = null so OCR always runs at least once.
+  if (photo.bibNumber !== null) return NextResponse.json({ bib: photo.bibNumber, cached: true });
 
   const supabase = getAdminClient();
   if (!supabase) {
