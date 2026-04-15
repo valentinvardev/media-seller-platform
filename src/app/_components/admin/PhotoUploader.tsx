@@ -208,9 +208,9 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       setTimeout(() => updateEntry(id, { visible: true }), i * 60);
     }
 
-    // ── Upload files in parallel (UPLOAD_CONCURRENCY at a time) ───────────────
+    // ── Upload files in parallel chunks, saving each chunk immediately ────────
+    // This makes photos appear in the gallery as each chunk finishes uploading.
     type UploadResult = { storageKey: string; filename: string; fileSize: number; entryId: string };
-    const uploaded: UploadResult[] = [];
     let serviceRoleError = false;
 
     const uploadOne = async (entry: FileEntry): Promise<UploadResult | null> => {
@@ -227,10 +227,7 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           const body = await signRes.json() as { error?: string };
           const msg = body.error ?? "Error al obtener URL.";
           updateEntry(entry.id, { status: "error", errorMsg: msg });
-          if (msg.includes("SERVICE_ROLE")) {
-            serviceRoleError = true;
-            setGlobalError(msg);
-          }
+          if (msg.includes("SERVICE_ROLE")) { serviceRoleError = true; setGlobalError(msg); }
           return null;
         }
         const { signedUrl } = await signRes.json() as { signedUrl: string };
@@ -251,34 +248,28 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       }
     };
 
-    // Process in chunks of UPLOAD_CONCURRENCY
+    // Process chunk by chunk — after each chunk saves to DB the gallery refreshes immediately
     for (let i = 0; i < newEntries.length; i += UPLOAD_CONCURRENCY) {
       if (serviceRoleError) break;
       const chunk = newEntries.slice(i, i + UPLOAD_CONCURRENCY);
       const results = await Promise.all(chunk.map(uploadOne));
-      for (const r of results) {
-        if (r) uploaded.push(r);
+      const chunkUploaded = results.filter((r): r is UploadResult => r !== null);
+      if (chunkUploaded.length === 0) continue;
+
+      // Save this chunk to DB immediately → triggers background processing + gallery refresh
+      const result = await bulkAdd.mutateAsync({
+        collectionId,
+        photos: chunkUploaded.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
+      });
+      if (!result?.ids) continue;
+
+      // Start OCR polling for this chunk
+      for (let j = 0; j < result.ids.length; j++) {
+        const photoId = result.ids[j];
+        const entryId = chunkUploaded[j]?.entryId;
+        if (!photoId || !entryId) continue;
+        setTimeout(() => startOcrPolling(entryId, photoId), j * 300 + 500);
       }
-    }
-
-    if (uploaded.length === 0) return;
-
-    // Save to DB — get photoIds back
-    const result = await bulkAdd.mutateAsync({
-      collectionId,
-      photos: uploaded.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
-    });
-
-    if (!result?.ids) return;
-
-    // OCR/watermark/face-index are triggered server-side inside bulkAdd.
-    // Client only polls ocr-status for bib badge feedback.
-    for (let i = 0; i < result.ids.length; i++) {
-      const photoId = result.ids[i];
-      const entryId = uploaded[i]?.entryId;
-      if (!photoId || !entryId) continue;
-      // Small delay before starting poll so server has time to kick off OCR
-      setTimeout(() => startOcrPolling(entryId, photoId), i * 300 + 500);
     }
   };
 
