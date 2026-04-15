@@ -310,28 +310,27 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
 
     if (!result?.ids) return;
 
-    // Trigger OCR + face indexing + watermark per photo in parallel
+    // Trigger OCR + face indexing + watermark per photo.
+    // Stagger by 300ms each to avoid saturating the DB connection pool.
     for (let i = 0; i < result.ids.length; i++) {
       const photoId = result.ids[i];
       const entryId = uploaded[i]?.entryId;
       if (!photoId || !entryId) continue;
 
-      // OCR with retry
-      void triggerOcr(entryId, photoId);
-
-      // Face indexing (fire-and-forget)
-      void fetch("/api/face-index", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ photoId, collectionId }),
-      });
-
-      // Watermark — automatic, no UI needed
-      void fetch("/api/watermark", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ photoId }),
-      });
+      const delay = i * 300;
+      setTimeout(() => {
+        void triggerOcr(entryId, photoId);
+        void fetch("/api/face-index", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ photoId, collectionId }),
+        });
+        void fetch("/api/watermark", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ photoId }),
+        });
+      }, delay);
     }
   };
 
