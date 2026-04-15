@@ -276,6 +276,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       };
       setFaceBibs(json.groups);
       setFaceStatus("done");
+      setFaceActive(true);
     } catch {
       setFaceStatus("error");
     }
@@ -339,55 +340,61 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           )}
         </div>
 
-        <div className="flex justify-center">
-          <button
-            onClick={() => { setFaceActive(!faceActive); if (faceActive) { setFaceBibs(null); setFaceStatus("idle"); } }}
-            className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
-            style={{ color: faceActive ? "#0057A8" : "#9ca3af", background: faceActive ? "#E8F3FF" : "transparent" }}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" />
-            </svg>
-            Buscar con selfie
-          </button>
-        </div>
+        {/* Selfie search — clicking directly opens file picker */}
+        <input ref={fileRef} type="file" accept="image/*" capture="user" className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFaceUpload(f); }} />
 
-        {faceActive && (
-          <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50 p-4 flex flex-col items-center gap-3">
-            <p className="text-blue-700 text-xs text-center">Subí una selfie — buscamos en qué dorsales aparecés</p>
-            {faceStatus === "idle" && (
+        <div className="flex flex-col items-center gap-2 mt-1">
+          <button
+            onClick={() => {
+              if (faceStatus === "uploading") return;
+              if (faceStatus === "done" || faceStatus === "error") {
+                setFaceStatus("idle"); setFaceBibs(null);
+                if (fileRef.current) fileRef.current.value = "";
+              }
+              fileRef.current?.click();
+            }}
+            disabled={faceStatus === "uploading"}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95"
+            style={{
+              background: faceStatus === "uploading" ? "#93c5fd" : "linear-gradient(135deg, #0057A8 0%, #1d6fd4 100%)",
+              color: "#fff",
+              boxShadow: faceStatus === "uploading" ? "none" : "0 2px 12px rgba(0,87,168,0.35)",
+              cursor: faceStatus === "uploading" ? "not-allowed" : "pointer",
+            }}>
+            {faceStatus === "uploading" ? (
               <>
-                <input ref={fileRef} type="file" accept="image/*" className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFaceUpload(f); }} />
-                <button onClick={() => fileRef.current?.click()}
-                  className="px-5 py-2 rounded-lg font-semibold text-white text-sm" style={{ background: "#0057A8" }}>
-                  Subir foto
-                </button>
+                <div className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                Analizando...
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                </svg>
+                Buscar con selfie
               </>
             )}
-            {faceStatus === "uploading" && (
-              <div className="flex items-center gap-2 text-blue-700 text-sm">
-                <div className="w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-                Analizando...
-              </div>
-            )}
-            {faceStatus === "done" && (
-              <div className="flex flex-col items-center gap-2">
-                <p className="text-sm font-medium text-gray-700">
-                  {faceBibs?.length ? `${faceBibs.length} coincidencia${faceBibs.length !== 1 ? "s" : ""}` : "No encontramos tu cara"}
-                </p>
-                <button onClick={() => { setFaceStatus("idle"); setFaceBibs(null); if (fileRef.current) fileRef.current.value = ""; }}
-                  className="text-xs text-gray-500 hover:text-gray-700">Intentar con otra foto</button>
-              </div>
-            )}
-            {faceStatus === "error" && (
-              <div className="flex flex-col items-center gap-2">
-                <p className="text-red-500 text-sm">No pudimos analizar la imagen</p>
-                <button onClick={() => { setFaceStatus("idle"); if (fileRef.current) fileRef.current.value = ""; }}
-                  className="text-xs text-gray-500 hover:text-gray-700">Reintentar</button>
-              </div>
-            )}
-          </div>
-        )}
+          </button>
+
+          {faceStatus === "done" && (
+            <p className="text-xs text-gray-500">
+              {faceBibs?.length
+                ? `${faceBibs.length} coincidencia${faceBibs.length !== 1 ? "s" : ""} · `
+                : "Sin coincidencias · "}
+              <button onClick={() => { setFaceStatus("idle"); setFaceBibs(null); if (fileRef.current) fileRef.current.value = ""; }}
+                className="underline hover:text-gray-700">intentar con otra foto</button>
+            </p>
+          )}
+          {faceStatus === "error" && (
+            <p className="text-xs text-red-400">
+              No pudimos analizar la imagen ·{" "}
+              <button onClick={() => { setFaceStatus("idle"); if (fileRef.current) fileRef.current.value = ""; }}
+                className="underline hover:text-red-600">reintentar</button>
+            </p>
+          )}
+        </div>
       </div>
 
       {/* ── Face results ───────────────────────────────────── */}
