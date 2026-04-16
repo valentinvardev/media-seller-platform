@@ -48,14 +48,14 @@ export default async function HomePage() {
             </h1>
 
             <p className="text-gray-500 text-sm leading-relaxed mb-5 max-w-sm">
-              Buscá tu dorsal, comprá y descargá tus fotos en HD al instante.
+              Buscá tu número, comprá y descargá tus fotos en HD al instante.
             </p>
 
             {/* Steps — horizontal row */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6">
               {[
                 { num: "01", label: "Elegí el evento" },
-                { num: "02", label: "Ingresá tu dorsal" },
+                { num: "02", label: "Ingresá tu número" },
                 { num: "03", label: "Descargá en HD" },
               ].map((s, i) => (
                 <div key={s.num} className="flex items-center gap-2">
