@@ -144,40 +144,9 @@ export default async function CollectionPage({
             />
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center justify-center shadow-sm" style={{ minWidth: 72 }}>
-              <span className="font-black italic tracking-tight" style={{ color: "#1A1F71", fontSize: "1.15rem" }}>VISA</span>
-            </div>
-            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
-              <div className="relative w-8 h-5 flex-shrink-0">
-                <div className="absolute left-0 top-0 w-5 h-5 rounded-full" style={{ background: "#EB001B" }} />
-                <div className="absolute right-0 top-0 w-5 h-5 rounded-full" style={{ background: "#F79E1B", mixBlendMode: "multiply" }} />
-              </div>
-              <span className="text-xs font-bold text-gray-700">Mastercard</span>
-            </div>
-            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-              </svg>
-              <span className="text-xs font-bold text-gray-700">Débito</span>
-            </div>
-            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <span className="text-xs font-bold text-gray-700">Rapipago</span>
-            </div>
-            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <span className="text-xs font-bold text-gray-700">Pago Fácil</span>
-            </div>
-            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-              <span className="text-xs font-bold text-gray-700">Transferencia</span>
-            </div>
+            {["Visa", "Mastercard", "Débito", "Rapipago", "Pago Fácil", "Transferencia"].map((m) => (
+              <span key={m} className="px-3 py-1.5 rounded-full text-xs font-semibold text-orange-100 border border-orange-200/40 bg-white/10">{m}</span>
+            ))}
           </div>
         </div>
       </div>
