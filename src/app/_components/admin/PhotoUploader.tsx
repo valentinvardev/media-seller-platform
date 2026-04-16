@@ -25,8 +25,7 @@ const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
-const UPLOAD_CONCURRENCY = 5;
-const CHUNK_DELAY_MS = 4_000; // ~1 photo/sec pace between chunks
+const UPLOAD_CONCURRENCY = 10;
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -249,29 +248,36 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       }
     };
 
-    // Process chunk by chunk — paced at ~1 photo/sec to avoid overwhelming the server
+    // Collect OCR polling tasks to start only after all uploads finish
+    const pendingPolls: { entryId: string; photoId: string }[] = [];
+
+    // Upload all chunks as fast as possible — no delays between chunks
     for (let i = 0; i < newEntries.length; i += UPLOAD_CONCURRENCY) {
       if (serviceRoleError) break;
-      if (i > 0) await new Promise((r) => setTimeout(r, CHUNK_DELAY_MS));
       const chunk = newEntries.slice(i, i + UPLOAD_CONCURRENCY);
       const results = await Promise.all(chunk.map(uploadOne));
       const chunkUploaded = results.filter((r): r is UploadResult => r !== null);
       if (chunkUploaded.length === 0) continue;
 
-      // Save to DB without blocking — uploads keep going while this resolves in background
+      // Save to DB without blocking — gallery updates progressively
       void bulkAdd.mutateAsync({
         collectionId,
         photos: chunkUploaded.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
       }).then((result) => {
         if (!result?.ids) return;
-        // Start OCR polling after a longer delay — give uploads priority
         for (let j = 0; j < result.ids.length; j++) {
           const photoId = result.ids[j];
           const entryId = chunkUploaded[j]?.entryId;
-          if (!photoId || !entryId) continue;
-          setTimeout(() => startOcrPolling(entryId, photoId), j * 500 + 8_000);
+          if (photoId && entryId) pendingPolls.push({ entryId, photoId });
         }
       });
+    }
+
+    // Start OCR polling only after all uploads are done — OCR gets zero priority during upload
+    await new Promise((r) => setTimeout(r, 2_000)); // brief settle time
+    for (let i = 0; i < pendingPolls.length; i++) {
+      const { entryId, photoId } = pendingPolls[i]!;
+      setTimeout(() => startOcrPolling(entryId, photoId), i * 400);
     }
   };
 
