@@ -98,6 +98,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <div className="h-0.5 w-full" style={{ background: "#F97316" }} />
+
       {/* ════════ EVENTS ════════ */}
       <section id="eventos" className="py-14 px-8 sm:px-14 bg-gray-50">
           <div className="flex items-baseline justify-between mb-8">
