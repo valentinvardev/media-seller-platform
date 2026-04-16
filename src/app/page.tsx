@@ -12,15 +12,14 @@ export default async function HomePage() {
 
       {/* ════════ NAV ════════ */}
       <nav className="sticky top-0 z-50 shadow-md" style={{ background: "#0057A8" }}>
-        <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center shrink-0">
-            <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={182} height={52} className="h-12 w-auto brightness-0 invert" priority />
-          </Link>
-
-          <div className="hidden md:flex items-center gap-7">
+        <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+          <div className="hidden md:flex items-center gap-8">
             <Link href="/" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Inicio</Link>
             <a href="#eventos" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Eventos</a>
             <a href="#contacto" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Contacto</a>
+          </div>
+
+          <div className="flex items-center gap-4 ml-auto">
             <a href="#eventos" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all hover:scale-105"
               style={{ background: "#F97316" }}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -28,9 +27,8 @@ export default async function HomePage() {
               </svg>
               Mis fotos
             </a>
+            <MobileNav />
           </div>
-
-          <MobileNav />
         </div>
         {/* Orange separator */}
         <div className="h-0.5 w-full" style={{ background: "#F97316" }} />
@@ -43,6 +41,9 @@ export default async function HomePage() {
           {/* Left — content */}
           <div className="flex flex-col justify-center px-8 sm:px-14 py-8 speed-lines"
             style={{ background: "linear-gradient(150deg, #F0F6FF 0%, #ffffff 80%)" }}>
+            <Link href="/" className="mb-6 self-start">
+              <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={240} height={68} className="h-14 w-auto" priority />
+            </Link>
             <h1 className="font-display font-800 uppercase leading-none text-gray-900 mb-3"
               style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", letterSpacing: "-0.01em" }}>
               <span className="block">Corriste.</span>
