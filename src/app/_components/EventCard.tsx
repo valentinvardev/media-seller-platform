@@ -62,18 +62,24 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
         ) : <span />}
         {preview ? (
           <div
-            className="px-4 py-2 rounded-xl font-display font-700 uppercase tracking-wider text-white text-xs text-center shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-display font-700 uppercase tracking-wider text-white text-xs text-center shrink-0"
             style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
           >
-            Explorar →
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Explorar
           </div>
         ) : (
           <Link
             href={`/colecciones/${col.slug}`}
-            className="px-4 py-2 rounded-xl font-display font-700 uppercase tracking-wider text-white text-xs transition-all hover:scale-105 text-center shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-display font-700 uppercase tracking-wider text-white text-xs transition-all hover:scale-105 text-center shrink-0"
             style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
           >
-            Explorar →
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Explorar
           </Link>
         )}
       </div>

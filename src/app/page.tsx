@@ -11,18 +11,18 @@ export default async function HomePage() {
     <div className="min-h-screen bg-white">
 
       {/* ════════ NAV ════════ */}
-      <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+      <nav className="sticky top-0 z-50 shadow-md" style={{ background: "#0057A8" }}>
         <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center shrink-0">
-            <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={182} height={52} className="h-12 w-auto" priority />
+            <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={182} height={52} className="h-12 w-auto brightness-0 invert" priority />
           </Link>
 
           <div className="hidden md:flex items-center gap-7">
-            <Link href="/" className="font-display font-600 uppercase tracking-wider text-sm text-gray-900 hover:text-blue-700 transition-colors">Inicio</Link>
-            <a href="#eventos" className="font-display font-600 uppercase tracking-wider text-sm text-gray-500 hover:text-blue-700 transition-colors">Eventos</a>
-            <a href="#contacto" className="font-display font-600 uppercase tracking-wider text-sm text-gray-500 hover:text-blue-700 transition-colors">Contacto</a>
+            <Link href="/" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Inicio</Link>
+            <a href="#eventos" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Eventos</a>
+            <a href="#contacto" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Contacto</a>
             <a href="#eventos" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all hover:scale-105"
-              style={{ background: "#0057A8" }}>
+              style={{ background: "#F97316" }}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
@@ -32,6 +32,8 @@ export default async function HomePage() {
 
           <MobileNav />
         </div>
+        {/* Orange separator */}
+        <div className="h-0.5 w-full" style={{ background: "#F97316" }} />
       </nav>
 
       {/* ════════ HERO — 40vh split ════════ */}
