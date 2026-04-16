@@ -341,7 +341,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
         </div>
 
         {/* Selfie search — clicking directly opens file picker */}
-        <input ref={fileRef} type="file" accept="image/*" capture="user" className="hidden"
+        <input ref={fileRef} type="file" accept="image/*" className="hidden"
           onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFaceUpload(f); }} />
 
         <div className="flex flex-col items-center gap-2 mt-1">
