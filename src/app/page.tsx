@@ -42,7 +42,7 @@ export default async function HomePage() {
           <div className="flex flex-col justify-center px-8 sm:px-14 py-8 speed-lines"
             style={{ background: "linear-gradient(150deg, #F0F6FF 0%, #ffffff 80%)" }}>
             <Link href="/" className="mb-8 self-start">
-              <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={320} height={92} className="h-20 w-auto" priority />
+              <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={448} height={128} className="h-28 w-auto" priority />
             </Link>
 
             <p className="text-gray-500 text-sm leading-relaxed mb-5 max-w-sm">
