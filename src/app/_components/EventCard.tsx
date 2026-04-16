@@ -67,10 +67,10 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
         <h3 className="font-display font-700 uppercase text-gray-900 text-xl leading-tight mb-1">
           {col.title || <span className="text-gray-300">Nombre del evento</span>}
         </h3>
-        {dateStr && <p className="text-xs font-semibold mb-1" style={{ color: "#0057A8" }}>{dateStr}</p>}
+        {dateStr && <p className="text-xs font-semibold mb-1" style={{ color: "#F97316" }}>{dateStr}</p>}
         {col.description && <p className="text-sm text-gray-500 mb-3 line-clamp-2">{col.description}</p>}
         {col._count && (
-          <p className="text-xs text-gray-400 mb-5">{col._count.photos} foto{col._count.photos !== 1 ? "s" : ""}</p>
+          <p className="text-xs font-semibold mb-5" style={{ color: "#F97316" }}>{col._count.photos} foto{col._count.photos !== 1 ? "s" : ""}</p>
         )}
         <div className="mt-auto">
           {preview ? (

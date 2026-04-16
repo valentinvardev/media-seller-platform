@@ -61,7 +61,7 @@ export default async function HomePage() {
                 <div key={s.num} className="flex items-center gap-2">
                   {i > 0 && <span className="text-gray-200 text-sm mr-2">›</span>}
                   <span className="font-display font-800 text-xl leading-none"
-                    style={{ color: "#0057A8" }}>{s.num}</span>
+                    style={{ color: "#F97316" }}>{s.num}</span>
                   <span className="text-xs font-semibold text-gray-600">{s.label}</span>
                 </div>
               ))}
@@ -88,7 +88,7 @@ export default async function HomePage() {
             />
             {/* Corner badge */}
             <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold text-white z-10"
-              style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.2)" }}>
+              style={{ background: "rgba(249,115,22,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.25)" }}>
               Ultra alta definición
             </div>
           </div>

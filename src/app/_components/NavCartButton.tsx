@@ -17,7 +17,7 @@ export function NavCartButton({ price }: { price: number }) {
         onClick={() => setOpen((v) => !v)}
         className="relative flex items-center gap-2 px-3 py-1.5 rounded-xl font-semibold text-xs transition-all hover:opacity-90"
         style={{
-          background: hasItems ? "linear-gradient(135deg, #1a3a6b, #2563eb)" : "#f1f5f9",
+          background: hasItems ? "linear-gradient(135deg, #0057A8, #003D7A)" : "#f1f5f9",
           color: hasItems ? "#fff" : "#64748b",
         }}
       >
@@ -84,7 +84,7 @@ export function NavCartButton({ price }: { price: number }) {
                           <p className="text-xs font-medium text-gray-400">Sin dorsal</p>
                         )}
                         {price > 0 && (
-                          <p className="text-sm font-extrabold mt-0.5" style={{ color: "#0057A8" }}>
+                          <p className="text-sm font-extrabold mt-0.5" style={{ color: "#F97316" }}>
                             ${price.toLocaleString("es-AR")}
                           </p>
                         )}
@@ -107,7 +107,7 @@ export function NavCartButton({ price }: { price: number }) {
                   {price > 0 && (
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-xs text-gray-500">Total ({count} foto{count !== 1 ? "s" : ""})</span>
-                      <span className="font-extrabold text-base" style={{ color: "#0057A8" }}>
+                      <span className="font-extrabold text-base" style={{ color: "#F97316" }}>
                         ${total.toLocaleString("es-AR")}
                       </span>
                     </div>

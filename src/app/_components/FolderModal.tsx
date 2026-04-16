@@ -105,7 +105,7 @@ function PhotoRow({
           {bibNumber ? `Dorsal #${bibNumber}` : "Sin dorsal"}
         </p>
         {price > 0 && (
-          <p className="text-xs font-bold mt-0.5" style={{ color: "#0057A8" }}>
+          <p className="text-xs font-bold mt-0.5" style={{ color: "#F97316" }}>
             ${price.toLocaleString("es-AR")}
           </p>
         )}
@@ -290,7 +290,7 @@ export function BibCheckoutModal({
                     <p className="text-sm text-gray-500">
                       {photoIds.length} foto{photoIds.length !== 1 ? "s" : ""} · HD sin marca de agua
                     </p>
-                    <p className="font-bold text-xl" style={{ color: "#0057A8" }}>
+                    <p className="font-bold text-xl" style={{ color: "#F97316" }}>
                       ${total.toLocaleString("es-AR")}
                     </p>
                   </div>
@@ -321,7 +321,7 @@ export function BibCheckoutModal({
             <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3 min-h-0">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-xs text-gray-400">{photoIds.length} foto{photoIds.length !== 1 ? "s" : ""}</p>
-                <p className="text-sm font-bold" style={{ color: "#0057A8" }}>${total.toLocaleString("es-AR")}</p>
+                <p className="text-sm font-bold" style={{ color: "#F97316" }}>${total.toLocaleString("es-AR")}</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)}

@@ -126,7 +126,8 @@ function PhotoTile({
 
       {/* Fuzzy badge */}
       {isFuzzy && (
-        <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-400/90 text-white pointer-events-none">
+        <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-xs font-semibold text-white pointer-events-none"
+          style={{ background: "rgba(249,115,22,0.9)" }}>
           similar
         </div>
       )}
@@ -333,7 +334,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
             placeholder="Buscá tu número"
             className="w-full pl-11 pr-10 py-3.5 rounded-xl bg-white text-sm font-semibold outline-none transition-all"
             style={{
-              color: "#0057A8",
+              color: "#111827",
               border: `2px solid ${search ? "#0057A8" : "#F97316"}`,
               boxShadow: search ? "0 0 0 3px rgba(0,87,168,0.12)" : "0 0 0 3px rgba(249,115,22,0.10)",
             }}
