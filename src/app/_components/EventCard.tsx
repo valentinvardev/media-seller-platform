@@ -22,7 +22,7 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
   const objectPosition = `center ${Math.round(focalY * 100)}%`;
 
   const cardBody = (
-    <div className="bg-white rounded-2xl border border-gray-200 overflow-visible hover:shadow-lg hover:border-blue-200 transition-all duration-200 group flex flex-col card-hover">
+    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-blue-200 transition-all duration-200 group flex flex-col card-hover">
       {/* Cover */}
       <div className="relative h-44">
         <div className="h-44 rounded-t-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100">
@@ -45,25 +45,10 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
           <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent rounded-t-2xl" />
         </div>
 
-        {/* Logo circle */}
-        <div
-          className="absolute -bottom-14 left-1/2 -translate-x-1/2 z-10 w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden flex items-center justify-center"
-          style={{ background: col.logoUrl ? "#fff" : "#0057A8" }}
-        >
-          {col.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={col.logoUrl} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          )}
-        </div>
       </div>
 
       {/* Content */}
-      <div className="pt-20 pb-5 px-5 flex flex-col flex-1 text-center">
+      <div className="pt-5 pb-5 px-5 flex flex-col flex-1 text-center">
         <h3 className="font-display font-700 uppercase text-gray-900 text-xl leading-tight mb-1">
           {col.title || <span className="text-gray-300">Nombre del evento</span>}
         </h3>
