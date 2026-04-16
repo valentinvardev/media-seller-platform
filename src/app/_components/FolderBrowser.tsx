@@ -320,7 +320,9 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       {/* ── Search bar ─────────────────────────────────────── */}
       <div className="max-w-xl mx-auto mb-8">
         <div className="relative mb-3">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors"
+            style={{ color: search ? "#0057A8" : "#F97316" }}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -328,13 +330,18 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
             inputMode="numeric"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscá por número de dorsal..."
-            className="w-full pl-11 pr-10 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 text-sm font-medium outline-none transition-all"
-            style={{ boxShadow: search ? "0 0 0 3px rgba(0,87,168,0.12)" : undefined, borderColor: search ? "#0057A8" : "#e5e7eb" }}
+            placeholder="Buscá tu número"
+            className="w-full pl-11 pr-10 py-3.5 rounded-xl bg-white text-sm font-semibold outline-none transition-all"
+            style={{
+              color: "#0057A8",
+              border: `2px solid ${search ? "#0057A8" : "#F97316"}`,
+              boxShadow: search ? "0 0 0 3px rgba(0,87,168,0.12)" : "0 0 0 3px rgba(249,115,22,0.10)",
+            }}
           />
           {search && (
             <button onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-xs transition-colors">
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+              style={{ background: "rgba(0,87,168,0.1)", color: "#0057A8" }}>
               ✕
             </button>
           )}
