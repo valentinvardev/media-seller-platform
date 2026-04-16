@@ -41,14 +41,9 @@ export default async function HomePage() {
           {/* Left — content */}
           <div className="flex flex-col justify-center px-8 sm:px-14 py-8 speed-lines"
             style={{ background: "linear-gradient(150deg, #F0F6FF 0%, #ffffff 80%)" }}>
-            <Link href="/" className="mb-6 self-start">
-              <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={240} height={68} className="h-14 w-auto" priority />
+            <Link href="/" className="mb-8 self-start">
+              <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={320} height={92} className="h-20 w-auto" priority />
             </Link>
-            <h1 className="font-display font-800 uppercase leading-none text-gray-900 mb-3"
-              style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", letterSpacing: "-0.01em" }}>
-              <span className="block">Corriste.</span>
-              <span className="block text-gradient">Lo capturamos.</span>
-            </h1>
 
             <p className="text-gray-500 text-sm leading-relaxed mb-5 max-w-sm">
               Buscá tu número, comprá y descargá tus fotos en HD al instante.
