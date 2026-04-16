@@ -15,7 +15,7 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           {/* Logo — mobile only */}
           <Link href="/" className="md:hidden flex items-center shrink-0">
-            <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={150} height={44} className="h-9 w-auto brightness-0 invert" priority />
+            <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={180} height={52} className="h-11 w-auto brightness-0 invert" priority />
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -25,7 +25,7 @@ export default async function HomePage() {
           </div>
 
           <div className="flex items-center gap-4 ml-auto">
-            <a href="#eventos" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all hover:scale-105"
+            <a href="#eventos" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-black text-white transition-all hover:scale-105"
               style={{ background: "#F97316" }}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -46,7 +46,7 @@ export default async function HomePage() {
           {/* Left — content */}
           <div className="flex flex-col justify-center px-8 sm:px-14 py-8 speed-lines"
             style={{ background: "linear-gradient(150deg, #F0F6FF 0%, #ffffff 80%)" }}>
-            <Link href="/" className="mb-8 self-start">
+            <Link href="/" className="mb-8 self-start hidden sm:block">
               <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={448} height={128} className="h-28 w-auto" priority />
             </Link>
 
