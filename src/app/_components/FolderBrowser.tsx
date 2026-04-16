@@ -332,7 +332,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscá tu número"
-            className="w-full pl-11 pr-10 py-3.5 rounded-xl bg-white text-sm font-semibold outline-none transition-all"
+            className="w-full pl-11 pr-10 py-3.5 rounded-xl bg-white text-sm font-bold outline-none transition-all placeholder:text-gray-600 placeholder:font-bold"
             style={{
               color: "#111827",
               border: `2px solid ${search ? "#0057A8" : "#F97316"}`,
