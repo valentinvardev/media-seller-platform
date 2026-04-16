@@ -13,6 +13,11 @@ export default async function HomePage() {
       {/* ════════ NAV ════════ */}
       <nav className="sticky top-0 z-50 shadow-md" style={{ background: "#0057A8" }}>
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+          {/* Logo — mobile only */}
+          <Link href="/" className="md:hidden flex items-center shrink-0">
+            <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={150} height={44} className="h-9 w-auto brightness-0 invert" priority />
+          </Link>
+
           <div className="hidden md:flex items-center gap-8">
             <Link href="/" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Inicio</Link>
             <a href="#eventos" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Eventos</a>
@@ -45,22 +50,22 @@ export default async function HomePage() {
               <Image src="/logo-altafoto.png" alt="ALTAFOTO" width={448} height={128} className="h-28 w-auto" priority />
             </Link>
 
-            <p className="text-gray-500 text-sm leading-relaxed mb-5 max-w-sm">
+            <p className="text-gray-500 text-base sm:text-sm leading-relaxed mb-5 max-w-sm font-medium">
               Buscá tu número, comprá y descargá tus fotos en HD al instante.
             </p>
 
-            {/* Steps — horizontal row */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6">
+            {/* Steps — column on mobile, row on desktop */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-y-3 gap-x-5 mb-6">
               {[
                 { num: "01", label: "Elegí el evento" },
                 { num: "02", label: "Ingresá tu número" },
                 { num: "03", label: "Descargá en HD" },
               ].map((s, i) => (
                 <div key={s.num} className="flex items-center gap-2">
-                  {i > 0 && <span className="text-gray-200 text-sm mr-2">›</span>}
-                  <span className="font-display font-800 text-xl leading-none"
+                  {i > 0 && <span className="hidden sm:inline text-gray-200 text-sm mr-2">›</span>}
+                  <span className="font-display font-800 text-2xl sm:text-xl leading-none"
                     style={{ color: "#F97316" }}>{s.num}</span>
-                  <span className="text-xs font-semibold text-gray-600">{s.label}</span>
+                  <span className="text-sm sm:text-xs font-semibold text-gray-600">{s.label}</span>
                 </div>
               ))}
             </div>

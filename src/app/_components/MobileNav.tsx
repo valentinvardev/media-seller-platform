@@ -19,12 +19,12 @@ export function MobileNav() {
       {/* Hamburger */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+        className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg transition-colors"
         aria-label="Menú"
       >
-        <span className={`block h-0.5 w-5 bg-gray-700 rounded transition-all duration-200 ${open ? "rotate-45 translate-y-2" : ""}`} />
-        <span className={`block h-0.5 w-5 bg-gray-700 rounded transition-all duration-200 ${open ? "opacity-0" : ""}`} />
-        <span className={`block h-0.5 w-5 bg-gray-700 rounded transition-all duration-200 ${open ? "-rotate-45 -translate-y-2" : ""}`} />
+        <span className={`block h-[3px] w-6 rounded transition-all duration-200 ${open ? "rotate-45 translate-y-[7px]" : ""}`} style={{ background: "#F97316" }} />
+        <span className={`block h-[3px] w-6 rounded transition-all duration-200 ${open ? "opacity-0" : ""}`} style={{ background: "#F97316" }} />
+        <span className={`block h-[3px] w-6 rounded transition-all duration-200 ${open ? "-rotate-45 -translate-y-[7px]" : ""}`} style={{ background: "#F97316" }} />
       </button>
 
       {/* Dropdown */}
