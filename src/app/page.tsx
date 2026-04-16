@@ -14,9 +14,9 @@ export default async function HomePage() {
       <nav className="sticky top-0 z-50 shadow-md" style={{ background: "#0057A8" }}>
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Inicio</Link>
-            <a href="#eventos" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Eventos</a>
-            <a href="#contacto" className="font-display font-600 uppercase tracking-wider text-sm text-white/90 hover:text-white transition-colors">Contacto</a>
+            <Link href="/" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Inicio</Link>
+            <a href="#eventos" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Eventos</a>
+            <a href="#contacto" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Contacto</a>
           </div>
 
           <div className="flex items-center gap-4 ml-auto">
