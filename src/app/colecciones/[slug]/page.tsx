@@ -131,11 +131,11 @@ export default async function CollectionPage({
       <FolderBrowser collectionId={collection.id} pricePerBib={Number(collection.pricePerBib)} />
 
       {/* ── MercadoPago strip ─────────────────────────────────── */}
-      <div style={{ background: "linear-gradient(135deg, #002D6E 0%, #0057A8 100%)" }} className="py-10 px-5">
+      <div style={{ background: "linear-gradient(135deg, #c2410c 0%, #F97316 100%)" }} className="py-10 px-5">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
             <p className="font-display font-700 uppercase tracking-wider text-white text-lg">Pagá con MercadoPago</p>
-            <p className="text-blue-200 text-sm mt-1">Tarjetas, transferencia y efectivo — 100% seguro</p>
+            <p className="text-orange-100 text-sm mt-1">Tarjetas, transferencia y efectivo — 100% seguro</p>
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

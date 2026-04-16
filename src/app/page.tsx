@@ -122,9 +122,9 @@ export default async function HomePage() {
       </section>
 
       {/* ════════ MERCADOPAGO ════════ */}
-      <section style={{ background: "linear-gradient(135deg, #002D6E 0%, #0057A8 100%)" }} className="py-14 px-5">
+      <section style={{ background: "linear-gradient(135deg, #c2410c 0%, #F97316 100%)" }} className="py-14 px-5">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="font-display font-600 uppercase tracking-widest text-blue-200 text-sm mb-6">Método de pago aceptado</p>
+          <p className="font-display font-600 uppercase tracking-widest text-orange-100 text-sm mb-6">Método de pago aceptado</p>
           <div className="flex justify-center mb-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -133,12 +133,12 @@ export default async function HomePage() {
               className="h-24 w-auto"
             />
           </div>
-          <p className="text-blue-200 text-sm max-w-md mx-auto leading-relaxed mb-7">
+          <p className="text-orange-100 text-sm max-w-md mx-auto leading-relaxed mb-7">
             Tarjetas de crédito, débito, transferencia y efectivo — todo a través de MercadoPago.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {["Visa", "Mastercard", "Débito", "Rapipago", "Pago Fácil", "Transferencia"].map((m) => (
-              <span key={m} className="px-3 py-1.5 rounded-full text-xs font-semibold text-blue-200 border border-blue-500/40 bg-blue-500/10">{m}</span>
+              <span key={m} className="px-3 py-1.5 rounded-full text-xs font-semibold text-orange-100 border border-orange-200/40 bg-white/10">{m}</span>
             ))}
           </div>
         </div>
