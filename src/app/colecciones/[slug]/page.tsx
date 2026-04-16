@@ -132,17 +132,53 @@ export default async function CollectionPage({
 
       {/* ── MercadoPago strip ─────────────────────────────────── */}
       <div style={{ background: "linear-gradient(135deg, #c2410c 0%, #F97316 100%)" }} className="py-10 px-5">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div>
-            <p className="font-display font-700 uppercase tracking-wider text-white text-lg">Pagá con MercadoPago</p>
-            <p className="text-orange-100 text-sm mt-1">Tarjetas, transferencia y efectivo — 100% seguro</p>
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="font-display font-700 uppercase tracking-widest text-white text-xl mb-1">Método de pago aceptado</p>
+          <p className="text-orange-100 text-sm mb-6">Tarjetas, transferencia y efectivo — 100% seguro a través de MercadoPago</p>
+          <div className="flex justify-center mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
+              alt="MercadoPago"
+              className="h-16 w-auto"
+            />
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
-            alt="MercadoPago"
-            className="h-20 w-auto"
-          />
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center justify-center shadow-sm" style={{ minWidth: 72 }}>
+              <span className="font-black italic tracking-tight" style={{ color: "#1A1F71", fontSize: "1.15rem" }}>VISA</span>
+            </div>
+            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
+              <div className="relative w-8 h-5 flex-shrink-0">
+                <div className="absolute left-0 top-0 w-5 h-5 rounded-full" style={{ background: "#EB001B" }} />
+                <div className="absolute right-0 top-0 w-5 h-5 rounded-full" style={{ background: "#F79E1B", mixBlendMode: "multiply" }} />
+              </div>
+              <span className="text-xs font-bold text-gray-700">Mastercard</span>
+            </div>
+            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
+              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <span className="text-xs font-bold text-gray-700">Débito</span>
+            </div>
+            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
+              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span className="text-xs font-bold text-gray-700">Rapipago</span>
+            </div>
+            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
+              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span className="text-xs font-bold text-gray-700">Pago Fácil</span>
+            </div>
+            <div className="bg-white rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
+              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              <span className="text-xs font-bold text-gray-700">Transferencia</span>
+            </div>
+          </div>
         </div>
       </div>
 
