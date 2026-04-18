@@ -3,6 +3,7 @@ import Link from "next/link";
 import { api } from "~/trpc/server";
 import { MobileNav } from "~/app/_components/MobileNav";
 import { EventCard } from "~/app/_components/EventCard";
+import { WhatsAppNavButton, WhatsAppFooterButton } from "~/app/_components/WhatsAppModal";
 
 export default async function HomePage() {
   const collections = await api.collection.list();
@@ -21,7 +22,7 @@ export default async function HomePage() {
           <div className="hidden md:flex items-center gap-8">
             <Link href="/" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Inicio</Link>
             <a href="#eventos" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Eventos</a>
-            <a href="#contacto" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Contacto</a>
+            <WhatsAppNavButton />
           </div>
 
           <div className="flex items-center gap-4 ml-auto">
@@ -128,9 +129,7 @@ export default async function HomePage() {
             </div>
             <div>
               <p className="text-white font-semibold text-sm mb-3">Contacto</p>
-              <a href="mailto:hola@fotodeporte.com.ar" className="text-xs font-medium hover:text-white transition-colors" style={{ color: "#60A5FA" }}>
-                hola@fotodeporte.com.ar
-              </a>
+              <WhatsAppFooterButton />
             </div>
           </div>
           <div className="border-t border-blue-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">

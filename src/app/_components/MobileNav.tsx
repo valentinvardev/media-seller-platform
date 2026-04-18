@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { WhatsAppMobileItem } from "~/app/_components/WhatsAppModal";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -42,10 +43,7 @@ export function MobileNav() {
               className="font-display font-700 uppercase tracking-wider text-gray-700 py-3 border-b border-gray-100 hover:text-blue-700 transition-colors">
               Eventos
             </a>
-            <a href="#contacto" onClick={() => setOpen(false)}
-              className="font-display font-700 uppercase tracking-wider text-gray-700 py-3 border-b border-gray-100 hover:text-blue-700 transition-colors">
-              Contacto
-            </a>
+            <WhatsAppMobileItem onClose={() => setOpen(false)} />
             <a href="#eventos" onClick={() => setOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-700 uppercase tracking-wider text-white text-sm"
               style={{ background: "#0057A8" }}>
