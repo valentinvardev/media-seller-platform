@@ -46,7 +46,7 @@ export default async function HomePage() {
           src="/hero.jpg"
           alt="Foto de carrera"
           fill
-          className="object-cover object-top"
+          className="object-cover object-bottom"
           priority
         />
         {/* Dark overlay */}
