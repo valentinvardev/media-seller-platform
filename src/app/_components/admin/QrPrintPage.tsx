@@ -11,18 +11,20 @@ type EventItem = {
   isPublished: boolean;
 };
 
-type Format = "sticker" | "card" | "poster";
+type Format = "sticker" | "card" | "poster" | "plain";
 
 const FORMATS: { id: Format; label: string; desc: string; size: string }[] = [
   { id: "sticker", label: "Sticker",  desc: "6 × 6 cm · dorsal o pechera",     size: "6cm × 6cm"   },
   { id: "card",    label: "Tarjeta",  desc: "10 × 7 cm · flyer de mano",       size: "10cm × 7cm"  },
   { id: "poster",  label: "Póster",   desc: "A5 · cartel en el recorrido",      size: "A5 (14.8cm × 21cm)" },
+  { id: "plain",   label: "Solo QR",  desc: "QR limpio sin decoración",         size: "6cm × 6cm"   },
 ];
 
 const QR_PREVIEW_SIZES: Record<Format, number> = {
   sticker: 90,
   card:    130,
   poster:  180,
+  plain:   130,
 };
 
 // ─── Print HTML templates ─────────────────────────────────────────────────────
@@ -92,6 +94,18 @@ function buildPrintHtml(event: EventItem, format: Format, qrSvg: string, logoSrc
   <div class="title">${event.title}</div>
   <div class="sub">↑ Escaneá y encontrá tus fotos</div>
 </div>
+</body></html>`;
+  }
+
+  if (format === "plain") {
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+  @page { margin: 0; size: 6cm 6cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 6cm; height: 6cm; display: flex; align-items: center; justify-content: center; background: white; }
+  svg { width: 5.4cm; height: 5.4cm; display: block; }
+</style></head><body>
+${qrSvg}
 </body></html>`;
   }
 
@@ -246,8 +260,24 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
 
               {event && (
                 <>
-                  {/* Preview card */}
-                  <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-100"
+                  {/* Plain preview — no decoration */}
+                  {format === "plain" && (
+                    <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
+                      <div id="qr-svg-root">
+                        <QRCode
+                          value={event.url}
+                          size={QR_PREVIEW_SIZES.plain}
+                          fgColor="#000000"
+                          bgColor="#ffffff"
+                          style={{ display: "block" }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-400">Sin bordes · Sin texto · Solo QR</p>
+                    </div>
+                  )}
+
+                  {/* Decorated preview card */}
+                  {format !== "plain" && <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-100"
                     style={{
                       width: format === "poster" ? 260 : format === "card" ? 320 : 180,
                     }}>
@@ -294,7 +324,7 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
                         {event.url.replace(/^https?:\/\//, "")}
                       </p>
                     </div>
-                  </div>
+                  </div>}
 
                   {/* Print button */}
                   <button onClick={handlePrint}
