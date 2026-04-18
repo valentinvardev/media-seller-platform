@@ -46,14 +46,20 @@ export default async function HomePage() {
           src="/hero.jpg"
           alt="Foto de carrera"
           fill
-          className="object-cover object-[center_85%]"
+          className="object-cover object-[center_95%]"
           priority
         />
 
-        {/* Content */}
-        <div className="absolute top-0 right-0 z-10 p-6 sm:p-10 flex items-start justify-end">
+        {/* Mobile: centered logo */}
+        <div className="sm:hidden relative z-10 flex items-center justify-center w-full py-12">
           <Link href="/">
-            <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-28 sm:h-[275px] w-auto drop-shadow-2xl" priority />
+            <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-[134px] w-auto drop-shadow-2xl" priority />
+          </Link>
+        </div>
+        {/* Desktop: top-right logo */}
+        <div className="hidden sm:flex absolute top-0 right-0 z-10 p-10 items-start justify-end">
+          <Link href="/">
+            <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-[275px] w-auto drop-shadow-2xl" priority />
           </Link>
         </div>
       </section>
