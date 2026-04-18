@@ -49,6 +49,11 @@ export type Photo = $Result.DefaultSelection<Prisma.$PhotoPayload>
  */
 export type Purchase = $Result.DefaultSelection<Prisma.$PurchasePayload>
 /**
+ * Model FaceRecord
+ * 
+ */
+export type FaceRecord = $Result.DefaultSelection<Prisma.$FaceRecordPayload>
+/**
  * Model Setting
  * 
  */
@@ -260,6 +265,16 @@ export class PrismaClient<
     * ```
     */
   get purchase(): Prisma.PurchaseDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.faceRecord`: Exposes CRUD operations for the **FaceRecord** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FaceRecords
+    * const faceRecords = await prisma.faceRecord.findMany()
+    * ```
+    */
+  get faceRecord(): Prisma.FaceRecordDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.setting`: Exposes CRUD operations for the **Setting** model.
@@ -718,6 +733,7 @@ export namespace Prisma {
     Collection: 'Collection',
     Photo: 'Photo',
     Purchase: 'Purchase',
+    FaceRecord: 'FaceRecord',
     Setting: 'Setting'
   };
 
@@ -737,7 +753,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "account" | "session" | "user" | "verificationToken" | "collection" | "photo" | "purchase" | "setting"
+      modelProps: "account" | "session" | "user" | "verificationToken" | "collection" | "photo" | "purchase" | "faceRecord" | "setting"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1259,6 +1275,80 @@ export namespace Prisma {
           }
         }
       }
+      FaceRecord: {
+        payload: Prisma.$FaceRecordPayload<ExtArgs>
+        fields: Prisma.FaceRecordFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FaceRecordFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FaceRecordFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>
+          }
+          findFirst: {
+            args: Prisma.FaceRecordFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FaceRecordFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>
+          }
+          findMany: {
+            args: Prisma.FaceRecordFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>[]
+          }
+          create: {
+            args: Prisma.FaceRecordCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>
+          }
+          createMany: {
+            args: Prisma.FaceRecordCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FaceRecordCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>[]
+          }
+          delete: {
+            args: Prisma.FaceRecordDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>
+          }
+          update: {
+            args: Prisma.FaceRecordUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>
+          }
+          deleteMany: {
+            args: Prisma.FaceRecordDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FaceRecordUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FaceRecordUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>[]
+          }
+          upsert: {
+            args: Prisma.FaceRecordUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaceRecordPayload>
+          }
+          aggregate: {
+            args: Prisma.FaceRecordAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFaceRecord>
+          }
+          groupBy: {
+            args: Prisma.FaceRecordGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FaceRecordGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FaceRecordCountArgs<ExtArgs>
+            result: $Utils.Optional<FaceRecordCountAggregateOutputType> | number
+          }
+        }
+      }
       Setting: {
         payload: Prisma.$SettingPayload<ExtArgs>
         fields: Prisma.SettingFieldRefs
@@ -1436,6 +1526,7 @@ export namespace Prisma {
     collection?: CollectionOmit
     photo?: PhotoOmit
     purchase?: PurchaseOmit
+    faceRecord?: FaceRecordOmit
     setting?: SettingOmit
   }
 
@@ -1559,11 +1650,13 @@ export namespace Prisma {
   export type CollectionCountOutputType = {
     photos: number
     purchases: number
+    faceRecords: number
   }
 
   export type CollectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     photos?: boolean | CollectionCountOutputTypeCountPhotosArgs
     purchases?: boolean | CollectionCountOutputTypeCountPurchasesArgs
+    faceRecords?: boolean | CollectionCountOutputTypeCountFaceRecordsArgs
   }
 
   // Custom InputTypes
@@ -1589,6 +1682,44 @@ export namespace Prisma {
    */
   export type CollectionCountOutputTypeCountPurchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PurchaseWhereInput
+  }
+
+  /**
+   * CollectionCountOutputType without action
+   */
+  export type CollectionCountOutputTypeCountFaceRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FaceRecordWhereInput
+  }
+
+
+  /**
+   * Count Type PhotoCountOutputType
+   */
+
+  export type PhotoCountOutputType = {
+    faceRecords: number
+  }
+
+  export type PhotoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    faceRecords?: boolean | PhotoCountOutputTypeCountFaceRecordsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PhotoCountOutputType without action
+   */
+  export type PhotoCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoCountOutputType
+     */
+    select?: PhotoCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PhotoCountOutputType without action
+   */
+  export type PhotoCountOutputTypeCountFaceRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FaceRecordWhereInput
   }
 
 
@@ -6189,6 +6320,7 @@ export namespace Prisma {
     updatedAt?: boolean
     photos?: boolean | Collection$photosArgs<ExtArgs>
     purchases?: boolean | Collection$purchasesArgs<ExtArgs>
+    faceRecords?: boolean | Collection$faceRecordsArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["collection"]>
 
@@ -6244,6 +6376,7 @@ export namespace Prisma {
   export type CollectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     photos?: boolean | Collection$photosArgs<ExtArgs>
     purchases?: boolean | Collection$purchasesArgs<ExtArgs>
+    faceRecords?: boolean | Collection$faceRecordsArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CollectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6254,6 +6387,7 @@ export namespace Prisma {
     objects: {
       photos: Prisma.$PhotoPayload<ExtArgs>[]
       purchases: Prisma.$PurchasePayload<ExtArgs>[]
+      faceRecords: Prisma.$FaceRecordPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6665,6 +6799,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     photos<T extends Collection$photosArgs<ExtArgs> = {}>(args?: Subset<T, Collection$photosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchases<T extends Collection$purchasesArgs<ExtArgs> = {}>(args?: Subset<T, Collection$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    faceRecords<T extends Collection$faceRecordsArgs<ExtArgs> = {}>(args?: Subset<T, Collection$faceRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7143,6 +7278,30 @@ export namespace Prisma {
   }
 
   /**
+   * Collection.faceRecords
+   */
+  export type Collection$faceRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    where?: FaceRecordWhereInput
+    orderBy?: FaceRecordOrderByWithRelationInput | FaceRecordOrderByWithRelationInput[]
+    cursor?: FaceRecordWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FaceRecordScalarFieldEnum | FaceRecordScalarFieldEnum[]
+  }
+
+  /**
    * Collection without action
    */
   export type CollectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7420,6 +7579,8 @@ export namespace Prisma {
     previewKey?: boolean
     createdAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    faceRecords?: boolean | Photo$faceRecordsArgs<ExtArgs>
+    _count?: boolean | PhotoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
 
   export type PhotoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7469,6 +7630,8 @@ export namespace Prisma {
   export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "bibNumber" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "previewKey" | "createdAt", ExtArgs["result"]["photo"]>
   export type PhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    faceRecords?: boolean | Photo$faceRecordsArgs<ExtArgs>
+    _count?: boolean | PhotoCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PhotoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
@@ -7481,6 +7644,7 @@ export namespace Prisma {
     name: "Photo"
     objects: {
       collection: Prisma.$CollectionPayload<ExtArgs>
+      faceRecords: Prisma.$FaceRecordPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7889,6 +8053,7 @@ export namespace Prisma {
   export interface Prisma__PhotoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    faceRecords<T extends Photo$faceRecordsArgs<ExtArgs> = {}>(args?: Subset<T, Photo$faceRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8322,6 +8487,30 @@ export namespace Prisma {
      * Limit how many Photos to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Photo.faceRecords
+   */
+  export type Photo$faceRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    where?: FaceRecordWhereInput
+    orderBy?: FaceRecordOrderByWithRelationInput | FaceRecordOrderByWithRelationInput[]
+    cursor?: FaceRecordWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FaceRecordScalarFieldEnum | FaceRecordScalarFieldEnum[]
   }
 
   /**
@@ -9605,6 +9794,1119 @@ export namespace Prisma {
 
 
   /**
+   * Model FaceRecord
+   */
+
+  export type AggregateFaceRecord = {
+    _count: FaceRecordCountAggregateOutputType | null
+    _avg: FaceRecordAvgAggregateOutputType | null
+    _sum: FaceRecordSumAggregateOutputType | null
+    _min: FaceRecordMinAggregateOutputType | null
+    _max: FaceRecordMaxAggregateOutputType | null
+  }
+
+  export type FaceRecordAvgAggregateOutputType = {
+    confidence: number | null
+  }
+
+  export type FaceRecordSumAggregateOutputType = {
+    confidence: number | null
+  }
+
+  export type FaceRecordMinAggregateOutputType = {
+    id: string | null
+    rekFaceId: string | null
+    photoId: string | null
+    collectionId: string | null
+    confidence: number | null
+    createdAt: Date | null
+  }
+
+  export type FaceRecordMaxAggregateOutputType = {
+    id: string | null
+    rekFaceId: string | null
+    photoId: string | null
+    collectionId: string | null
+    confidence: number | null
+    createdAt: Date | null
+  }
+
+  export type FaceRecordCountAggregateOutputType = {
+    id: number
+    rekFaceId: number
+    photoId: number
+    collectionId: number
+    confidence: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type FaceRecordAvgAggregateInputType = {
+    confidence?: true
+  }
+
+  export type FaceRecordSumAggregateInputType = {
+    confidence?: true
+  }
+
+  export type FaceRecordMinAggregateInputType = {
+    id?: true
+    rekFaceId?: true
+    photoId?: true
+    collectionId?: true
+    confidence?: true
+    createdAt?: true
+  }
+
+  export type FaceRecordMaxAggregateInputType = {
+    id?: true
+    rekFaceId?: true
+    photoId?: true
+    collectionId?: true
+    confidence?: true
+    createdAt?: true
+  }
+
+  export type FaceRecordCountAggregateInputType = {
+    id?: true
+    rekFaceId?: true
+    photoId?: true
+    collectionId?: true
+    confidence?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type FaceRecordAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FaceRecord to aggregate.
+     */
+    where?: FaceRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FaceRecords to fetch.
+     */
+    orderBy?: FaceRecordOrderByWithRelationInput | FaceRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FaceRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FaceRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FaceRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FaceRecords
+    **/
+    _count?: true | FaceRecordCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FaceRecordAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FaceRecordSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FaceRecordMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FaceRecordMaxAggregateInputType
+  }
+
+  export type GetFaceRecordAggregateType<T extends FaceRecordAggregateArgs> = {
+        [P in keyof T & keyof AggregateFaceRecord]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFaceRecord[P]>
+      : GetScalarType<T[P], AggregateFaceRecord[P]>
+  }
+
+
+
+
+  export type FaceRecordGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FaceRecordWhereInput
+    orderBy?: FaceRecordOrderByWithAggregationInput | FaceRecordOrderByWithAggregationInput[]
+    by: FaceRecordScalarFieldEnum[] | FaceRecordScalarFieldEnum
+    having?: FaceRecordScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FaceRecordCountAggregateInputType | true
+    _avg?: FaceRecordAvgAggregateInputType
+    _sum?: FaceRecordSumAggregateInputType
+    _min?: FaceRecordMinAggregateInputType
+    _max?: FaceRecordMaxAggregateInputType
+  }
+
+  export type FaceRecordGroupByOutputType = {
+    id: string
+    rekFaceId: string
+    photoId: string
+    collectionId: string
+    confidence: number | null
+    createdAt: Date
+    _count: FaceRecordCountAggregateOutputType | null
+    _avg: FaceRecordAvgAggregateOutputType | null
+    _sum: FaceRecordSumAggregateOutputType | null
+    _min: FaceRecordMinAggregateOutputType | null
+    _max: FaceRecordMaxAggregateOutputType | null
+  }
+
+  type GetFaceRecordGroupByPayload<T extends FaceRecordGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FaceRecordGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FaceRecordGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FaceRecordGroupByOutputType[P]>
+            : GetScalarType<T[P], FaceRecordGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FaceRecordSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    rekFaceId?: boolean
+    photoId?: boolean
+    collectionId?: boolean
+    confidence?: boolean
+    createdAt?: boolean
+    photo?: boolean | PhotoDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["faceRecord"]>
+
+  export type FaceRecordSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    rekFaceId?: boolean
+    photoId?: boolean
+    collectionId?: boolean
+    confidence?: boolean
+    createdAt?: boolean
+    photo?: boolean | PhotoDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["faceRecord"]>
+
+  export type FaceRecordSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    rekFaceId?: boolean
+    photoId?: boolean
+    collectionId?: boolean
+    confidence?: boolean
+    createdAt?: boolean
+    photo?: boolean | PhotoDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["faceRecord"]>
+
+  export type FaceRecordSelectScalar = {
+    id?: boolean
+    rekFaceId?: boolean
+    photoId?: boolean
+    collectionId?: boolean
+    confidence?: boolean
+    createdAt?: boolean
+  }
+
+  export type FaceRecordOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "rekFaceId" | "photoId" | "collectionId" | "confidence" | "createdAt", ExtArgs["result"]["faceRecord"]>
+  export type FaceRecordInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    photo?: boolean | PhotoDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }
+  export type FaceRecordIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    photo?: boolean | PhotoDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }
+  export type FaceRecordIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    photo?: boolean | PhotoDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }
+
+  export type $FaceRecordPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FaceRecord"
+    objects: {
+      photo: Prisma.$PhotoPayload<ExtArgs>
+      collection: Prisma.$CollectionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      rekFaceId: string
+      photoId: string
+      collectionId: string
+      confidence: number | null
+      createdAt: Date
+    }, ExtArgs["result"]["faceRecord"]>
+    composites: {}
+  }
+
+  type FaceRecordGetPayload<S extends boolean | null | undefined | FaceRecordDefaultArgs> = $Result.GetResult<Prisma.$FaceRecordPayload, S>
+
+  type FaceRecordCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FaceRecordFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FaceRecordCountAggregateInputType | true
+    }
+
+  export interface FaceRecordDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FaceRecord'], meta: { name: 'FaceRecord' } }
+    /**
+     * Find zero or one FaceRecord that matches the filter.
+     * @param {FaceRecordFindUniqueArgs} args - Arguments to find a FaceRecord
+     * @example
+     * // Get one FaceRecord
+     * const faceRecord = await prisma.faceRecord.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FaceRecordFindUniqueArgs>(args: SelectSubset<T, FaceRecordFindUniqueArgs<ExtArgs>>): Prisma__FaceRecordClient<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FaceRecord that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FaceRecordFindUniqueOrThrowArgs} args - Arguments to find a FaceRecord
+     * @example
+     * // Get one FaceRecord
+     * const faceRecord = await prisma.faceRecord.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FaceRecordFindUniqueOrThrowArgs>(args: SelectSubset<T, FaceRecordFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FaceRecordClient<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FaceRecord that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaceRecordFindFirstArgs} args - Arguments to find a FaceRecord
+     * @example
+     * // Get one FaceRecord
+     * const faceRecord = await prisma.faceRecord.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FaceRecordFindFirstArgs>(args?: SelectSubset<T, FaceRecordFindFirstArgs<ExtArgs>>): Prisma__FaceRecordClient<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FaceRecord that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaceRecordFindFirstOrThrowArgs} args - Arguments to find a FaceRecord
+     * @example
+     * // Get one FaceRecord
+     * const faceRecord = await prisma.faceRecord.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FaceRecordFindFirstOrThrowArgs>(args?: SelectSubset<T, FaceRecordFindFirstOrThrowArgs<ExtArgs>>): Prisma__FaceRecordClient<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FaceRecords that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaceRecordFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FaceRecords
+     * const faceRecords = await prisma.faceRecord.findMany()
+     * 
+     * // Get first 10 FaceRecords
+     * const faceRecords = await prisma.faceRecord.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const faceRecordWithIdOnly = await prisma.faceRecord.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FaceRecordFindManyArgs>(args?: SelectSubset<T, FaceRecordFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FaceRecord.
+     * @param {FaceRecordCreateArgs} args - Arguments to create a FaceRecord.
+     * @example
+     * // Create one FaceRecord
+     * const FaceRecord = await prisma.faceRecord.create({
+     *   data: {
+     *     // ... data to create a FaceRecord
+     *   }
+     * })
+     * 
+     */
+    create<T extends FaceRecordCreateArgs>(args: SelectSubset<T, FaceRecordCreateArgs<ExtArgs>>): Prisma__FaceRecordClient<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FaceRecords.
+     * @param {FaceRecordCreateManyArgs} args - Arguments to create many FaceRecords.
+     * @example
+     * // Create many FaceRecords
+     * const faceRecord = await prisma.faceRecord.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FaceRecordCreateManyArgs>(args?: SelectSubset<T, FaceRecordCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FaceRecords and returns the data saved in the database.
+     * @param {FaceRecordCreateManyAndReturnArgs} args - Arguments to create many FaceRecords.
+     * @example
+     * // Create many FaceRecords
+     * const faceRecord = await prisma.faceRecord.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FaceRecords and only return the `id`
+     * const faceRecordWithIdOnly = await prisma.faceRecord.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FaceRecordCreateManyAndReturnArgs>(args?: SelectSubset<T, FaceRecordCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FaceRecord.
+     * @param {FaceRecordDeleteArgs} args - Arguments to delete one FaceRecord.
+     * @example
+     * // Delete one FaceRecord
+     * const FaceRecord = await prisma.faceRecord.delete({
+     *   where: {
+     *     // ... filter to delete one FaceRecord
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FaceRecordDeleteArgs>(args: SelectSubset<T, FaceRecordDeleteArgs<ExtArgs>>): Prisma__FaceRecordClient<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FaceRecord.
+     * @param {FaceRecordUpdateArgs} args - Arguments to update one FaceRecord.
+     * @example
+     * // Update one FaceRecord
+     * const faceRecord = await prisma.faceRecord.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FaceRecordUpdateArgs>(args: SelectSubset<T, FaceRecordUpdateArgs<ExtArgs>>): Prisma__FaceRecordClient<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FaceRecords.
+     * @param {FaceRecordDeleteManyArgs} args - Arguments to filter FaceRecords to delete.
+     * @example
+     * // Delete a few FaceRecords
+     * const { count } = await prisma.faceRecord.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FaceRecordDeleteManyArgs>(args?: SelectSubset<T, FaceRecordDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FaceRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaceRecordUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FaceRecords
+     * const faceRecord = await prisma.faceRecord.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FaceRecordUpdateManyArgs>(args: SelectSubset<T, FaceRecordUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FaceRecords and returns the data updated in the database.
+     * @param {FaceRecordUpdateManyAndReturnArgs} args - Arguments to update many FaceRecords.
+     * @example
+     * // Update many FaceRecords
+     * const faceRecord = await prisma.faceRecord.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FaceRecords and only return the `id`
+     * const faceRecordWithIdOnly = await prisma.faceRecord.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FaceRecordUpdateManyAndReturnArgs>(args: SelectSubset<T, FaceRecordUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FaceRecord.
+     * @param {FaceRecordUpsertArgs} args - Arguments to update or create a FaceRecord.
+     * @example
+     * // Update or create a FaceRecord
+     * const faceRecord = await prisma.faceRecord.upsert({
+     *   create: {
+     *     // ... data to create a FaceRecord
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FaceRecord we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FaceRecordUpsertArgs>(args: SelectSubset<T, FaceRecordUpsertArgs<ExtArgs>>): Prisma__FaceRecordClient<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FaceRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaceRecordCountArgs} args - Arguments to filter FaceRecords to count.
+     * @example
+     * // Count the number of FaceRecords
+     * const count = await prisma.faceRecord.count({
+     *   where: {
+     *     // ... the filter for the FaceRecords we want to count
+     *   }
+     * })
+    **/
+    count<T extends FaceRecordCountArgs>(
+      args?: Subset<T, FaceRecordCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FaceRecordCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FaceRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaceRecordAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FaceRecordAggregateArgs>(args: Subset<T, FaceRecordAggregateArgs>): Prisma.PrismaPromise<GetFaceRecordAggregateType<T>>
+
+    /**
+     * Group by FaceRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaceRecordGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FaceRecordGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FaceRecordGroupByArgs['orderBy'] }
+        : { orderBy?: FaceRecordGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FaceRecordGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFaceRecordGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FaceRecord model
+   */
+  readonly fields: FaceRecordFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FaceRecord.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FaceRecordClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    photo<T extends PhotoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PhotoDefaultArgs<ExtArgs>>): Prisma__PhotoClient<$Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FaceRecord model
+   */
+  interface FaceRecordFieldRefs {
+    readonly id: FieldRef<"FaceRecord", 'String'>
+    readonly rekFaceId: FieldRef<"FaceRecord", 'String'>
+    readonly photoId: FieldRef<"FaceRecord", 'String'>
+    readonly collectionId: FieldRef<"FaceRecord", 'String'>
+    readonly confidence: FieldRef<"FaceRecord", 'Float'>
+    readonly createdAt: FieldRef<"FaceRecord", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FaceRecord findUnique
+   */
+  export type FaceRecordFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which FaceRecord to fetch.
+     */
+    where: FaceRecordWhereUniqueInput
+  }
+
+  /**
+   * FaceRecord findUniqueOrThrow
+   */
+  export type FaceRecordFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which FaceRecord to fetch.
+     */
+    where: FaceRecordWhereUniqueInput
+  }
+
+  /**
+   * FaceRecord findFirst
+   */
+  export type FaceRecordFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which FaceRecord to fetch.
+     */
+    where?: FaceRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FaceRecords to fetch.
+     */
+    orderBy?: FaceRecordOrderByWithRelationInput | FaceRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FaceRecords.
+     */
+    cursor?: FaceRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FaceRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FaceRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FaceRecords.
+     */
+    distinct?: FaceRecordScalarFieldEnum | FaceRecordScalarFieldEnum[]
+  }
+
+  /**
+   * FaceRecord findFirstOrThrow
+   */
+  export type FaceRecordFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which FaceRecord to fetch.
+     */
+    where?: FaceRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FaceRecords to fetch.
+     */
+    orderBy?: FaceRecordOrderByWithRelationInput | FaceRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FaceRecords.
+     */
+    cursor?: FaceRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FaceRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FaceRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FaceRecords.
+     */
+    distinct?: FaceRecordScalarFieldEnum | FaceRecordScalarFieldEnum[]
+  }
+
+  /**
+   * FaceRecord findMany
+   */
+  export type FaceRecordFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which FaceRecords to fetch.
+     */
+    where?: FaceRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FaceRecords to fetch.
+     */
+    orderBy?: FaceRecordOrderByWithRelationInput | FaceRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FaceRecords.
+     */
+    cursor?: FaceRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FaceRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FaceRecords.
+     */
+    skip?: number
+    distinct?: FaceRecordScalarFieldEnum | FaceRecordScalarFieldEnum[]
+  }
+
+  /**
+   * FaceRecord create
+   */
+  export type FaceRecordCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FaceRecord.
+     */
+    data: XOR<FaceRecordCreateInput, FaceRecordUncheckedCreateInput>
+  }
+
+  /**
+   * FaceRecord createMany
+   */
+  export type FaceRecordCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FaceRecords.
+     */
+    data: FaceRecordCreateManyInput | FaceRecordCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FaceRecord createManyAndReturn
+   */
+  export type FaceRecordCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * The data used to create many FaceRecords.
+     */
+    data: FaceRecordCreateManyInput | FaceRecordCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FaceRecord update
+   */
+  export type FaceRecordUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FaceRecord.
+     */
+    data: XOR<FaceRecordUpdateInput, FaceRecordUncheckedUpdateInput>
+    /**
+     * Choose, which FaceRecord to update.
+     */
+    where: FaceRecordWhereUniqueInput
+  }
+
+  /**
+   * FaceRecord updateMany
+   */
+  export type FaceRecordUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FaceRecords.
+     */
+    data: XOR<FaceRecordUpdateManyMutationInput, FaceRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which FaceRecords to update
+     */
+    where?: FaceRecordWhereInput
+    /**
+     * Limit how many FaceRecords to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FaceRecord updateManyAndReturn
+   */
+  export type FaceRecordUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * The data used to update FaceRecords.
+     */
+    data: XOR<FaceRecordUpdateManyMutationInput, FaceRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which FaceRecords to update
+     */
+    where?: FaceRecordWhereInput
+    /**
+     * Limit how many FaceRecords to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FaceRecord upsert
+   */
+  export type FaceRecordUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FaceRecord to update in case it exists.
+     */
+    where: FaceRecordWhereUniqueInput
+    /**
+     * In case the FaceRecord found by the `where` argument doesn't exist, create a new FaceRecord with this data.
+     */
+    create: XOR<FaceRecordCreateInput, FaceRecordUncheckedCreateInput>
+    /**
+     * In case the FaceRecord was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FaceRecordUpdateInput, FaceRecordUncheckedUpdateInput>
+  }
+
+  /**
+   * FaceRecord delete
+   */
+  export type FaceRecordDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+    /**
+     * Filter which FaceRecord to delete.
+     */
+    where: FaceRecordWhereUniqueInput
+  }
+
+  /**
+   * FaceRecord deleteMany
+   */
+  export type FaceRecordDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FaceRecords to delete
+     */
+    where?: FaceRecordWhereInput
+    /**
+     * Limit how many FaceRecords to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FaceRecord without action
+   */
+  export type FaceRecordDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FaceRecord
+     */
+    select?: FaceRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FaceRecord
+     */
+    omit?: FaceRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FaceRecordInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Setting
    */
 
@@ -10697,6 +11999,18 @@ export namespace Prisma {
   export type PurchaseScalarFieldEnum = (typeof PurchaseScalarFieldEnum)[keyof typeof PurchaseScalarFieldEnum]
 
 
+  export const FaceRecordScalarFieldEnum: {
+    id: 'id',
+    rekFaceId: 'rekFaceId',
+    photoId: 'photoId',
+    collectionId: 'collectionId',
+    confidence: 'confidence',
+    createdAt: 'createdAt'
+  };
+
+  export type FaceRecordScalarFieldEnum = (typeof FaceRecordScalarFieldEnum)[keyof typeof FaceRecordScalarFieldEnum]
+
+
   export const SettingScalarFieldEnum: {
     key: 'key',
     value: 'value',
@@ -11102,6 +12416,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
     photos?: PhotoListRelationFilter
     purchases?: PurchaseListRelationFilter
+    faceRecords?: FaceRecordListRelationFilter
   }
 
   export type CollectionOrderByWithRelationInput = {
@@ -11120,6 +12435,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     photos?: PhotoOrderByRelationAggregateInput
     purchases?: PurchaseOrderByRelationAggregateInput
+    faceRecords?: FaceRecordOrderByRelationAggregateInput
   }
 
   export type CollectionWhereUniqueInput = Prisma.AtLeast<{
@@ -11141,6 +12457,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
     photos?: PhotoListRelationFilter
     purchases?: PurchaseListRelationFilter
+    faceRecords?: FaceRecordListRelationFilter
   }, "id" | "slug">
 
   export type CollectionOrderByWithAggregationInput = {
@@ -11199,6 +12516,7 @@ export namespace Prisma {
     previewKey?: StringNullableFilter<"Photo"> | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+    faceRecords?: FaceRecordListRelationFilter
   }
 
   export type PhotoOrderByWithRelationInput = {
@@ -11214,6 +12532,7 @@ export namespace Prisma {
     previewKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     collection?: CollectionOrderByWithRelationInput
+    faceRecords?: FaceRecordOrderByRelationAggregateInput
   }
 
   export type PhotoWhereUniqueInput = Prisma.AtLeast<{
@@ -11232,6 +12551,7 @@ export namespace Prisma {
     previewKey?: StringNullableFilter<"Photo"> | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+    faceRecords?: FaceRecordListRelationFilter
   }, "id">
 
   export type PhotoOrderByWithAggregationInput = {
@@ -11390,6 +12710,71 @@ export namespace Prisma {
     isPublic?: BoolWithAggregatesFilter<"Purchase"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Purchase"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Purchase"> | Date | string
+  }
+
+  export type FaceRecordWhereInput = {
+    AND?: FaceRecordWhereInput | FaceRecordWhereInput[]
+    OR?: FaceRecordWhereInput[]
+    NOT?: FaceRecordWhereInput | FaceRecordWhereInput[]
+    id?: StringFilter<"FaceRecord"> | string
+    rekFaceId?: StringFilter<"FaceRecord"> | string
+    photoId?: StringFilter<"FaceRecord"> | string
+    collectionId?: StringFilter<"FaceRecord"> | string
+    confidence?: FloatNullableFilter<"FaceRecord"> | number | null
+    createdAt?: DateTimeFilter<"FaceRecord"> | Date | string
+    photo?: XOR<PhotoScalarRelationFilter, PhotoWhereInput>
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+  }
+
+  export type FaceRecordOrderByWithRelationInput = {
+    id?: SortOrder
+    rekFaceId?: SortOrder
+    photoId?: SortOrder
+    collectionId?: SortOrder
+    confidence?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    photo?: PhotoOrderByWithRelationInput
+    collection?: CollectionOrderByWithRelationInput
+  }
+
+  export type FaceRecordWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    rekFaceId?: string
+    AND?: FaceRecordWhereInput | FaceRecordWhereInput[]
+    OR?: FaceRecordWhereInput[]
+    NOT?: FaceRecordWhereInput | FaceRecordWhereInput[]
+    photoId?: StringFilter<"FaceRecord"> | string
+    collectionId?: StringFilter<"FaceRecord"> | string
+    confidence?: FloatNullableFilter<"FaceRecord"> | number | null
+    createdAt?: DateTimeFilter<"FaceRecord"> | Date | string
+    photo?: XOR<PhotoScalarRelationFilter, PhotoWhereInput>
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+  }, "id" | "rekFaceId">
+
+  export type FaceRecordOrderByWithAggregationInput = {
+    id?: SortOrder
+    rekFaceId?: SortOrder
+    photoId?: SortOrder
+    collectionId?: SortOrder
+    confidence?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: FaceRecordCountOrderByAggregateInput
+    _avg?: FaceRecordAvgOrderByAggregateInput
+    _max?: FaceRecordMaxOrderByAggregateInput
+    _min?: FaceRecordMinOrderByAggregateInput
+    _sum?: FaceRecordSumOrderByAggregateInput
+  }
+
+  export type FaceRecordScalarWhereWithAggregatesInput = {
+    AND?: FaceRecordScalarWhereWithAggregatesInput | FaceRecordScalarWhereWithAggregatesInput[]
+    OR?: FaceRecordScalarWhereWithAggregatesInput[]
+    NOT?: FaceRecordScalarWhereWithAggregatesInput | FaceRecordScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FaceRecord"> | string
+    rekFaceId?: StringWithAggregatesFilter<"FaceRecord"> | string
+    photoId?: StringWithAggregatesFilter<"FaceRecord"> | string
+    collectionId?: StringWithAggregatesFilter<"FaceRecord"> | string
+    confidence?: FloatNullableWithAggregatesFilter<"FaceRecord"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"FaceRecord"> | Date | string
   }
 
   export type SettingWhereInput = {
@@ -11722,6 +13107,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     photos?: PhotoCreateNestedManyWithoutCollectionInput
     purchases?: PurchaseCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUncheckedCreateInput = {
@@ -11740,6 +13126,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
     purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUpdateInput = {
@@ -11758,6 +13145,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUpdateManyWithoutCollectionNestedInput
     purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionUncheckedUpdateInput = {
@@ -11776,6 +13164,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
     purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionCreateManyInput = {
@@ -11838,6 +13227,7 @@ export namespace Prisma {
     previewKey?: string | null
     createdAt?: Date | string
     collection: CollectionCreateNestedOneWithoutPhotosInput
+    faceRecords?: FaceRecordCreateNestedManyWithoutPhotoInput
   }
 
   export type PhotoUncheckedCreateInput = {
@@ -11852,6 +13242,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     createdAt?: Date | string
+    faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutPhotoInput
   }
 
   export type PhotoUpdateInput = {
@@ -11866,6 +13257,7 @@ export namespace Prisma {
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
+    faceRecords?: FaceRecordUpdateManyWithoutPhotoNestedInput
   }
 
   export type PhotoUncheckedUpdateInput = {
@@ -11880,6 +13272,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    faceRecords?: FaceRecordUncheckedUpdateManyWithoutPhotoNestedInput
   }
 
   export type PhotoCreateManyInput = {
@@ -12067,6 +13460,67 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FaceRecordCreateInput = {
+    id?: string
+    rekFaceId: string
+    confidence?: number | null
+    createdAt?: Date | string
+    photo: PhotoCreateNestedOneWithoutFaceRecordsInput
+    collection: CollectionCreateNestedOneWithoutFaceRecordsInput
+  }
+
+  export type FaceRecordUncheckedCreateInput = {
+    id?: string
+    rekFaceId: string
+    photoId: string
+    collectionId: string
+    confidence?: number | null
+    createdAt?: Date | string
+  }
+
+  export type FaceRecordUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photo?: PhotoUpdateOneRequiredWithoutFaceRecordsNestedInput
+    collection?: CollectionUpdateOneRequiredWithoutFaceRecordsNestedInput
+  }
+
+  export type FaceRecordUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    photoId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FaceRecordCreateManyInput = {
+    id?: string
+    rekFaceId: string
+    photoId: string
+    collectionId: string
+    confidence?: number | null
+    createdAt?: Date | string
+  }
+
+  export type FaceRecordUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FaceRecordUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    photoId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SettingCreateInput = {
@@ -12457,11 +13911,21 @@ export namespace Prisma {
     none?: PurchaseWhereInput
   }
 
+  export type FaceRecordListRelationFilter = {
+    every?: FaceRecordWhereInput
+    some?: FaceRecordWhereInput
+    none?: FaceRecordWhereInput
+  }
+
   export type PhotoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type PurchaseOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FaceRecordOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -12739,6 +14203,46 @@ export namespace Prisma {
     _max?: NestedEnumPurchaseStatusFilter<$PrismaModel>
   }
 
+  export type PhotoScalarRelationFilter = {
+    is?: PhotoWhereInput
+    isNot?: PhotoWhereInput
+  }
+
+  export type FaceRecordCountOrderByAggregateInput = {
+    id?: SortOrder
+    rekFaceId?: SortOrder
+    photoId?: SortOrder
+    collectionId?: SortOrder
+    confidence?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FaceRecordAvgOrderByAggregateInput = {
+    confidence?: SortOrder
+  }
+
+  export type FaceRecordMaxOrderByAggregateInput = {
+    id?: SortOrder
+    rekFaceId?: SortOrder
+    photoId?: SortOrder
+    collectionId?: SortOrder
+    confidence?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FaceRecordMinOrderByAggregateInput = {
+    id?: SortOrder
+    rekFaceId?: SortOrder
+    photoId?: SortOrder
+    collectionId?: SortOrder
+    confidence?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FaceRecordSumOrderByAggregateInput = {
+    confidence?: SortOrder
+  }
+
   export type SettingCountOrderByAggregateInput = {
     key?: SortOrder
     value?: SortOrder
@@ -12907,6 +14411,13 @@ export namespace Prisma {
     connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
   }
 
+  export type FaceRecordCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<FaceRecordCreateWithoutCollectionInput, FaceRecordUncheckedCreateWithoutCollectionInput> | FaceRecordCreateWithoutCollectionInput[] | FaceRecordUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: FaceRecordCreateOrConnectWithoutCollectionInput | FaceRecordCreateOrConnectWithoutCollectionInput[]
+    createMany?: FaceRecordCreateManyCollectionInputEnvelope
+    connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+  }
+
   export type PhotoUncheckedCreateNestedManyWithoutCollectionInput = {
     create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
     connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
@@ -12919,6 +14430,13 @@ export namespace Prisma {
     connectOrCreate?: PurchaseCreateOrConnectWithoutCollectionInput | PurchaseCreateOrConnectWithoutCollectionInput[]
     createMany?: PurchaseCreateManyCollectionInputEnvelope
     connect?: PurchaseWhereUniqueInput | PurchaseWhereUniqueInput[]
+  }
+
+  export type FaceRecordUncheckedCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<FaceRecordCreateWithoutCollectionInput, FaceRecordUncheckedCreateWithoutCollectionInput> | FaceRecordCreateWithoutCollectionInput[] | FaceRecordUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: FaceRecordCreateOrConnectWithoutCollectionInput | FaceRecordCreateOrConnectWithoutCollectionInput[]
+    createMany?: FaceRecordCreateManyCollectionInputEnvelope
+    connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -12969,6 +14487,20 @@ export namespace Prisma {
     deleteMany?: PurchaseScalarWhereInput | PurchaseScalarWhereInput[]
   }
 
+  export type FaceRecordUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<FaceRecordCreateWithoutCollectionInput, FaceRecordUncheckedCreateWithoutCollectionInput> | FaceRecordCreateWithoutCollectionInput[] | FaceRecordUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: FaceRecordCreateOrConnectWithoutCollectionInput | FaceRecordCreateOrConnectWithoutCollectionInput[]
+    upsert?: FaceRecordUpsertWithWhereUniqueWithoutCollectionInput | FaceRecordUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: FaceRecordCreateManyCollectionInputEnvelope
+    set?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    disconnect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    delete?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    update?: FaceRecordUpdateWithWhereUniqueWithoutCollectionInput | FaceRecordUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: FaceRecordUpdateManyWithWhereWithoutCollectionInput | FaceRecordUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: FaceRecordScalarWhereInput | FaceRecordScalarWhereInput[]
+  }
+
   export type PhotoUncheckedUpdateManyWithoutCollectionNestedInput = {
     create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
     connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
@@ -12997,10 +14529,38 @@ export namespace Prisma {
     deleteMany?: PurchaseScalarWhereInput | PurchaseScalarWhereInput[]
   }
 
+  export type FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<FaceRecordCreateWithoutCollectionInput, FaceRecordUncheckedCreateWithoutCollectionInput> | FaceRecordCreateWithoutCollectionInput[] | FaceRecordUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: FaceRecordCreateOrConnectWithoutCollectionInput | FaceRecordCreateOrConnectWithoutCollectionInput[]
+    upsert?: FaceRecordUpsertWithWhereUniqueWithoutCollectionInput | FaceRecordUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: FaceRecordCreateManyCollectionInputEnvelope
+    set?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    disconnect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    delete?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    update?: FaceRecordUpdateWithWhereUniqueWithoutCollectionInput | FaceRecordUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: FaceRecordUpdateManyWithWhereWithoutCollectionInput | FaceRecordUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: FaceRecordScalarWhereInput | FaceRecordScalarWhereInput[]
+  }
+
   export type CollectionCreateNestedOneWithoutPhotosInput = {
     create?: XOR<CollectionCreateWithoutPhotosInput, CollectionUncheckedCreateWithoutPhotosInput>
     connectOrCreate?: CollectionCreateOrConnectWithoutPhotosInput
     connect?: CollectionWhereUniqueInput
+  }
+
+  export type FaceRecordCreateNestedManyWithoutPhotoInput = {
+    create?: XOR<FaceRecordCreateWithoutPhotoInput, FaceRecordUncheckedCreateWithoutPhotoInput> | FaceRecordCreateWithoutPhotoInput[] | FaceRecordUncheckedCreateWithoutPhotoInput[]
+    connectOrCreate?: FaceRecordCreateOrConnectWithoutPhotoInput | FaceRecordCreateOrConnectWithoutPhotoInput[]
+    createMany?: FaceRecordCreateManyPhotoInputEnvelope
+    connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+  }
+
+  export type FaceRecordUncheckedCreateNestedManyWithoutPhotoInput = {
+    create?: XOR<FaceRecordCreateWithoutPhotoInput, FaceRecordUncheckedCreateWithoutPhotoInput> | FaceRecordCreateWithoutPhotoInput[] | FaceRecordUncheckedCreateWithoutPhotoInput[]
+    connectOrCreate?: FaceRecordCreateOrConnectWithoutPhotoInput | FaceRecordCreateOrConnectWithoutPhotoInput[]
+    createMany?: FaceRecordCreateManyPhotoInputEnvelope
+    connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -13019,6 +14579,34 @@ export namespace Prisma {
     update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutPhotosInput, CollectionUpdateWithoutPhotosInput>, CollectionUncheckedUpdateWithoutPhotosInput>
   }
 
+  export type FaceRecordUpdateManyWithoutPhotoNestedInput = {
+    create?: XOR<FaceRecordCreateWithoutPhotoInput, FaceRecordUncheckedCreateWithoutPhotoInput> | FaceRecordCreateWithoutPhotoInput[] | FaceRecordUncheckedCreateWithoutPhotoInput[]
+    connectOrCreate?: FaceRecordCreateOrConnectWithoutPhotoInput | FaceRecordCreateOrConnectWithoutPhotoInput[]
+    upsert?: FaceRecordUpsertWithWhereUniqueWithoutPhotoInput | FaceRecordUpsertWithWhereUniqueWithoutPhotoInput[]
+    createMany?: FaceRecordCreateManyPhotoInputEnvelope
+    set?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    disconnect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    delete?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    update?: FaceRecordUpdateWithWhereUniqueWithoutPhotoInput | FaceRecordUpdateWithWhereUniqueWithoutPhotoInput[]
+    updateMany?: FaceRecordUpdateManyWithWhereWithoutPhotoInput | FaceRecordUpdateManyWithWhereWithoutPhotoInput[]
+    deleteMany?: FaceRecordScalarWhereInput | FaceRecordScalarWhereInput[]
+  }
+
+  export type FaceRecordUncheckedUpdateManyWithoutPhotoNestedInput = {
+    create?: XOR<FaceRecordCreateWithoutPhotoInput, FaceRecordUncheckedCreateWithoutPhotoInput> | FaceRecordCreateWithoutPhotoInput[] | FaceRecordUncheckedCreateWithoutPhotoInput[]
+    connectOrCreate?: FaceRecordCreateOrConnectWithoutPhotoInput | FaceRecordCreateOrConnectWithoutPhotoInput[]
+    upsert?: FaceRecordUpsertWithWhereUniqueWithoutPhotoInput | FaceRecordUpsertWithWhereUniqueWithoutPhotoInput[]
+    createMany?: FaceRecordCreateManyPhotoInputEnvelope
+    set?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    disconnect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    delete?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+    update?: FaceRecordUpdateWithWhereUniqueWithoutPhotoInput | FaceRecordUpdateWithWhereUniqueWithoutPhotoInput[]
+    updateMany?: FaceRecordUpdateManyWithWhereWithoutPhotoInput | FaceRecordUpdateManyWithWhereWithoutPhotoInput[]
+    deleteMany?: FaceRecordScalarWhereInput | FaceRecordScalarWhereInput[]
+  }
+
   export type CollectionCreateNestedOneWithoutPurchasesInput = {
     create?: XOR<CollectionCreateWithoutPurchasesInput, CollectionUncheckedCreateWithoutPurchasesInput>
     connectOrCreate?: CollectionCreateOrConnectWithoutPurchasesInput
@@ -13035,6 +14623,34 @@ export namespace Prisma {
     upsert?: CollectionUpsertWithoutPurchasesInput
     connect?: CollectionWhereUniqueInput
     update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutPurchasesInput, CollectionUpdateWithoutPurchasesInput>, CollectionUncheckedUpdateWithoutPurchasesInput>
+  }
+
+  export type PhotoCreateNestedOneWithoutFaceRecordsInput = {
+    create?: XOR<PhotoCreateWithoutFaceRecordsInput, PhotoUncheckedCreateWithoutFaceRecordsInput>
+    connectOrCreate?: PhotoCreateOrConnectWithoutFaceRecordsInput
+    connect?: PhotoWhereUniqueInput
+  }
+
+  export type CollectionCreateNestedOneWithoutFaceRecordsInput = {
+    create?: XOR<CollectionCreateWithoutFaceRecordsInput, CollectionUncheckedCreateWithoutFaceRecordsInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutFaceRecordsInput
+    connect?: CollectionWhereUniqueInput
+  }
+
+  export type PhotoUpdateOneRequiredWithoutFaceRecordsNestedInput = {
+    create?: XOR<PhotoCreateWithoutFaceRecordsInput, PhotoUncheckedCreateWithoutFaceRecordsInput>
+    connectOrCreate?: PhotoCreateOrConnectWithoutFaceRecordsInput
+    upsert?: PhotoUpsertWithoutFaceRecordsInput
+    connect?: PhotoWhereUniqueInput
+    update?: XOR<XOR<PhotoUpdateToOneWithWhereWithoutFaceRecordsInput, PhotoUpdateWithoutFaceRecordsInput>, PhotoUncheckedUpdateWithoutFaceRecordsInput>
+  }
+
+  export type CollectionUpdateOneRequiredWithoutFaceRecordsNestedInput = {
+    create?: XOR<CollectionCreateWithoutFaceRecordsInput, CollectionUncheckedCreateWithoutFaceRecordsInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutFaceRecordsInput
+    upsert?: CollectionUpsertWithoutFaceRecordsInput
+    connect?: CollectionWhereUniqueInput
+    update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutFaceRecordsInput, CollectionUpdateWithoutFaceRecordsInput>, CollectionUncheckedUpdateWithoutFaceRecordsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -13544,6 +15160,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     createdAt?: Date | string
+    faceRecords?: FaceRecordCreateNestedManyWithoutPhotoInput
   }
 
   export type PhotoUncheckedCreateWithoutCollectionInput = {
@@ -13557,6 +15174,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     createdAt?: Date | string
+    faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutPhotoInput
   }
 
   export type PhotoCreateOrConnectWithoutCollectionInput = {
@@ -13616,6 +15234,32 @@ export namespace Prisma {
 
   export type PurchaseCreateManyCollectionInputEnvelope = {
     data: PurchaseCreateManyCollectionInput | PurchaseCreateManyCollectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type FaceRecordCreateWithoutCollectionInput = {
+    id?: string
+    rekFaceId: string
+    confidence?: number | null
+    createdAt?: Date | string
+    photo: PhotoCreateNestedOneWithoutFaceRecordsInput
+  }
+
+  export type FaceRecordUncheckedCreateWithoutCollectionInput = {
+    id?: string
+    rekFaceId: string
+    photoId: string
+    confidence?: number | null
+    createdAt?: Date | string
+  }
+
+  export type FaceRecordCreateOrConnectWithoutCollectionInput = {
+    where: FaceRecordWhereUniqueInput
+    create: XOR<FaceRecordCreateWithoutCollectionInput, FaceRecordUncheckedCreateWithoutCollectionInput>
+  }
+
+  export type FaceRecordCreateManyCollectionInputEnvelope = {
+    data: FaceRecordCreateManyCollectionInput | FaceRecordCreateManyCollectionInput[]
     skipDuplicates?: boolean
   }
 
@@ -13692,6 +15336,34 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Purchase"> | Date | string
   }
 
+  export type FaceRecordUpsertWithWhereUniqueWithoutCollectionInput = {
+    where: FaceRecordWhereUniqueInput
+    update: XOR<FaceRecordUpdateWithoutCollectionInput, FaceRecordUncheckedUpdateWithoutCollectionInput>
+    create: XOR<FaceRecordCreateWithoutCollectionInput, FaceRecordUncheckedCreateWithoutCollectionInput>
+  }
+
+  export type FaceRecordUpdateWithWhereUniqueWithoutCollectionInput = {
+    where: FaceRecordWhereUniqueInput
+    data: XOR<FaceRecordUpdateWithoutCollectionInput, FaceRecordUncheckedUpdateWithoutCollectionInput>
+  }
+
+  export type FaceRecordUpdateManyWithWhereWithoutCollectionInput = {
+    where: FaceRecordScalarWhereInput
+    data: XOR<FaceRecordUpdateManyMutationInput, FaceRecordUncheckedUpdateManyWithoutCollectionInput>
+  }
+
+  export type FaceRecordScalarWhereInput = {
+    AND?: FaceRecordScalarWhereInput | FaceRecordScalarWhereInput[]
+    OR?: FaceRecordScalarWhereInput[]
+    NOT?: FaceRecordScalarWhereInput | FaceRecordScalarWhereInput[]
+    id?: StringFilter<"FaceRecord"> | string
+    rekFaceId?: StringFilter<"FaceRecord"> | string
+    photoId?: StringFilter<"FaceRecord"> | string
+    collectionId?: StringFilter<"FaceRecord"> | string
+    confidence?: FloatNullableFilter<"FaceRecord"> | number | null
+    createdAt?: DateTimeFilter<"FaceRecord"> | Date | string
+  }
+
   export type CollectionCreateWithoutPhotosInput = {
     id?: string
     title: string
@@ -13707,6 +15379,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     purchases?: PurchaseCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUncheckedCreateWithoutPhotosInput = {
@@ -13724,11 +15397,38 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionCreateOrConnectWithoutPhotosInput = {
     where: CollectionWhereUniqueInput
     create: XOR<CollectionCreateWithoutPhotosInput, CollectionUncheckedCreateWithoutPhotosInput>
+  }
+
+  export type FaceRecordCreateWithoutPhotoInput = {
+    id?: string
+    rekFaceId: string
+    confidence?: number | null
+    createdAt?: Date | string
+    collection: CollectionCreateNestedOneWithoutFaceRecordsInput
+  }
+
+  export type FaceRecordUncheckedCreateWithoutPhotoInput = {
+    id?: string
+    rekFaceId: string
+    collectionId: string
+    confidence?: number | null
+    createdAt?: Date | string
+  }
+
+  export type FaceRecordCreateOrConnectWithoutPhotoInput = {
+    where: FaceRecordWhereUniqueInput
+    create: XOR<FaceRecordCreateWithoutPhotoInput, FaceRecordUncheckedCreateWithoutPhotoInput>
+  }
+
+  export type FaceRecordCreateManyPhotoInputEnvelope = {
+    data: FaceRecordCreateManyPhotoInput | FaceRecordCreateManyPhotoInput[]
+    skipDuplicates?: boolean
   }
 
   export type CollectionUpsertWithoutPhotosInput = {
@@ -13757,6 +15457,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionUncheckedUpdateWithoutPhotosInput = {
@@ -13774,6 +15475,23 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput
+  }
+
+  export type FaceRecordUpsertWithWhereUniqueWithoutPhotoInput = {
+    where: FaceRecordWhereUniqueInput
+    update: XOR<FaceRecordUpdateWithoutPhotoInput, FaceRecordUncheckedUpdateWithoutPhotoInput>
+    create: XOR<FaceRecordCreateWithoutPhotoInput, FaceRecordUncheckedCreateWithoutPhotoInput>
+  }
+
+  export type FaceRecordUpdateWithWhereUniqueWithoutPhotoInput = {
+    where: FaceRecordWhereUniqueInput
+    data: XOR<FaceRecordUpdateWithoutPhotoInput, FaceRecordUncheckedUpdateWithoutPhotoInput>
+  }
+
+  export type FaceRecordUpdateManyWithWhereWithoutPhotoInput = {
+    where: FaceRecordScalarWhereInput
+    data: XOR<FaceRecordUpdateManyMutationInput, FaceRecordUncheckedUpdateManyWithoutPhotoInput>
   }
 
   export type CollectionCreateWithoutPurchasesInput = {
@@ -13791,6 +15509,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUncheckedCreateWithoutPurchasesInput = {
@@ -13808,6 +15527,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionCreateOrConnectWithoutPurchasesInput = {
@@ -13841,6 +15561,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionUncheckedUpdateWithoutPurchasesInput = {
@@ -13858,6 +15579,167 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput
+  }
+
+  export type PhotoCreateWithoutFaceRecordsInput = {
+    id?: string
+    bibNumber?: string | null
+    storageKey: string
+    filename: string
+    fileSize?: number | null
+    width?: number | null
+    height?: number | null
+    order?: number
+    previewKey?: string | null
+    createdAt?: Date | string
+    collection: CollectionCreateNestedOneWithoutPhotosInput
+  }
+
+  export type PhotoUncheckedCreateWithoutFaceRecordsInput = {
+    id?: string
+    collectionId: string
+    bibNumber?: string | null
+    storageKey: string
+    filename: string
+    fileSize?: number | null
+    width?: number | null
+    height?: number | null
+    order?: number
+    previewKey?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PhotoCreateOrConnectWithoutFaceRecordsInput = {
+    where: PhotoWhereUniqueInput
+    create: XOR<PhotoCreateWithoutFaceRecordsInput, PhotoUncheckedCreateWithoutFaceRecordsInput>
+  }
+
+  export type CollectionCreateWithoutFaceRecordsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    bannerFocalY?: number | null
+    slug: string
+    eventDate?: Date | string | null
+    pricePerBib?: Decimal | DecimalJsLike | number | string
+    isPublished?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: PhotoCreateNestedManyWithoutCollectionInput
+    purchases?: PurchaseCreateNestedManyWithoutCollectionInput
+  }
+
+  export type CollectionUncheckedCreateWithoutFaceRecordsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    bannerFocalY?: number | null
+    slug: string
+    eventDate?: Date | string | null
+    pricePerBib?: Decimal | DecimalJsLike | number | string
+    isPublished?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
+    purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
+  }
+
+  export type CollectionCreateOrConnectWithoutFaceRecordsInput = {
+    where: CollectionWhereUniqueInput
+    create: XOR<CollectionCreateWithoutFaceRecordsInput, CollectionUncheckedCreateWithoutFaceRecordsInput>
+  }
+
+  export type PhotoUpsertWithoutFaceRecordsInput = {
+    update: XOR<PhotoUpdateWithoutFaceRecordsInput, PhotoUncheckedUpdateWithoutFaceRecordsInput>
+    create: XOR<PhotoCreateWithoutFaceRecordsInput, PhotoUncheckedCreateWithoutFaceRecordsInput>
+    where?: PhotoWhereInput
+  }
+
+  export type PhotoUpdateToOneWithWhereWithoutFaceRecordsInput = {
+    where?: PhotoWhereInput
+    data: XOR<PhotoUpdateWithoutFaceRecordsInput, PhotoUncheckedUpdateWithoutFaceRecordsInput>
+  }
+
+  export type PhotoUpdateWithoutFaceRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    order?: IntFieldUpdateOperationsInput | number
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
+  }
+
+  export type PhotoUncheckedUpdateWithoutFaceRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    order?: IntFieldUpdateOperationsInput | number
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CollectionUpsertWithoutFaceRecordsInput = {
+    update: XOR<CollectionUpdateWithoutFaceRecordsInput, CollectionUncheckedUpdateWithoutFaceRecordsInput>
+    create: XOR<CollectionCreateWithoutFaceRecordsInput, CollectionUncheckedCreateWithoutFaceRecordsInput>
+    where?: CollectionWhereInput
+  }
+
+  export type CollectionUpdateToOneWithWhereWithoutFaceRecordsInput = {
+    where?: CollectionWhereInput
+    data: XOR<CollectionUpdateWithoutFaceRecordsInput, CollectionUncheckedUpdateWithoutFaceRecordsInput>
+  }
+
+  export type CollectionUpdateWithoutFaceRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
+    slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: PhotoUpdateManyWithoutCollectionNestedInput
+    purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
+  }
+
+  export type CollectionUncheckedUpdateWithoutFaceRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
+    slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
+    purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -13977,6 +15859,14 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type FaceRecordCreateManyCollectionInput = {
+    id?: string
+    rekFaceId: string
+    photoId: string
+    confidence?: number | null
+    createdAt?: Date | string
+  }
+
   export type PhotoUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13988,6 +15878,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    faceRecords?: FaceRecordUpdateManyWithoutPhotoNestedInput
   }
 
   export type PhotoUncheckedUpdateWithoutCollectionInput = {
@@ -14001,6 +15892,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    faceRecords?: FaceRecordUncheckedUpdateManyWithoutPhotoNestedInput
   }
 
   export type PhotoUncheckedUpdateManyWithoutCollectionInput = {
@@ -14074,6 +15966,62 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FaceRecordUpdateWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photo?: PhotoUpdateOneRequiredWithoutFaceRecordsNestedInput
+  }
+
+  export type FaceRecordUncheckedUpdateWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    photoId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FaceRecordUncheckedUpdateManyWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    photoId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FaceRecordCreateManyPhotoInput = {
+    id?: string
+    rekFaceId: string
+    collectionId: string
+    confidence?: number | null
+    createdAt?: Date | string
+  }
+
+  export type FaceRecordUpdateWithoutPhotoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collection?: CollectionUpdateOneRequiredWithoutFaceRecordsNestedInput
+  }
+
+  export type FaceRecordUncheckedUpdateWithoutPhotoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FaceRecordUncheckedUpdateManyWithoutPhotoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rekFaceId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

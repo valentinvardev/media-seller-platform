@@ -210,6 +210,15 @@ exports.Prisma.PurchaseScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.FaceRecordScalarFieldEnum = {
+  id: 'id',
+  rekFaceId: 'rekFaceId',
+  photoId: 'photoId',
+  collectionId: 'collectionId',
+  confidence: 'confidence',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SettingScalarFieldEnum = {
   key: 'key',
   value: 'value',
@@ -245,6 +254,7 @@ exports.Prisma.ModelName = {
   Collection: 'Collection',
   Photo: 'Photo',
   Purchase: 'Purchase',
+  FaceRecord: 'FaceRecord',
   Setting: 'Setting'
 };
 
