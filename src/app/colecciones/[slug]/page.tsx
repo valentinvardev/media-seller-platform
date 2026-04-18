@@ -131,25 +131,20 @@ export default async function CollectionPage({
       <FolderBrowser collectionId={collection.id} pricePerBib={Number(collection.pricePerBib)} />
 
       {/* ── MercadoPago strip ─────────────────────────────────── */}
-      <div style={{ background: "linear-gradient(135deg, #c2410c 0%, #F97316 100%)" }} className="py-10 px-5">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="font-display font-700 uppercase tracking-widest text-white text-xl mb-1">Método de pago aceptado</p>
-          <p className="text-orange-100 text-sm mb-6">Tarjetas, transferencia y efectivo — 100% seguro a través de MercadoPago</p>
-          <div className="flex justify-center mb-6">
+      <section style={{ background: "#ffffff" }} className="py-14 px-5">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="font-display font-700 uppercase tracking-widest text-black text-xl mb-2">Método de pago aceptado</p>
+          <p className="text-gray-600 text-sm mb-8">Tarjetas, transferencia y efectivo — 100% seguro a través de MercadoPago</p>
+          <div className="flex justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
               alt="MercadoPago"
-              className="h-16 w-auto"
+              className="h-20 w-auto"
             />
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {["Visa", "Mastercard", "Débito", "Rapipago", "Pago Fácil", "Transferencia"].map((m) => (
-              <span key={m} className="px-3 py-1.5 rounded-full text-xs font-semibold text-orange-100 border border-orange-200/40 bg-white/10">{m}</span>
-            ))}
-          </div>
         </div>
-      </div>
+      </section>
 
       {/* ── Footer ────────────────────────────────────────────── */}
       <footer style={{ background: "#001A4D" }} className="py-8 px-5">
