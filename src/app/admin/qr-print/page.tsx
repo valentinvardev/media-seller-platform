@@ -101,10 +101,9 @@ function getPageCss(fmt: Format): string {
     @page { size: 6cm 6cm; margin: 0; }
     body { width: 6cm; height: 6cm; }
     .sticker {
-      width: 5.7cm; height: 5.7cm;
-      border: 2.5px solid #0057A8; border-radius: 10px;
+      width: 6cm; height: 6cm;
       display: flex; flex-direction: column; align-items: center;
-      padding: 0.2cm 0.2cm 0.15cm; gap: 0.1cm; overflow: hidden;
+      padding: 0.2cm 0.2cm 0.15cm; gap: 0.1cm;
       background: white;
     }
     .s-logo-wrap { width: 100%; display: flex; align-items: center; justify-content: center; padding: 0.1cm 0; }
@@ -124,11 +123,11 @@ function getPageCss(fmt: Format): string {
       background: white;
     }
     .c-left {
-      width: 3.5cm; background: #0057A8;
+      width: 3.5cm; background: white;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 0.4cm 0.3cm;
     }
-    .c-logo { width: 2.8cm; height: auto; filter: brightness(0) invert(1); }
+    .c-logo { width: 2.8cm; height: auto; }
     .c-right {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 0.25cm; padding: 0.3cm 0.4cm;
@@ -144,7 +143,7 @@ function getPageCss(fmt: Format): string {
     @page { size: A5 portrait; margin: 0; }
     body { width: 14.8cm; height: 21cm; }
     .poster-wrap { width: 14.8cm; height: 21cm; display: flex; flex-direction: column; background: white; }
-    .p-top-bar { height: 0.35cm; background: #0057A8; flex-shrink: 0; }
+    .p-top-bar { display: none; }
     .p-body {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 0.4cm; padding: 0.6cm 1.2cm;
@@ -155,11 +154,8 @@ function getPageCss(fmt: Format): string {
       font-size: 22pt; font-weight: 900; color: #0057A8;
       text-align: center; line-height: 1.15; letter-spacing: -0.3px;
     }
-    .p-qr-wrap {
-      padding: 0.3cm; border: 3px solid #0057A8; border-radius: 14px;
-      box-shadow: 0 4px 20px rgba(0,87,168,0.12); line-height: 0; background: white;
-    }
+    .p-qr-wrap { line-height: 0; }
     .p-msg { font-size: 9pt; color: #374151; text-align: center; line-height: 1.5; }
-    .p-bottom { height: 0.5cm; background: #F97316; flex-shrink: 0; }
+    .p-bottom { display: none; }
   `;
 }
