@@ -211,7 +211,7 @@ function CartBar({
         </button>
         <button onClick={onCheckout}
           className="px-4 py-2 rounded-xl font-display font-700 uppercase tracking-wide text-white text-xs transition-all hover:scale-105 shrink-0"
-          style={{ background: "linear-gradient(135deg, #F97316, #c2410c)" }}>
+          style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}>
           Comprar
         </button>
       </div>
