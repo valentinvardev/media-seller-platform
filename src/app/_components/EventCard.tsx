@@ -22,7 +22,7 @@ export function EventCard({ col, preview }: { col: EventCardCol; preview?: boole
   const objectPosition = `center ${Math.round(focalY * 100)}%`;
 
   const cardBody = (
-    <div className="bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 group flex flex-col card-hover">
+    <div className="bg-white overflow-hidden hover:shadow-lg transition-all duration-200 group flex flex-col card-hover">
       {/* Cover — title + date overlaid at bottom */}
       <div className="relative h-56 bg-gradient-to-br from-blue-50 to-blue-100 flex-shrink-0">
         {(col.bannerUrl ?? col.coverUrl) ? (
