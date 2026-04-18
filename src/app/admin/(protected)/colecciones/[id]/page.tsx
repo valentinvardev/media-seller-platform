@@ -4,6 +4,7 @@ import { api } from "~/trpc/server";
 import { PhotoUploader } from "~/app/_components/admin/PhotoUploader";
 import { PhotoManager } from "~/app/_components/admin/PhotoManager";
 import { CollectionActions } from "~/app/_components/admin/CollectionActions";
+import { FaceReindexButton } from "~/app/_components/admin/FaceReindexButton";
 import { createSignedUrl } from "~/lib/supabase/admin";
 
 const PAGE_SIZE = 48;
@@ -113,6 +114,11 @@ export default async function EditCollectionPage({
             </Link>
             <CollectionActions id={collection.id} isPublished={collection.isPublished} />
           </div>
+        </div>
+
+        {/* Face reindex */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <FaceReindexButton collectionId={collection.id} totalPhotos={totalCount} />
         </div>
 
         {/* Stats */}

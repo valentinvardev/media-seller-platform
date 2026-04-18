@@ -225,7 +225,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [faceActive, setFaceActive] = useState(false);
-  const [faceStatus, setFaceStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
+  const [faceStatus, setFaceStatus] = useState<"idle" | "uploading" | "done" | "no-face" | "error">("idle");
   const [faceBibs, setFaceBibs] = useState<{ bib: string; photoIds: string[] }[] | null>(null);
   const [modal, setModal] = useState<{ bib: string; photoIds: string[] } | null>(null);
   const [lightbox, setLightbox] = useState<{ url: string; bibNumber: string | null; photoIds: string[] } | null>(null);
@@ -275,6 +275,10 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
         groups: { bib: string; photoIds: string[] }[];
         noFaceDetected?: boolean;
       };
+      if (json.noFaceDetected) {
+        setFaceStatus("no-face");
+        return;
+      }
       setFaceBibs(json.groups);
       setFaceStatus("done");
       setFaceActive(true);
@@ -356,7 +360,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           <button
             onClick={() => {
               if (faceStatus === "uploading") return;
-              if (faceStatus === "done" || faceStatus === "error") {
+              if (faceStatus === "done" || faceStatus === "error" || faceStatus === "no-face") {
                 setFaceStatus("idle"); setFaceBibs(null);
                 if (fileRef.current) fileRef.current.value = "";
               }
@@ -395,9 +399,16 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
                 className="underline hover:text-gray-700">intentar con otra foto</button>
             </p>
           )}
+          {faceStatus === "no-face" && (
+            <p className="text-xs text-amber-500">
+              No detectamos un rostro claro ·{" "}
+              <button onClick={() => { setFaceStatus("idle"); if (fileRef.current) fileRef.current.value = ""; }}
+                className="underline hover:text-amber-700">intentar con otra foto</button>
+            </p>
+          )}
           {faceStatus === "error" && (
             <p className="text-xs text-red-400">
-              No pudimos analizar la imagen ·{" "}
+              Error al procesar la imagen ·{" "}
               <button onClick={() => { setFaceStatus("idle"); if (fileRef.current) fileRef.current.value = ""; }}
                 className="underline hover:text-red-600">reintentar</button>
             </p>
