@@ -51,11 +51,10 @@ export default async function HomePage() {
         />
 
         {/* Content */}
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-8 py-12 flex flex-col items-start gap-8">
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-8 py-12 flex flex-col items-center sm:items-start gap-8">
           <Link href="/">
-            <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-[226px] sm:h-[275px] w-auto drop-shadow-2xl hidden sm:block" priority />
+            <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-28 sm:h-[275px] w-auto drop-shadow-2xl" priority />
           </Link>
-
         </div>
       </section>
 
