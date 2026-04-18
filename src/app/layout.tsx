@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Barlow_Condensed, Inter } from "next/font/google";
+import { Archivo, Archivo_Black } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -11,22 +11,23 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const barlow = Barlow_Condensed({
+const archivoBlack = Archivo_Black({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
-  variable: "--font-barlow",
+  weight: "400",
+  variable: "--font-archivo-black",
 });
 
-const inter = Inter({
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-archivo",
 });
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${barlow.variable} ${inter.variable}`}>
+    <html lang="es" className={`${archivoBlack.variable} ${archivo.variable}`}>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>

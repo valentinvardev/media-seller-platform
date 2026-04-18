@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo-black), ui-sans-serif, system-ui, sans-serif;
 
   --color-brand-50:  #fffbeb;
   --color-brand-100: #fef3c7;
@@ -27,13 +27,13 @@
 body {
   background-color: #f9fafb;
   color: #111827;
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Display / heading font — Barlow Condensed */
+/* Display / heading font — Archivo Black */
 .font-display {
-  font-family: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-archivo-black), ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0.01em;
 }
 
