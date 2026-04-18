@@ -26,7 +26,7 @@ const QR_PREVIEW_SIZES: Record<Format, number> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function QrPrintPage(_props: object) {
+export function QrPrintPage() {
   const [format, setFormat] = useState<Format>("card");
   const fmt = FORMATS.find((f) => f.id === format)!;
 
