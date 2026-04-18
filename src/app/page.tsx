@@ -43,7 +43,7 @@ export default async function HomePage() {
       {/* ════════ HERO — full bleed ════════ */}
       <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: "40vh" }}>
         <Image
-          src="/banner.jpg"
+          src="/hero.jpg"
           alt="Foto de carrera"
           fill
           className="object-cover object-top"
@@ -53,9 +53,9 @@ export default async function HomePage() {
         <div className="absolute inset-0" style={{ background: "rgba(0,20,60,0.55)" }} />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center px-8 py-12 text-center gap-8">
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-8 py-12 flex flex-col items-start gap-8">
           <Link href="/">
-            <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-36 sm:h-44 w-auto drop-shadow-2xl" priority />
+            <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-[188px] sm:h-[229px] w-auto drop-shadow-2xl hidden sm:block" priority />
           </Link>
 
           <a href="#eventos"
