@@ -39,83 +39,50 @@ export default async function HomePage() {
         <div className="h-0.5 w-full" style={{ background: "#F97316" }} />
       </nav>
 
-      {/* ════════ HERO — 40vh split ════════ */}
-      <section className="relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2" style={{ minHeight: "40vh" }}>
+      {/* ════════ HERO — full bleed ════════ */}
+      <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: "40vh" }}>
+        <Image
+          src="/banner.jpg"
+          alt="Foto de carrera"
+          fill
+          className="object-cover object-top"
+          priority
+        />
+        {/* Dark overlay */}
+        <div className="absolute inset-0" style={{ background: "rgba(0,20,60,0.55)" }} />
 
-          {/* Left — content */}
-          <div className="flex flex-col justify-center px-8 sm:px-14 py-8 speed-lines"
-            style={{ background: "linear-gradient(150deg, #F0F6FF 0%, #ffffff 80%)" }}>
-            <Link href="/" className="mb-8 self-start hidden sm:block">
-              <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-40 w-auto" priority />
-            </Link>
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center justify-center px-8 py-12 text-center gap-8">
+          <Link href="/">
+            <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-36 sm:h-44 w-auto drop-shadow-2xl" priority />
+          </Link>
 
-            <p className="text-gray-500 text-base sm:text-sm leading-relaxed mb-5 max-w-sm font-medium">
-              Buscá tu número, comprá y descargá tus fotos en HD al instante.
-            </p>
-
-            {/* Steps — column on mobile, row on desktop */}
-            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-y-3 gap-x-5 mb-6">
-              {[
-                { num: "01", label: "Elegí el evento" },
-                { num: "02", label: "Ingresá tu número" },
-                { num: "03", label: "Descargá en HD" },
-              ].map((s, i) => (
-                <div key={s.num} className="flex items-center gap-2">
-                  {i > 0 && <span className="hidden sm:inline text-gray-200 text-sm mr-2">›</span>}
-                  <span className="font-display font-800 text-2xl sm:text-xl leading-none"
-                    style={{ color: "#F97316" }}>{s.num}</span>
-                  <span className="text-sm sm:text-xs font-semibold text-gray-600">{s.label}</span>
-                </div>
-              ))}
-            </div>
-
-            <a href="#eventos"
-              className="self-start inline-flex items-center gap-2 px-6 py-3 rounded-xl font-display font-700 uppercase tracking-wider text-white text-sm transition-all hover:scale-105"
-              style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)", boxShadow: "0 4px 16px rgba(0,87,168,0.28)" }}>
-              Ver eventos
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </a>
-          </div>
-
-          {/* Right — full bleed photo area */}
-          <div className="relative hidden lg:flex items-center justify-center overflow-hidden" style={{ minHeight: "40vh" }}>
-            <Image
-              src="/banner.jpg"
-              alt="Foto de carrera"
-              fill
-              className="object-cover object-top"
-              priority
-            />
-            {/* Corner badge */}
-            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold text-white z-10"
-              style={{ background: "rgba(249,115,22,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.25)" }}>
-              Ultra alta definición
-            </div>
-          </div>
+          <a href="#eventos"
+            className="inline-flex items-center px-6 py-3 rounded-xl font-display font-700 uppercase tracking-wider text-white text-sm transition-all hover:scale-105"
+            style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)", boxShadow: "0 4px 16px rgba(0,87,168,0.4)" }}>
+            Ver eventos
+          </a>
         </div>
       </section>
 
       <div className="h-0.5 w-full" style={{ background: "#F97316" }} />
 
       {/* ════════ EVENTS ════════ */}
-      <section id="eventos" className="py-14 px-8 sm:px-14 bg-gray-50">
+      <section id="eventos" className="py-14 px-8 sm:px-14" style={{ background: "#F97316" }}>
           <div className="flex items-baseline justify-between mb-8">
-            <h2 className="font-display font-800 uppercase text-gray-900"
+            <h2 className="font-display font-800 uppercase text-white"
               style={{ fontSize: "clamp(2rem, 5vw, 3rem)", letterSpacing: "-0.01em" }}>
               Eventos
             </h2>
             {collections.length > 0 && (
-              <span className="text-sm text-gray-400">{collections.length} disponible{collections.length !== 1 ? "s" : ""}</span>
+              <span className="text-sm text-white/80">{collections.length} disponible{collections.length !== 1 ? "s" : ""}</span>
             )}
           </div>
 
           {collections.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
-              <p className="font-display font-700 uppercase text-2xl text-gray-400 mb-1">Próximamente</p>
-              <p className="text-sm text-gray-400">Los próximos eventos aparecerán aquí</p>
+            <div className="bg-white/20 rounded-2xl border border-white/30 p-16 text-center">
+              <p className="font-display font-700 uppercase text-2xl text-white mb-1">Próximamente</p>
+              <p className="text-sm text-white/80">Los próximos eventos aparecerán aquí</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -127,22 +94,17 @@ export default async function HomePage() {
       </section>
 
       {/* ════════ MERCADOPAGO ════════ */}
-      <section style={{ background: "linear-gradient(135deg, #c2410c 0%, #F97316 100%)" }} className="py-14 px-5">
+      <section style={{ background: "#ffffff" }} className="py-14 px-5">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="font-display font-700 uppercase tracking-widest text-white text-xl mb-2">Método de pago aceptado</p>
-          <p className="text-orange-100 text-sm mb-8">Tarjetas, transferencia y efectivo — 100% seguro a través de MercadoPago</p>
-          <div className="flex justify-center mb-8">
+          <p className="font-display font-700 uppercase tracking-widest text-black text-xl mb-2">Método de pago aceptado</p>
+          <p className="text-gray-600 text-sm mb-8">Tarjetas, transferencia y efectivo — 100% seguro a través de MercadoPago</p>
+          <div className="flex justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
               alt="MercadoPago"
               className="h-20 w-auto"
             />
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {["Visa", "Mastercard", "Débito", "Rapipago", "Pago Fácil", "Transferencia"].map((m) => (
-              <span key={m} className="px-3 py-1.5 rounded-full text-xs font-semibold text-orange-100 border border-orange-200/40 bg-white/10">{m}</span>
-            ))}
           </div>
         </div>
       </section>

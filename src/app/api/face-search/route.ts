@@ -4,7 +4,6 @@ import {
   SearchFacesByImageCommand,
 } from "@aws-sdk/client-rekognition";
 import { db } from "~/server/db";
-import { auth } from "~/server/auth";
 
 /**
  * POST /api/face-search  { imageBase64: string, collectionId: string }
@@ -26,8 +25,6 @@ function rekognitionCollectionId(collectionId: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const { imageBase64, collectionId } = (await req.json()) as {
       imageBase64?: string;
