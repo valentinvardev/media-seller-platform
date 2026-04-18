@@ -46,12 +46,12 @@ export default async function HomePage() {
           src="/hero.jpg"
           alt="Foto de carrera"
           fill
-          className="object-cover object-bottom"
+          className="object-cover object-[center_85%]"
           priority
         />
 
         {/* Content */}
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-8 py-12 flex flex-col items-center sm:items-start gap-8">
+        <div className="absolute top-0 right-0 z-10 p-6 sm:p-10 flex items-start justify-end">
           <Link href="/">
             <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-28 sm:h-[275px] w-auto drop-shadow-2xl" priority />
           </Link>
