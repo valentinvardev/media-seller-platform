@@ -45,7 +45,7 @@ function purchaseApprovedHtml({
           <!-- Logo -->
           <tr>
             <td align="center" style="padding-bottom:32px;">
-              <img src="${BASE_URL}/logo-altafoto.png" alt="ALTAFOTO" height="36" style="height:36px;width:auto;display:block;" />
+              <img src="${BASE_URL}/logo.png" alt="ALTAFOTO" height="36" style="height:36px;width:auto;display:block;" />
             </td>
           </tr>
 

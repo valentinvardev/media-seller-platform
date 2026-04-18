@@ -317,7 +317,7 @@ export function PhotoGallery({ bibNumber, collectionTitle, buyerName, photos, su
             <div className="flex items-center gap-3">
               {/* Logo small */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-altafoto.png" alt="ALTAFOTO" className="h-6 w-auto brightness-0 invert opacity-60" />
+              <img src="/logo.png" alt="ALTAFOTO" className="h-6 w-auto brightness-0 invert opacity-60" />
               <span className="text-xs text-white/40">{lightboxIdx + 1} / {photos.length}</span>
             </div>
             <div className="flex items-center gap-2">
