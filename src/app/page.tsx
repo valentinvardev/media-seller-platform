@@ -57,7 +57,7 @@ export default async function HomePage() {
           </Link>
         </div>
         {/* Desktop: top-right logo */}
-        <div className="hidden sm:flex absolute top-0 right-0 z-10 p-10 items-start justify-end">
+        <div className="hidden sm:flex absolute top-0 right-0 z-10 pt-2 pr-10 items-start justify-end">
           <Link href="/">
             <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-[275px] w-auto drop-shadow-2xl" priority />
           </Link>
