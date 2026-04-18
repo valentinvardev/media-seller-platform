@@ -10,10 +10,11 @@ export default async function QrPrintRoute({
 }) {
   const { url = "", title = "", format = "card" } = await searchParams;
   const fmt = format as Format;
-  const shortUrl = url.replace(/^https?:\/\//, "");
+  const shortUrl = BASE_URL.replace(/^https?:\/\//, "");
 
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "";
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://altafoto.com.ar";
   const logoSrc = `${BASE_URL}/logo.png`;
+  const qrUrl = BASE_URL;
 
   return (
     <>
@@ -23,7 +24,7 @@ export default async function QrPrintRoute({
       {/* ── Plain: QR only ── */}
       {fmt === "plain" && (
         <div className="plain-wrap">
-          <QRCode value={url} size={300} fgColor="#0057A8" bgColor="#ffffff" />
+          <QRCode value={qrUrl} size={300} fgColor="#0057A8" bgColor="#ffffff" />
         </div>
       )}
 
@@ -35,7 +36,7 @@ export default async function QrPrintRoute({
             <img src={logoSrc} alt="ALTAFOTO" className="s-logo" />
           </div>
           <div className="s-qr">
-            <QRCode value={url} size={105} fgColor="#0057A8" bgColor="#ffffff" />
+            <QRCode value={qrUrl} size={105} fgColor="#0057A8" bgColor="#ffffff" />
           </div>
           <div className="s-line" />
           <div className="s-msg">Tu foto está acá</div>
@@ -55,7 +56,7 @@ export default async function QrPrintRoute({
           {/* Right: QR + message */}
           <div className="c-right">
             <div className="c-qr-wrap">
-              <QRCode value={url} size={150} fgColor="#0057A8" bgColor="#ffffff" />
+              <QRCode value={qrUrl} size={150} fgColor="#0057A8" bgColor="#ffffff" />
             </div>
             <div className="c-headline">Tu carrera quedó capturada</div>
             <div className="c-sub">Escaneá y encontrá tu foto</div>
@@ -75,7 +76,7 @@ export default async function QrPrintRoute({
             <div className="p-divider" />
             <div className="p-headline">Tu carrera quedó<br />capturada.</div>
             <div className="p-qr-wrap">
-              <QRCode value={url} size={230} fgColor="#0057A8" bgColor="#ffffff" />
+              <QRCode value={qrUrl} size={230} fgColor="#0057A8" bgColor="#ffffff" />
             </div>
             <div className="p-event">{title}</div>
             <div className="p-msg">Escaneá el código, ingresá tu número y mirá tu foto.</div>
