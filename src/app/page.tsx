@@ -49,8 +49,6 @@ export default async function HomePage() {
           className="object-cover object-bottom"
           priority
         />
-        {/* Dark overlay */}
-        <div className="absolute inset-0" style={{ background: "rgba(0,20,60,0.55)" }} />
 
         {/* Content */}
         <div className="relative z-10 w-full max-w-6xl mx-auto px-8 py-12 flex flex-col items-start gap-8">
