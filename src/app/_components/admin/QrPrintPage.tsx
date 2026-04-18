@@ -5,14 +5,6 @@ import QRCode from "react-qr-code";
 
 // Print is handled by /admin/qr-print route (dedicated printable page)
 
-type EventItem = {
-  id: string;
-  title: string;
-  slug: string;
-  url: string;
-  isPublished: boolean;
-};
-
 const SITE_URL = "https://altafoto.com.ar";
 
 type Format = "sticker" | "card" | "poster" | "plain";
@@ -34,16 +26,12 @@ const QR_PREVIEW_SIZES: Record<Format, number> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function QrPrintPage({ events }: { events: EventItem[] }) {
-  const [selected, setSelected] = useState<string>(events[0]?.id ?? "");
-  const [format, setFormat]     = useState<Format>("card");
-
-  const event = events.find((e) => e.id === selected);
-  const fmt   = FORMATS.find((f) => f.id === format)!;
+export function QrPrintPage(_props: object) {
+  const [format, setFormat] = useState<Format>("card");
+  const fmt = FORMATS.find((f) => f.id === format)!;
 
   const handlePrint = () => {
-    if (!event) return;
-    const params = new URLSearchParams({ url: event.url, title: event.title, format });
+    const params = new URLSearchParams({ format });
     window.open(`/admin/qr-print?${params.toString()}`, "_blank");
   };
 
@@ -52,36 +40,10 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Códigos QR</h1>
       <p className="text-gray-500 text-sm mb-8">Imprimí QR para que los corredores accedan a sus fotos al instante.</p>
 
-      {events.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center text-gray-400">
-          No hay eventos publicados aún.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* ── Controls ── */}
           <div className="lg:col-span-1 flex flex-col gap-5">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-              <h2 className="font-semibold text-gray-900 text-sm mb-3">Evento</h2>
-              <div className="flex flex-col gap-1.5">
-                {events.map((e) => (
-                  <button key={e.id} onClick={() => setSelected(e.id)}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all text-left"
-                    style={{
-                      background: selected === e.id ? "#EFF6FF" : "transparent",
-                      border: `1.5px solid ${selected === e.id ? "#0057A8" : "#e5e7eb"}`,
-                      color: selected === e.id ? "#0057A8" : "#374151",
-                      fontWeight: selected === e.id ? 600 : undefined,
-                    }}>
-                    <span className="truncate">{e.title}</span>
-                    {!e.isPublished && (
-                      <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-400 ml-2 shrink-0">borrador</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <h2 className="font-semibold text-gray-900 text-sm mb-3">Formato</h2>
               <div className="flex flex-col gap-2">
@@ -116,8 +78,7 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
                 Vista previa · {fmt.label} · {fmt.size}
               </p>
 
-              {event && (
-                <>
+              <>
                   {/* Plain preview — no decoration */}
                   {format === "plain" && (
                     <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -185,12 +146,10 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
                   <p className="text-xs text-gray-400 mt-2 text-center">
                     Se abre una nueva ventana lista para imprimir o guardar como PDF
                   </p>
-                </>
-              )}
+              </>
             </div>
           </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
