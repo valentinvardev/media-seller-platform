@@ -10,9 +10,8 @@ export default async function QrPrintRoute({
 }) {
   const { url = "", title = "", format = "card" } = await searchParams;
   const fmt = format as Format;
-  const shortUrl = BASE_URL.replace(/^https?:\/\//, "");
-
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://altafoto.com.ar";
+  const shortUrl = BASE_URL.replace(/^https?:\/\//, "");
   const logoSrc = `${BASE_URL}/logo.png`;
   const qrUrl = BASE_URL;
 
