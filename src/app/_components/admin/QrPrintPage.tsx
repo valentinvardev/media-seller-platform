@@ -13,6 +13,8 @@ type EventItem = {
   isPublished: boolean;
 };
 
+const SITE_URL = "https://altafoto.com.ar";
+
 type Format = "sticker" | "card" | "poster" | "plain";
 
 const FORMATS: { id: Format; label: string; desc: string; size: string }[] = [
@@ -121,7 +123,7 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
                     <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
                       <div id="qr-svg-root">
                         <QRCode
-                          value={event.url}
+                          value={SITE_URL}
                           size={QR_PREVIEW_SIZES.plain}
                           fgColor="#000000"
                           bgColor="#ffffff"
@@ -143,10 +145,7 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
                       style={{ background: "linear-gradient(135deg, #003D7A 0%, #0057A8 100%)" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src="/logo.png" alt="ALTAFOTO" className="w-auto brightness-0 invert"
-                        style={{ height: format === "poster" ? 36 : 24 }} />
-                      {format !== "sticker" && (
-                        <p className="text-white text-xs font-bold text-center uppercase tracking-wide">{event.title}</p>
-                      )}
+                        style={{ height: format === "poster" ? 52 : format === "card" ? 44 : 32 }} />
                     </div>
 
                     {/* Orange accent */}
@@ -155,11 +154,11 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
                     {/* QR */}
                     <div className="flex flex-col items-center gap-3 py-5 px-4 bg-white">
                       {format === "poster" && (
-                        <p className="text-xs text-gray-500 text-center">📸 ¿Corriste hoy? Tus fotos te esperan.</p>
+                        <p className="text-xs text-gray-500 text-center font-semibold">¿Corriste hoy? Buscá tus fotos</p>
                       )}
                       <div id="qr-svg-root" className="p-2.5 rounded-xl border-2" style={{ borderColor: "#0057A8" }}>
                         <QRCode
-                          value={event.url}
+                          value={SITE_URL}
                           size={QR_PREVIEW_SIZES[format]}
                           fgColor="#0057A8"
                           bgColor="#ffffff"
@@ -168,17 +167,9 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
                       </div>
                       {format !== "sticker" && (
                         <p className="text-xs text-center font-semibold" style={{ color: "#F97316" }}>
-                          ↑ Escaneá y encontrá tus fotos
+                          ↑ Escaneá con tu celular
                         </p>
                       )}
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-center gap-2 py-2 px-3"
-                      style={{ background: "#F97316" }}>
-                      <p className="text-white text-xs font-bold truncate">
-                        {event.url.replace(/^https?:\/\//, "")}
-                      </p>
                     </div>
                   </div>}
 

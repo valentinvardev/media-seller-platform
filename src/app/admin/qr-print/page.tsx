@@ -38,28 +38,25 @@ export default async function QrPrintRoute({
             <QRCode value={qrUrl} size={105} fgColor="#0057A8" bgColor="#ffffff" />
           </div>
           <div className="s-line" />
-          <div className="s-msg">Tu foto está acá</div>
+          <div className="s-msg">Encontrá tus fotos</div>
         </div>
       )}
 
       {/* ── Card 10×7cm ── */}
       {fmt === "card" && (
         <div className="card-wrap">
-          {/* Left: logo + event */}
+          {/* Left: logo only */}
           <div className="c-left">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logoSrc} alt="ALTAFOTO" className="c-logo" />
-            <div className="c-sep" />
-            <div className="c-event">{title}</div>
           </div>
           {/* Right: QR + message */}
           <div className="c-right">
             <div className="c-qr-wrap">
               <QRCode value={qrUrl} size={150} fgColor="#0057A8" bgColor="#ffffff" />
             </div>
-            <div className="c-headline">Tu carrera quedó capturada</div>
-            <div className="c-sub">Escaneá y encontrá tu foto</div>
-            <div className="c-url">{shortUrl}</div>
+            <div className="c-headline">¿Corriste hoy?</div>
+            <div className="c-sub">Buscá tus fotos con tu número de corredor</div>
           </div>
         </div>
       )}
@@ -73,17 +70,13 @@ export default async function QrPrintRoute({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logoSrc} alt="ALTAFOTO" className="p-logo" />
             <div className="p-divider" />
-            <div className="p-headline">Tu carrera quedó<br />capturada.</div>
+            <div className="p-headline">¿Corriste hoy?<br />Encontrá tus fotos.</div>
             <div className="p-qr-wrap">
               <QRCode value={qrUrl} size={230} fgColor="#0057A8" bgColor="#ffffff" />
             </div>
-            <div className="p-event">{title}</div>
-            <div className="p-msg">Escaneá el código, ingresá tu número y mirá tu foto.</div>
+            <div className="p-msg">Escaneá el código e ingresá tu número de corredor.</div>
           </div>
-          {/* Bottom bar */}
-          <div className="p-bottom">
-            <span className="p-url">{shortUrl}</span>
-          </div>
+          <div className="p-bottom" />
         </div>
       )}
     </>
@@ -115,7 +108,7 @@ function getPageCss(fmt: Format): string {
       background: white;
     }
     .s-logo-wrap { width: 100%; display: flex; align-items: center; justify-content: center; padding: 0.1cm 0; }
-    .s-logo { height: 0.55cm; width: auto; }
+    .s-logo { height: 0.75cm; width: auto; }
     .s-qr { flex: 1; display: flex; align-items: center; justify-content: center; }
     .s-line { height: 2px; width: 1.5cm; background: #F97316; border-radius: 2px; }
     .s-msg { font-size: 6.5pt; font-weight: 700; color: #0057A8; letter-spacing: 0.2px; text-align: center; padding-bottom: 0.05cm; }
@@ -131,22 +124,18 @@ function getPageCss(fmt: Format): string {
       background: white;
     }
     .c-left {
-      width: 3cm; background: white;
-      border-right: 2px solid #0057A8;
+      width: 3.5cm; background: #0057A8;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 0.3cm; padding: 0.4cm 0.3cm;
+      padding: 0.4cm 0.3cm;
     }
-    .c-logo { width: 2.2cm; height: auto; }
-    .c-sep { width: 1.2cm; height: 2px; background: #F97316; border-radius: 2px; }
-    .c-event { font-size: 6pt; font-weight: 700; color: #0057A8; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.3; }
+    .c-logo { width: 2.8cm; height: auto; filter: brightness(0) invert(1); }
     .c-right {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 0.2cm; padding: 0.3cm 0.4cm;
+      gap: 0.25cm; padding: 0.3cm 0.4cm;
     }
     .c-qr-wrap { line-height: 0; }
-    .c-headline { font-size: 8.5pt; font-weight: 800; color: #111827; text-align: center; line-height: 1.2; }
-    .c-sub { font-size: 7pt; font-weight: 600; color: #F97316; text-align: center; }
-    .c-url { font-size: 5.5pt; color: #9ca3af; text-align: center; }
+    .c-headline { font-size: 10pt; font-weight: 900; color: #0057A8; text-align: center; line-height: 1.2; }
+    .c-sub { font-size: 7pt; font-weight: 600; color: #374151; text-align: center; line-height: 1.4; }
   `;
 
   // poster A5
@@ -160,7 +149,7 @@ function getPageCss(fmt: Format): string {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 0.4cm; padding: 0.6cm 1.2cm;
     }
-    .p-logo { height: 1.4cm; width: auto; }
+    .p-logo { height: 2.2cm; width: auto; }
     .p-divider { width: 2cm; height: 3px; background: #F97316; border-radius: 2px; }
     .p-headline {
       font-size: 22pt; font-weight: 900; color: #0057A8;
@@ -170,12 +159,7 @@ function getPageCss(fmt: Format): string {
       padding: 0.3cm; border: 3px solid #0057A8; border-radius: 14px;
       box-shadow: 0 4px 20px rgba(0,87,168,0.12); line-height: 0; background: white;
     }
-    .p-event { font-size: 9pt; font-weight: 700; color: #6b7280; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
     .p-msg { font-size: 9pt; color: #374151; text-align: center; line-height: 1.5; }
-    .p-bottom {
-      height: 0.9cm; background: #F97316; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .p-url { font-size: 8pt; font-weight: 700; color: white; letter-spacing: 0.3px; }
+    .p-bottom { height: 0.5cm; background: #F97316; flex-shrink: 0; }
   `;
 }

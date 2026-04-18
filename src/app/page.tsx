@@ -59,7 +59,7 @@ export default async function HomePage() {
 
           <a href="#eventos"
             className="inline-flex items-center px-6 py-3 rounded-xl font-display font-700 uppercase tracking-wider text-white text-sm transition-all hover:scale-105"
-            style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)", boxShadow: "0 4px 16px rgba(0,87,168,0.4)" }}>
+            style={{ background: "linear-gradient(135deg, #F97316, #c2410c)", boxShadow: "0 4px 16px rgba(249,115,22,0.4)" }}>
             Ver eventos
           </a>
         </div>
