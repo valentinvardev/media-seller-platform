@@ -3,6 +3,8 @@
 import { useState } from "react";
 import QRCode from "react-qr-code";
 
+// Print is handled by /admin/qr-print route (dedicated printable page)
+
 type EventItem = {
   id: string;
   title: string;
@@ -27,141 +29,6 @@ const QR_PREVIEW_SIZES: Record<Format, number> = {
   plain:   130,
 };
 
-// ─── Print HTML templates ─────────────────────────────────────────────────────
-
-function buildPrintHtml(event: EventItem, format: Format, qrSvg: string, logoSrc: string): string {
-  const url = event.url.replace(/^https?:\/\//, "");
-
-  if (format === "sticker") {
-    return `<!DOCTYPE html><html><head><meta charset="utf-8">
-<style>
-  @page { margin: 0; size: 6cm 6cm; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { width: 6cm; height: 6cm; display: flex; align-items: center; justify-content: center; background: white; }
-  .card {
-    width: 5.6cm; height: 5.6cm;
-    border: 3px solid #0057A8;
-    border-radius: 10px;
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-    padding: 6px 6px 4px;
-    overflow: hidden;
-  }
-  .top { background: #0057A8; width: 100%; border-radius: 5px; display: flex; align-items: center; justify-content: center; padding: 4px 0; }
-  .top img { height: 18px; filter: brightness(0) invert(1); }
-  .qr { flex: 1; display: flex; align-items: center; justify-content: center; padding: 4px 0; }
-  .qr svg { width: 2.8cm; height: 2.8cm; }
-  .bar { background: #F97316; width: 100%; border-radius: 4px; text-align: center; padding: 3px 0; }
-  .bar span { font-family: sans-serif; font-size: 6pt; font-weight: 800; color: white; letter-spacing: 0.5px; text-transform: uppercase; }
-</style></head><body>
-<div class="card">
-  <div class="top"><img src="${logoSrc}" /></div>
-  <div class="qr">${qrSvg}</div>
-  <div class="bar"><span>Escaneá · Encontrá tus fotos</span></div>
-</div>
-</body></html>`;
-  }
-
-  if (format === "card") {
-    return `<!DOCTYPE html><html><head><meta charset="utf-8">
-<style>
-  @page { margin: 0; size: 10cm 7cm; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { width: 10cm; height: 7cm; display: flex; background: white; font-family: sans-serif; }
-  .left {
-    width: 3.6cm; background: #0057A8;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    padding: 10px 8px;
-  }
-  .left img { width: 2.6cm; filter: brightness(0) invert(1); }
-  .divider { width: 1.6cm; height: 2px; background: #F97316; border-radius: 2px; }
-  .left-url { font-size: 5.5pt; color: rgba(255,255,255,0.7); text-align: center; word-break: break-all; }
-  .right {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    padding: 12px;
-  }
-  .qr-wrap { padding: 6px; border: 2px solid #0057A8; border-radius: 8px; line-height: 0; }
-  .qr-wrap svg { width: 3.4cm; height: 3.4cm; }
-  .title { font-size: 8pt; font-weight: 800; color: #0057A8; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; }
-  .sub { font-size: 6.5pt; color: #F97316; font-weight: 700; text-align: center; }
-</style></head><body>
-<div class="left">
-  <img src="${logoSrc}" />
-  <div class="divider"></div>
-  <div class="left-url">${url}</div>
-</div>
-<div class="right">
-  <div class="qr-wrap">${qrSvg}</div>
-  <div class="title">${event.title}</div>
-  <div class="sub">↑ Escaneá y encontrá tus fotos</div>
-</div>
-</body></html>`;
-  }
-
-  if (format === "plain") {
-    return `<!DOCTYPE html><html><head><meta charset="utf-8">
-<style>
-  @page { margin: 0; size: 6cm 6cm; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { width: 6cm; height: 6cm; display: flex; align-items: center; justify-content: center; background: white; }
-  svg { width: 5.4cm; height: 5.4cm; display: block; }
-</style></head><body>
-${qrSvg}
-</body></html>`;
-  }
-
-  // poster — A5
-  return `<!DOCTYPE html><html><head><meta charset="utf-8">
-<style>
-  @page { margin: 0; size: A5 portrait; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { width: 14.8cm; height: 21cm; display: flex; flex-direction: column; background: white; font-family: sans-serif; overflow: hidden; }
-  .header {
-    background: linear-gradient(135deg, #003D7A 0%, #0057A8 100%);
-    padding: 1cm 1cm 0.7cm;
-    display: flex; flex-direction: column; align-items: center; gap: 0.4cm;
-  }
-  .header img { height: 1.1cm; filter: brightness(0) invert(1); }
-  .header-title { font-size: 11pt; font-weight: 800; color: white; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
-  .accent { height: 6px; background: linear-gradient(90deg, #F97316, #c2410c); width: 100%; }
-  .body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5cm; padding: 0.5cm 1cm; }
-  .instruction { font-size: 9pt; color: #6b7280; text-align: center; font-weight: 500; }
-  .qr-wrap {
-    padding: 0.35cm;
-    border: 3px solid #0057A8;
-    border-radius: 12px;
-    background: white;
-    box-shadow: 0 4px 20px rgba(0,87,168,0.15);
-    line-height: 0;
-  }
-  .qr-wrap svg { width: 5.5cm; height: 5.5cm; }
-  .event-name { font-size: 14pt; font-weight: 900; color: #0057A8; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
-  .tagline { font-size: 9pt; color: #374151; text-align: center; }
-  .footer {
-    background: #F97316;
-    padding: 0.3cm 1cm;
-    display: flex; align-items: center; justify-content: center; gap: 0.3cm;
-  }
-  .footer-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.6); }
-  .footer-url { font-size: 8pt; font-weight: 800; color: white; letter-spacing: 0.3px; }
-</style></head><body>
-<div class="header">
-  <img src="${logoSrc}" />
-  <div class="header-title">${event.title}</div>
-</div>
-<div class="accent"></div>
-<div class="body">
-  <div class="instruction">📸 ¿Corriste hoy? Tus fotos te esperan.</div>
-  <div class="qr-wrap">${qrSvg}</div>
-  <div class="event-name">${event.title}</div>
-  <div class="tagline">Escaneá el código · Ingresá tu número de dorsal · Descargá en HD</div>
-</div>
-<div class="footer">
-  <div class="footer-dot"></div>
-  <div class="footer-url">${url}</div>
-  <div class="footer-dot"></div>
-</div>
-</body></html>`;
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -174,19 +41,8 @@ export function QrPrintPage({ events }: { events: EventItem[] }) {
 
   const handlePrint = () => {
     if (!event) return;
-    const qrEl = document.getElementById("qr-svg-root")?.querySelector("svg");
-    if (!qrEl) return;
-
-    const qrSvg = qrEl.outerHTML;
-    const logoSrc = `${window.location.origin}/logo.png`;
-    const html = buildPrintHtml(event, format, qrSvg, logoSrc);
-
-    const win = window.open("", "_blank", "width=900,height=700");
-    if (!win) { alert("Permitís ventanas emergentes para imprimir."); return; }
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); }, 600);
+    const params = new URLSearchParams({ url: event.url, title: event.title, format });
+    window.open(`/admin/qr-print?${params.toString()}`, "_blank");
   };
 
   return (
