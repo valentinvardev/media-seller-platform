@@ -3,7 +3,6 @@ import { FaceDatabasePage } from "~/app/_components/admin/FaceDatabasePage";
 
 export default async function ReconocimientoPage() {
   const collections = await db.collection.findMany({
-    where: { faceRecords: { some: {} } },
     select: { id: true, title: true, slug: true },
     orderBy: { createdAt: "desc" },
   });
