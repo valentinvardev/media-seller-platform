@@ -259,18 +259,52 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const handleFaceUpload = async (file: File) => {
     setFaceStatus("uploading");
     try {
-      const base64 = await new Promise<string>((res, rej) => {
-        const r = new FileReader();
-        r.onload = () => res((r.result as string).split(",")[1] ?? "");
-        r.onerror = rej;
-        r.readAsDataURL(file);
-      });
+      // Try canvas compression first; fall back to raw FileReader if it fails
+      let base64 = "";
+      try {
+        base64 = await new Promise<string>((res, rej) => {
+          const img = new Image();
+          const objectUrl = URL.createObjectURL(file);
+          img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            const MAX = 1200;
+            const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext("2d");
+            if (!ctx) { rej(new Error("canvas-ctx")); return; }
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+            const b64 = dataUrl.split(",")[1];
+            if (!b64) { rej(new Error("canvas-encode")); return; }
+            res(b64);
+          };
+          img.onerror = (e) => { URL.revokeObjectURL(objectUrl); rej(e); };
+          img.src = objectUrl;
+        });
+      } catch (canvasErr) {
+        console.warn("[face-search] canvas compress failed, falling back to raw:", canvasErr);
+        base64 = await new Promise<string>((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => { const b64 = (r.result as string).split(",")[1]; b64 ? res(b64) : rej(new Error("read-encode")); };
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+      }
+
+      console.log("[face-search] sending, base64 length:", base64.length);
       const resp = await fetch("/api/face-search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64: base64, collectionId }),
       });
-      if (!resp.ok) throw new Error();
+      console.log("[face-search] response status:", resp.status);
+      if (!resp.ok) {
+        const errBody = await resp.text();
+        console.error("[face-search] error body:", errBody);
+        throw new Error(`status ${resp.status}`);
+      }
       const json = await resp.json() as {
         groups: { bib: string; photoIds: string[] }[];
         noFaceDetected?: boolean;
@@ -282,7 +316,8 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       setFaceBibs(json.groups);
       setFaceStatus("done");
       setFaceActive(true);
-    } catch {
+    } catch (err) {
+      console.error("[face-search] upload error:", err);
       setFaceStatus("error");
     }
   };

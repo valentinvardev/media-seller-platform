@@ -71,6 +71,10 @@ export async function POST(req: NextRequest) {
       if ((err as { name?: string }).name === "ResourceNotFoundException") {
         return NextResponse.json({ groups: [] });
       }
+      // ImageTooLargeException = image exceeded 5 MB (should be caught by client resize)
+      if ((err as { name?: string }).name === "ImageTooLargeException") {
+        return NextResponse.json({ groups: [], noFaceDetected: true });
+      }
       throw err;
     }
 

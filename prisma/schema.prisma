@@ -74,8 +74,9 @@ model Collection {
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
 
-    photos    Photo[]
-    purchases Purchase[]
+    photos      Photo[]
+    purchases   Purchase[]
+    faceRecords FaceRecord[]
 
     @@index([slug])
     @@index([isPublished])
@@ -95,7 +96,8 @@ model Photo {
     previewKey   String?   // Watermarked version key
     createdAt    DateTime  @default(now())
 
-    collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    collection  Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    faceRecords FaceRecord[]
 
     @@index([collectionId])
     @@index([collectionId, bibNumber])
@@ -135,6 +137,22 @@ enum PurchaseStatus {
     APPROVED
     REJECTED
     REFUNDED
+}
+
+// Each face detected & indexed in Rekognition — one row per AWS FaceId
+model FaceRecord {
+    id           String     @id @default(cuid())
+    rekFaceId    String     @unique   // AWS Rekognition FaceId
+    photoId      String
+    collectionId String
+    confidence   Float?               // Rekognition indexing confidence (0-100)
+    createdAt    DateTime   @default(now())
+
+    photo      Photo      @relation(fields: [photoId], references: [id], onDelete: Cascade)
+    collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+    @@index([collectionId])
+    @@index([photoId])
 }
 
 // ─── Platform Settings ───────────────────────────────────────────────────────

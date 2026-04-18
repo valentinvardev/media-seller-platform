@@ -217,7 +217,19 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
       DetectionAttributes: [],
       MaxFaces: 10,
     }));
-    console.log(`[FaceIndex] photoId=${photoId} indexed ${result.FaceRecords?.length ?? 0} faces`);
+
+    const indexed = result.FaceRecords ?? [];
+    console.log(`[FaceIndex] photoId=${photoId} indexed ${indexed.length} faces`);
+
+    for (const fr of indexed) {
+      const faceId = fr.Face?.FaceId;
+      if (!faceId) continue;
+      await db.faceRecord.upsert({
+        where: { rekFaceId: faceId },
+        update: { photoId, collectionId, confidence: fr.Face?.Confidence ?? null },
+        create: { rekFaceId: faceId, photoId, collectionId, confidence: fr.Face?.Confidence ?? null },
+      });
+    }
   } catch (err) {
     console.error(`[FaceIndex] Error for photoId=${photoId}:`, err);
   }

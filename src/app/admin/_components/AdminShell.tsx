@@ -59,6 +59,12 @@ export function AdminShell({
     </svg>
   );
 
+  const faceIcon = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
+    </svg>
+  );
+
   const settingsIcon = (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -112,6 +118,7 @@ export function AdminShell({
         <NavItem href="/admin" label="Dashboard" icon="▦" onNavigate={close} />
         <NavItem href="/admin/colecciones" label="Eventos" icon="◫" onNavigate={close} />
         <NavItem href="/admin/ventas" label="Ventas" icon="◈" onNavigate={close} />
+        <NavItem href="/admin/reconocimiento" label="Reconocimiento facial" svgIcon={faceIcon} onNavigate={close} />
         <NavItem href="/admin/qr" label="Códigos QR" svgIcon={qrIcon} onNavigate={close} />
         <NavItem href="/admin/configuracion" label="Configuración" svgIcon={settingsIcon} onNavigate={close} />
       </nav>
