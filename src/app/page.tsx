@@ -56,11 +56,6 @@ export default async function HomePage() {
             <Image src="/logo.png" alt="ALTAFOTO" width={630} height={180} className="h-[188px] sm:h-[229px] w-auto drop-shadow-2xl hidden sm:block" priority />
           </Link>
 
-          <a href="#eventos"
-            className="inline-flex items-center px-6 py-3 rounded-xl font-display font-700 uppercase tracking-wider text-white text-sm transition-all hover:scale-105"
-            style={{ background: "linear-gradient(135deg, #F97316, #c2410c)", boxShadow: "0 4px 16px rgba(249,115,22,0.4)" }}>
-            Ver eventos
-          </a>
         </div>
       </section>
 
