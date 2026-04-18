@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { api } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
+
+type FaceRow = RouterOutputs["face"]["list"]["items"][number];
 
 type Collection = { id: string; title: string; slug: string };
 
@@ -101,7 +103,7 @@ export function FaceDatabasePage({ collections }: { collections: Collection[] })
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {data.items.map((row) => (
+                {data.items.map((row: FaceRow) => (
                   <tr key={row.id} className="hover:bg-gray-50 transition-colors">
                     {/* Face ID */}
                     <td className="px-4 py-3">
