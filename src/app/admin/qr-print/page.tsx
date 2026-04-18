@@ -20,69 +20,68 @@ export default async function QrPrintRoute({
       <AutoPrint />
       <style>{getPageCss(fmt)}</style>
 
+      {/* ── Plain: QR only ── */}
       {fmt === "plain" && (
         <div className="plain-wrap">
-          <QRCode value={url} size={300} fgColor="#000000" bgColor="#ffffff" />
+          <QRCode value={url} size={300} fgColor="#0057A8" bgColor="#ffffff" />
         </div>
       )}
 
+      {/* ── Sticker 6×6cm ── */}
       {fmt === "sticker" && (
-        <div className="card sticker">
-          <div className="s-header">
+        <div className="sticker">
+          <div className="s-logo-wrap">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoSrc} alt="ALTAFOTO" className="logo" />
+            <img src={logoSrc} alt="ALTAFOTO" className="s-logo" />
           </div>
-          <div className="s-accent" />
           <div className="s-qr">
-            <QRCode value={url} size={120} fgColor="#0057A8" bgColor="#ffffff" />
+            <QRCode value={url} size={105} fgColor="#0057A8" bgColor="#ffffff" />
           </div>
-          <div className="s-footer">
-            <span>Escaneá · Encontrá tus fotos</span>
-          </div>
+          <div className="s-line" />
+          <div className="s-msg">Tu foto está acá</div>
         </div>
       )}
 
+      {/* ── Card 10×7cm ── */}
       {fmt === "card" && (
-        <div className="card card-wrap">
+        <div className="card-wrap">
+          {/* Left: logo + event */}
           <div className="c-left">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoSrc} alt="ALTAFOTO" className="logo" />
-            <div className="c-divider" />
-            <span className="c-url">{shortUrl}</span>
+            <img src={logoSrc} alt="ALTAFOTO" className="c-logo" />
+            <div className="c-sep" />
+            <div className="c-event">{title}</div>
           </div>
+          {/* Right: QR + message */}
           <div className="c-right">
             <div className="c-qr-wrap">
-              <QRCode value={url} size={160} fgColor="#0057A8" bgColor="#ffffff" />
+              <QRCode value={url} size={150} fgColor="#0057A8" bgColor="#ffffff" />
             </div>
-            <div className="c-title">{title}</div>
-            <div className="c-sub">↑ Escaneá y encontrá tus fotos</div>
+            <div className="c-headline">Tu carrera quedó capturada</div>
+            <div className="c-sub">Escaneá y encontrá tu foto</div>
+            <div className="c-url">{shortUrl}</div>
           </div>
         </div>
       )}
 
+      {/* ── Poster A5 ── */}
       {fmt === "poster" && (
-        <div className="card poster-wrap">
-          <div className="p-header">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoSrc} alt="ALTAFOTO" className="logo" />
-            <div className="p-title">{title}</div>
-          </div>
-          <div className="p-accent" />
+        <div className="poster-wrap">
+          {/* Top bar */}
+          <div className="p-top-bar" />
           <div className="p-body">
-            <div className="p-intro">📸 ¿Corriste hoy? Tus fotos te esperan.</div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logoSrc} alt="ALTAFOTO" className="p-logo" />
+            <div className="p-divider" />
+            <div className="p-headline">Tu carrera quedó<br />capturada.</div>
             <div className="p-qr-wrap">
-              <QRCode value={url} size={240} fgColor="#0057A8" bgColor="#ffffff" />
+              <QRCode value={url} size={230} fgColor="#0057A8" bgColor="#ffffff" />
             </div>
             <div className="p-event">{title}</div>
-            <div className="p-steps">
-              <span>Escaneá el código</span>
-              <span className="dot">·</span>
-              <span>Ingresá tu número</span>
-              <span className="dot">·</span>
-              <span>Descargá en HD</span>
-            </div>
+            <div className="p-msg">Escaneá el código, ingresá tu número y mirá tu foto.</div>
           </div>
-          <div className="p-footer">
+          {/* Bottom bar */}
+          <div className="p-bottom">
             <span className="p-url">{shortUrl}</span>
           </div>
         </div>
@@ -93,64 +92,90 @@ export default async function QrPrintRoute({
 
 function getPageCss(fmt: Format): string {
   const base = `
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background: white; display: flex; align-items: center; justify-content: center; }
-    .logo { display: block; }
   `;
 
   if (fmt === "plain") return `
     ${base}
     @page { size: 10cm 10cm; margin: 0.5cm; }
     body { min-height: 9cm; }
-    .plain-wrap { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+    .plain-wrap { display: flex; align-items: center; justify-content: center; width: 100%; }
   `;
 
   if (fmt === "sticker") return `
     ${base}
     @page { size: 6cm 6cm; margin: 0; }
     body { width: 6cm; height: 6cm; }
-    .sticker { width: 5.6cm; height: 5.6cm; border: 3px solid #0057A8; border-radius: 10px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
-    .s-header { background: #0057A8; width: 100%; display: flex; align-items: center; justify-content: center; padding: 5px 0; flex-shrink: 0; }
-    .s-header .logo { height: 22px; filter: brightness(0) invert(1); }
-    .s-accent { height: 3px; width: 100%; background: linear-gradient(90deg, #F97316, #c2410c); flex-shrink: 0; }
-    .s-qr { flex: 1; display: flex; align-items: center; justify-content: center; padding: 4px; }
-    .s-footer { background: #F97316; width: 100%; text-align: center; padding: 4px 0; flex-shrink: 0; }
-    .s-footer span { font-size: 6.5pt; font-weight: 800; color: white; letter-spacing: 0.4px; text-transform: uppercase; }
+    .sticker {
+      width: 5.7cm; height: 5.7cm;
+      border: 2.5px solid #0057A8; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.2cm 0.2cm 0.15cm; gap: 0.1cm; overflow: hidden;
+      background: white;
+    }
+    .s-logo-wrap { width: 100%; display: flex; align-items: center; justify-content: center; padding: 0.1cm 0; }
+    .s-logo { height: 0.55cm; width: auto; }
+    .s-qr { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .s-line { height: 2px; width: 1.5cm; background: #F97316; border-radius: 2px; }
+    .s-msg { font-size: 6.5pt; font-weight: 700; color: #0057A8; letter-spacing: 0.2px; text-align: center; padding-bottom: 0.05cm; }
   `;
 
   if (fmt === "card") return `
     ${base}
     @page { size: 10cm 7cm landscape; margin: 0; }
     body { width: 10cm; height: 7cm; }
-    .card-wrap { width: 10cm; height: 7cm; display: flex; overflow: hidden; border: 2px solid #0057A8; border-radius: 8px; }
-    .c-left { width: 3.2cm; background: linear-gradient(160deg, #003D7A, #0057A8); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 10px 8px; }
-    .c-left .logo { width: 2.4cm; filter: brightness(0) invert(1); }
-    .c-divider { width: 1.4cm; height: 2px; background: #F97316; border-radius: 2px; }
-    .c-url { font-size: 5pt; color: rgba(255,255,255,0.65); text-align: center; word-break: break-all; }
-    .c-right { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 10px 12px; background: white; }
-    .c-qr-wrap { padding: 6px; border: 2.5px solid #0057A8; border-radius: 8px; line-height: 0; }
-    .c-title { font-size: 8pt; font-weight: 800; color: #0057A8; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; }
-    .c-sub { font-size: 7pt; color: #F97316; font-weight: 700; text-align: center; }
+    .card-wrap {
+      width: 10cm; height: 7cm;
+      display: flex; overflow: hidden;
+      background: white;
+    }
+    .c-left {
+      width: 3cm; background: white;
+      border-right: 2px solid #0057A8;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.3cm; padding: 0.4cm 0.3cm;
+    }
+    .c-logo { width: 2.2cm; height: auto; }
+    .c-sep { width: 1.2cm; height: 2px; background: #F97316; border-radius: 2px; }
+    .c-event { font-size: 6pt; font-weight: 700; color: #0057A8; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.3; }
+    .c-right {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.2cm; padding: 0.3cm 0.4cm;
+    }
+    .c-qr-wrap { line-height: 0; }
+    .c-headline { font-size: 8.5pt; font-weight: 800; color: #111827; text-align: center; line-height: 1.2; }
+    .c-sub { font-size: 7pt; font-weight: 600; color: #F97316; text-align: center; }
+    .c-url { font-size: 5.5pt; color: #9ca3af; text-align: center; }
   `;
 
-  // poster
+  // poster A5
   return `
     ${base}
     @page { size: A5 portrait; margin: 0; }
     body { width: 14.8cm; height: 21cm; }
-    .poster-wrap { width: 14.8cm; height: 21cm; display: flex; flex-direction: column; overflow: hidden; }
-    .p-header { background: linear-gradient(135deg, #002D6E 0%, #0057A8 100%); padding: 1.1cm 1cm 0.9cm; display: flex; flex-direction: column; align-items: center; gap: 0.5cm; }
-    .p-header .logo { height: 1.2cm; filter: brightness(0) invert(1); }
-    .p-title { font-size: 12pt; font-weight: 900; color: white; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
-    .p-accent { height: 7px; background: linear-gradient(90deg, #F97316, #c2410c); flex-shrink: 0; }
-    .p-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.45cm; padding: 0.5cm 1cm; background: white; }
-    .p-intro { font-size: 9.5pt; color: #4b5563; text-align: center; font-weight: 500; }
-    .p-qr-wrap { padding: 0.3cm; border: 3px solid #0057A8; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,87,168,0.18); line-height: 0; }
-    .p-event { font-size: 14pt; font-weight: 900; color: #0057A8; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
-    .p-steps { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
-    .p-steps span { font-size: 8pt; color: #374151; font-weight: 500; }
-    .p-steps .dot { color: #F97316; font-weight: 900; }
-    .p-footer { background: #F97316; padding: 0.35cm 1cm; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .p-url { font-size: 8.5pt; font-weight: 800; color: white; letter-spacing: 0.3px; }
+    .poster-wrap { width: 14.8cm; height: 21cm; display: flex; flex-direction: column; background: white; }
+    .p-top-bar { height: 0.35cm; background: #0057A8; flex-shrink: 0; }
+    .p-body {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.4cm; padding: 0.6cm 1.2cm;
+    }
+    .p-logo { height: 1.4cm; width: auto; }
+    .p-divider { width: 2cm; height: 3px; background: #F97316; border-radius: 2px; }
+    .p-headline {
+      font-size: 22pt; font-weight: 900; color: #0057A8;
+      text-align: center; line-height: 1.15; letter-spacing: -0.3px;
+    }
+    .p-qr-wrap {
+      padding: 0.3cm; border: 3px solid #0057A8; border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,87,168,0.12); line-height: 0; background: white;
+    }
+    .p-event { font-size: 9pt; font-weight: 700; color: #6b7280; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+    .p-msg { font-size: 9pt; color: #374151; text-align: center; line-height: 1.5; }
+    .p-bottom {
+      height: 0.9cm; background: #F97316; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .p-url { font-size: 8pt; font-weight: 700; color: white; letter-spacing: 0.3px; }
   `;
 }
