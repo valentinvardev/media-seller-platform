@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Archivo, Archivo_Black } from "next/font/google";
+import { Syne, Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -11,23 +11,22 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const archivoBlack = Archivo_Black({
+const syne = Syne({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-archivo-black",
+  weight: ["700", "800"],
+  variable: "--font-syne",
 });
 
-const archivo = Archivo({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-archivo",
+  variable: "--font-inter",
 });
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${archivoBlack.variable} ${archivo.variable}`}>
+    <html lang="es" className={`${syne.variable} ${inter.variable}`}>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
