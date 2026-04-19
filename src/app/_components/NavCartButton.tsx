@@ -47,7 +47,7 @@ export function NavCartButton({ price }: { price: number }) {
           >
             {/* Header */}
             <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-              <p className="text-xs font-bold text-gray-900 uppercase tracking-wide">
+              <p className="font-display text-xs font-bold text-gray-900 uppercase tracking-wide">
                 Tu carrito {hasItems && <span className="text-gray-400 font-normal normal-case">({count} foto{count !== 1 ? "s" : ""})</span>}
               </p>
               {hasItems && (

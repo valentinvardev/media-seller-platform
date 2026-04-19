@@ -152,9 +152,12 @@ export const collectionRouter = createTRPCRouter({
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) =>
-      ctx.db.collection.delete({ where: { id: input.id } }),
-    ),
+    .mutation(async ({ ctx, input }) => {
+      const { id } = input;
+      await ctx.db.purchase.deleteMany({ where: { collectionId: id } });
+      await ctx.db.photo.deleteMany({ where: { collectionId: id } });
+      return ctx.db.collection.delete({ where: { id } });
+    }),
 
   togglePublish: protectedProcedure
     .input(z.object({ id: z.string() }))
