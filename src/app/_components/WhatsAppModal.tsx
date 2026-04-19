@@ -86,7 +86,7 @@ export function WhatsAppMobileItem({ onClose }: { onClose: () => void }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="font-display font-700 uppercase tracking-wider text-gray-700 py-3 border-b border-gray-100 hover:text-green-600 transition-colors flex items-center gap-2 w-full text-left"
+        className="font-display font-800 uppercase tracking-wider text-white/80 hover:text-white py-3 px-0 rounded-xl hover:bg-white/10 transition-all flex items-center gap-2 w-full text-left"
       >
         <WhatsAppIcon className="w-4 h-4 text-green-500" />
         Contacto
