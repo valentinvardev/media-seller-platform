@@ -24,7 +24,7 @@ export const purchaseRouter = createTRPCRouter({
     .input(
       z.object({
         collectionId: z.string(),
-        bibGroups: z.array(z.object({ bibNumber: z.string().min(1), photoCount: z.number().min(1) })).min(1),
+        photoIds: z.array(z.string()).min(1),
         buyerEmail: z.string().email(),
         buyerName: z.string().optional(),
         buyerLastName: z.string().optional(),
@@ -37,43 +37,34 @@ export const purchaseRouter = createTRPCRouter({
         select: { title: true, slug: true, pricePerBib: true },
       });
 
-      // Validate each bib has photos
-      for (const group of input.bibGroups) {
-        const count = await ctx.db.photo.count({
-          where: { collectionId: input.collectionId, bibNumber: { contains: group.bibNumber, mode: "insensitive" } },
-        });
-        if (count === 0) throw new Error(`No hay fotos para el dorsal ${group.bibNumber} en esta colección.`);
-      }
+      // Validate all photos exist in this collection
+      const photoCount = await ctx.db.photo.count({
+        where: { collectionId: input.collectionId, id: { in: input.photoIds } },
+      });
+      if (photoCount === 0) throw new Error("No se encontraron fotos válidas para comprar.");
 
-      // One purchase per bib
-      const purchases = await Promise.all(
-        input.bibGroups.map((group) =>
-          ctx.db.purchase.create({
-            data: {
-              collectionId: input.collectionId,
-              bibNumber: group.bibNumber,
-              buyerEmail: input.buyerEmail,
-              buyerName: input.buyerName,
-              buyerLastName: input.buyerLastName,
-              buyerPhone: input.buyerPhone,
-              amountPaid: collection.pricePerBib.mul(group.photoCount),
-            },
-          })
-        )
-      );
-
-      const externalRef = purchases.map((p) => p.id).join(",");
-      const firstPurchaseId = purchases[0]!.id;
+      const purchase = await ctx.db.purchase.create({
+        data: {
+          collectionId: input.collectionId,
+          bibNumber: null,
+          buyerEmail: input.buyerEmail,
+          buyerName: input.buyerName,
+          buyerLastName: input.buyerLastName,
+          buyerPhone: input.buyerPhone,
+          amountPaid: collection.pricePerBib.mul(input.photoIds.length),
+          photoIds: JSON.stringify(input.photoIds),
+        },
+      });
 
       const preference = await new Preference(await getMp(ctx.db)).create({
         body: {
-          items: input.bibGroups.map((group) => ({
-            id: `${input.collectionId}-${group.bibNumber}`,
-            title: `Fotos dorsal #${group.bibNumber} — ${collection.title}`,
-            quantity: group.photoCount,
+          items: [{
+            id: input.collectionId,
+            title: `${input.photoIds.length} foto${input.photoIds.length !== 1 ? "s" : ""} — ${collection.title}`,
+            quantity: input.photoIds.length,
             unit_price: Number(collection.pricePerBib),
             currency_id: "ARS",
-          })),
+          }],
           payer: {
             email: input.buyerEmail,
             name: input.buyerName,
@@ -83,20 +74,20 @@ export const purchaseRouter = createTRPCRouter({
           ...(env.NEXT_PUBLIC_BASE_URL && !env.NEXT_PUBLIC_BASE_URL.includes("localhost")
             ? {
                 back_urls: {
-                  success: `${env.NEXT_PUBLIC_BASE_URL}/descarga/pendiente?purchase=${firstPurchaseId}`,
+                  success: `${env.NEXT_PUBLIC_BASE_URL}/descarga/pendiente?purchase=${purchase.id}`,
                   failure: `${env.NEXT_PUBLIC_BASE_URL}/colecciones/${collection.slug}`,
-                  pending: `${env.NEXT_PUBLIC_BASE_URL}/descarga/pendiente?purchase=${firstPurchaseId}`,
+                  pending: `${env.NEXT_PUBLIC_BASE_URL}/descarga/pendiente?purchase=${purchase.id}`,
                 },
                 auto_return: "approved" as const,
                 notification_url: `${env.NEXT_PUBLIC_BASE_URL}/api/webhooks/mercadopago`,
               }
             : {}),
-          external_reference: externalRef,
+          external_reference: purchase.id,
         },
       });
 
-      await ctx.db.purchase.updateMany({
-        where: { id: { in: purchases.map((p) => p.id) } },
+      await ctx.db.purchase.update({
+        where: { id: purchase.id },
         data: { mercadopagoPreferenceId: preference.id },
       });
 
@@ -107,16 +98,16 @@ export const purchaseRouter = createTRPCRouter({
     }),
 
   accessByEmail: publicProcedure
-    .input(z.object({ email: z.string().email(), collectionId: z.string(), bibNumber: z.string() }))
+    .input(z.object({ email: z.string().email(), collectionId: z.string(), bibNumber: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
       const purchase = await ctx.db.purchase.findFirst({
         where: {
           buyerEmail: { equals: input.email, mode: "insensitive" },
           collectionId: input.collectionId,
-          bibNumber: input.bibNumber,
           status: "APPROVED",
           downloadToken: { not: null },
         },
+        orderBy: { createdAt: "desc" },
         select: { downloadToken: true },
       });
       return purchase?.downloadToken ?? null;
@@ -135,14 +126,16 @@ export const purchaseRouter = createTRPCRouter({
       if (!purchase) return null;
       if (purchase.status !== "APPROVED") return null;
 
-      // Fetch all photos for this bib — use contains so it matches the same photos the search shows
+      // Fetch photos: by stored IDs if available, otherwise fall back to bib lookup
       const photos = await ctx.db.photo.findMany({
-        where: {
-          collectionId: purchase.collectionId,
-          ...(purchase.bibNumber
-            ? { bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } }
-            : {}),
-        },
+        where: purchase.photoIds
+          ? { id: { in: JSON.parse(purchase.photoIds) as string[] } }
+          : {
+              collectionId: purchase.collectionId,
+              ...(purchase.bibNumber
+                ? { bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } }
+                : {}),
+            },
         orderBy: { order: "asc" },
       });
 

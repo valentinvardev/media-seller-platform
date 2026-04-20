@@ -121,6 +121,7 @@ model Purchase {
     downloadToken           String?        @unique
     downloadTokenExpires    DateTime?
     isPublic                Boolean        @default(false)
+    photoIds                String?        @db.Text  // JSON array of purchased photo IDs
     createdAt               DateTime       @default(now())
     updatedAt               DateTime       @updatedAt
 

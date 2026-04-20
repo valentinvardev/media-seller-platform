@@ -206,6 +206,7 @@ exports.Prisma.PurchaseScalarFieldEnum = {
   downloadToken: 'downloadToken',
   downloadTokenExpires: 'downloadTokenExpires',
   isPublic: 'isPublic',
+  photoIds: 'photoIds',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

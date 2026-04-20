@@ -384,9 +384,8 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const showingFace = faceActive && faceStatus === "done" && faceBibs !== null;
 
   const cartCheckout = () => {
-    const validItems = cartItems.filter((i) => i.bibNumber);
-    if (validItems.length === 0) return;
-    setModal({ allPhotoIds: validItems.map((i) => i.photoId) });
+    if (cartItems.length === 0) return;
+    setModal({ allPhotoIds: cartItems.map((i) => i.photoId) });
   };
 
   const makeTileHandlers = (p: { id: string; bibNumber: string | null }) => ({

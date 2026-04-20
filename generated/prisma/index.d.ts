@@ -8660,6 +8660,7 @@ export namespace Prisma {
     downloadToken: string | null
     downloadTokenExpires: Date | null
     isPublic: boolean | null
+    photoIds: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -8681,6 +8682,7 @@ export namespace Prisma {
     downloadToken: string | null
     downloadTokenExpires: Date | null
     isPublic: boolean | null
+    photoIds: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -8702,6 +8704,7 @@ export namespace Prisma {
     downloadToken: number
     downloadTokenExpires: number
     isPublic: number
+    photoIds: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -8733,6 +8736,7 @@ export namespace Prisma {
     downloadToken?: true
     downloadTokenExpires?: true
     isPublic?: true
+    photoIds?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -8754,6 +8758,7 @@ export namespace Prisma {
     downloadToken?: true
     downloadTokenExpires?: true
     isPublic?: true
+    photoIds?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -8775,6 +8780,7 @@ export namespace Prisma {
     downloadToken?: true
     downloadTokenExpires?: true
     isPublic?: true
+    photoIds?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -8883,6 +8889,7 @@ export namespace Prisma {
     downloadToken: string | null
     downloadTokenExpires: Date | null
     isPublic: boolean
+    photoIds: string | null
     createdAt: Date
     updatedAt: Date
     _count: PurchaseCountAggregateOutputType | null
@@ -8923,6 +8930,7 @@ export namespace Prisma {
     downloadToken?: boolean
     downloadTokenExpires?: boolean
     isPublic?: boolean
+    photoIds?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
@@ -8945,6 +8953,7 @@ export namespace Prisma {
     downloadToken?: boolean
     downloadTokenExpires?: boolean
     isPublic?: boolean
+    photoIds?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
@@ -8967,6 +8976,7 @@ export namespace Prisma {
     downloadToken?: boolean
     downloadTokenExpires?: boolean
     isPublic?: boolean
+    photoIds?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
@@ -8989,11 +8999,12 @@ export namespace Prisma {
     downloadToken?: boolean
     downloadTokenExpires?: boolean
     isPublic?: boolean
+    photoIds?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PurchaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "bibNumber" | "buyerEmail" | "buyerName" | "buyerLastName" | "buyerPhone" | "amountPaid" | "currency" | "status" | "mercadopagoPreferenceId" | "mercadopagoPaymentId" | "mercadopagoOrderId" | "downloadToken" | "downloadTokenExpires" | "isPublic" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
+  export type PurchaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "bibNumber" | "buyerEmail" | "buyerName" | "buyerLastName" | "buyerPhone" | "amountPaid" | "currency" | "status" | "mercadopagoPreferenceId" | "mercadopagoPaymentId" | "mercadopagoOrderId" | "downloadToken" | "downloadTokenExpires" | "isPublic" | "photoIds" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
   export type PurchaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }
@@ -9026,6 +9037,7 @@ export namespace Prisma {
       downloadToken: string | null
       downloadTokenExpires: Date | null
       isPublic: boolean
+      photoIds: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["purchase"]>
@@ -9468,6 +9480,7 @@ export namespace Prisma {
     readonly downloadToken: FieldRef<"Purchase", 'String'>
     readonly downloadTokenExpires: FieldRef<"Purchase", 'DateTime'>
     readonly isPublic: FieldRef<"Purchase", 'Boolean'>
+    readonly photoIds: FieldRef<"Purchase", 'String'>
     readonly createdAt: FieldRef<"Purchase", 'DateTime'>
     readonly updatedAt: FieldRef<"Purchase", 'DateTime'>
   }
@@ -13065,6 +13078,7 @@ export namespace Prisma {
     downloadToken: 'downloadToken',
     downloadTokenExpires: 'downloadTokenExpires',
     isPublic: 'isPublic',
+    photoIds: 'photoIds',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13693,6 +13707,7 @@ export namespace Prisma {
     downloadToken?: StringNullableFilter<"Purchase"> | string | null
     downloadTokenExpires?: DateTimeNullableFilter<"Purchase"> | Date | string | null
     isPublic?: BoolFilter<"Purchase"> | boolean
+    photoIds?: StringNullableFilter<"Purchase"> | string | null
     createdAt?: DateTimeFilter<"Purchase"> | Date | string
     updatedAt?: DateTimeFilter<"Purchase"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
@@ -13715,6 +13730,7 @@ export namespace Prisma {
     downloadToken?: SortOrderInput | SortOrder
     downloadTokenExpires?: SortOrderInput | SortOrder
     isPublic?: SortOrder
+    photoIds?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     collection?: CollectionOrderByWithRelationInput
@@ -13740,6 +13756,7 @@ export namespace Prisma {
     mercadopagoOrderId?: StringNullableFilter<"Purchase"> | string | null
     downloadTokenExpires?: DateTimeNullableFilter<"Purchase"> | Date | string | null
     isPublic?: BoolFilter<"Purchase"> | boolean
+    photoIds?: StringNullableFilter<"Purchase"> | string | null
     createdAt?: DateTimeFilter<"Purchase"> | Date | string
     updatedAt?: DateTimeFilter<"Purchase"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
@@ -13762,6 +13779,7 @@ export namespace Prisma {
     downloadToken?: SortOrderInput | SortOrder
     downloadTokenExpires?: SortOrderInput | SortOrder
     isPublic?: SortOrder
+    photoIds?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PurchaseCountOrderByAggregateInput
@@ -13791,6 +13809,7 @@ export namespace Prisma {
     downloadToken?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
     downloadTokenExpires?: DateTimeNullableWithAggregatesFilter<"Purchase"> | Date | string | null
     isPublic?: BoolWithAggregatesFilter<"Purchase"> | boolean
+    photoIds?: StringNullableWithAggregatesFilter<"Purchase"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Purchase"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Purchase"> | Date | string
   }
@@ -14462,6 +14481,7 @@ export namespace Prisma {
     downloadToken?: string | null
     downloadTokenExpires?: Date | string | null
     isPublic?: boolean
+    photoIds?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     collection: CollectionCreateNestedOneWithoutPurchasesInput
@@ -14484,6 +14504,7 @@ export namespace Prisma {
     downloadToken?: string | null
     downloadTokenExpires?: Date | string | null
     isPublic?: boolean
+    photoIds?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14504,6 +14525,7 @@ export namespace Prisma {
     downloadToken?: NullableStringFieldUpdateOperationsInput | string | null
     downloadTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
+    photoIds?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutPurchasesNestedInput
@@ -14526,6 +14548,7 @@ export namespace Prisma {
     downloadToken?: NullableStringFieldUpdateOperationsInput | string | null
     downloadTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
+    photoIds?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14547,6 +14570,7 @@ export namespace Prisma {
     downloadToken?: string | null
     downloadTokenExpires?: Date | string | null
     isPublic?: boolean
+    photoIds?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14567,6 +14591,7 @@ export namespace Prisma {
     downloadToken?: NullableStringFieldUpdateOperationsInput | string | null
     downloadTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
+    photoIds?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14588,6 +14613,7 @@ export namespace Prisma {
     downloadToken?: NullableStringFieldUpdateOperationsInput | string | null
     downloadTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
+    photoIds?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15318,6 +15344,7 @@ export namespace Prisma {
     downloadToken?: SortOrder
     downloadTokenExpires?: SortOrder
     isPublic?: SortOrder
+    photoIds?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15343,6 +15370,7 @@ export namespace Prisma {
     downloadToken?: SortOrder
     downloadTokenExpires?: SortOrder
     isPublic?: SortOrder
+    photoIds?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15364,6 +15392,7 @@ export namespace Prisma {
     downloadToken?: SortOrder
     downloadTokenExpires?: SortOrder
     isPublic?: SortOrder
+    photoIds?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -16403,6 +16432,7 @@ export namespace Prisma {
     downloadToken?: string | null
     downloadTokenExpires?: Date | string | null
     isPublic?: boolean
+    photoIds?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16423,6 +16453,7 @@ export namespace Prisma {
     downloadToken?: string | null
     downloadTokenExpires?: Date | string | null
     isPublic?: boolean
+    photoIds?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16532,6 +16563,7 @@ export namespace Prisma {
     downloadToken?: StringNullableFilter<"Purchase"> | string | null
     downloadTokenExpires?: DateTimeNullableFilter<"Purchase"> | Date | string | null
     isPublic?: BoolFilter<"Purchase"> | boolean
+    photoIds?: StringNullableFilter<"Purchase"> | string | null
     createdAt?: DateTimeFilter<"Purchase"> | Date | string
     updatedAt?: DateTimeFilter<"Purchase"> | Date | string
   }
@@ -17055,6 +17087,7 @@ export namespace Prisma {
     downloadToken?: string | null
     downloadTokenExpires?: Date | string | null
     isPublic?: boolean
+    photoIds?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17124,6 +17157,7 @@ export namespace Prisma {
     downloadToken?: NullableStringFieldUpdateOperationsInput | string | null
     downloadTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
+    photoIds?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17144,6 +17178,7 @@ export namespace Prisma {
     downloadToken?: NullableStringFieldUpdateOperationsInput | string | null
     downloadTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
+    photoIds?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17164,6 +17199,7 @@ export namespace Prisma {
     downloadToken?: NullableStringFieldUpdateOperationsInput | string | null
     downloadTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
+    photoIds?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

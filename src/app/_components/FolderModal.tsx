@@ -172,19 +172,6 @@ export function BibCheckoutModal({
   }, []);
   useEffect(() => { if (photoIds.length === 0) onClose(); }, [photoIds, onClose]);
 
-  // Derive bib groups dynamically from current photoIds + cart
-  const bibGroups = (() => {
-    const map = new Map<string, string[]>();
-    for (const id of photoIds) {
-      const bib = cartItems.find((i) => i.photoId === id)?.bibNumber;
-      if (!bib) continue;
-      if (!map.has(bib)) map.set(bib, []);
-      map.get(bib)!.push(id);
-    }
-    return Array.from(map.entries()).map(([bibNumber, ids]) => ({ bibNumber, photoIds: ids }));
-  })();
-  const singleBib = bibGroups.length === 1 ? bibGroups[0]!.bibNumber : undefined;
-
   const { data: collectionInfo } = api.collection.getPrice.useQuery({ collectionId });
   const price = collectionInfo?.price ?? 0;
   const total = price * photoIds.length;
@@ -207,10 +194,10 @@ export function BibCheckoutModal({
   };
 
   const handleBuy = () => {
-    if (!email || !name || bibGroups.length === 0) return;
+    if (!email || !name || photoIds.length === 0) return;
     createPreference.mutate({
       collectionId,
-      bibGroups: bibGroups.map((g) => ({ bibNumber: g.bibNumber, photoCount: g.photoIds.length })),
+      photoIds,
       buyerEmail: email,
       buyerName: name,
       buyerLastName: lastName || undefined,
@@ -219,9 +206,9 @@ export function BibCheckoutModal({
   };
 
   const handleEmailAccess = () => {
-    if (!emailInput || !singleBib) return;
+    if (!emailInput) return;
     setEmailError("");
-    accessByEmail.mutate({ email: emailInput, collectionId, bibNumber: singleBib });
+    accessByEmail.mutate({ email: emailInput, collectionId, bibNumber: "" });
   };
 
   const inp = "w-full px-4 py-3 rounded-xl text-gray-900 placeholder-gray-400 text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all";
@@ -255,8 +242,6 @@ export function BibCheckoutModal({
               )}
               <h2 className="font-bold text-gray-900 text-base">
                 {step === "buy" ? "Tus datos" : step === "email" ? "Ya compré"
-                  : singleBib ? `Dorsal #${singleBib}`
-                  : bibGroups.length > 1 ? bibGroups.map((g) => `#${g.bibNumber}`).join(", ")
                   : `${photoIds.length} foto${photoIds.length !== 1 ? "s" : ""}`}
               </h2>
             </div>
@@ -303,21 +288,13 @@ export function BibCheckoutModal({
                   </div>
                 )}
                 <div className="flex flex-col gap-2">
-                  {price > 0 && bibGroups.length > 0 && (
+                  {price > 0 && (
                     <button
                       onClick={() => setStep("buy")}
                       className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 active:scale-[0.98]"
                       style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
                     >
                       Comprar · ${total.toLocaleString("es-AR")}
-                    </button>
-                  )}
-                  {singleBib && (
-                    <button
-                      onClick={() => setStep("email")}
-                      className="w-full py-3 rounded-xl font-medium text-sm border border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-all"
-                    >
-                      Ya compré — Acceder con email
                     </button>
                   )}
                 </div>
@@ -345,7 +322,7 @@ export function BibCheckoutModal({
                 onKeyDown={(e) => { if (e.key === "Enter" && email && name) handleBuy(); }} />
               <button
                 onClick={handleBuy}
-                disabled={!email || !name || bibGroups.length === 0 || createPreference.isPending}
+                disabled={!email || !name || photoIds.length === 0 || createPreference.isPending}
                 className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all disabled:opacity-40 mt-1"
                 style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
               >
@@ -366,7 +343,7 @@ export function BibCheckoutModal({
               <div className="text-center mb-2">
                 <p className="text-base font-bold text-gray-900">Acceder a tus fotos</p>
                 <p className="text-sm text-gray-400 mt-1">
-                  Ingresá el email con el que compraste {singleBib ? `el dorsal #${singleBib}` : "estas fotos"}
+                  Ingresá el email con el que compraste estas fotos
                 </p>
               </div>
               <input
