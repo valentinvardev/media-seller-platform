@@ -203,7 +203,7 @@ export function BibCheckoutModal({
   };
 
   const handleBuy = () => {
-    if (!email || !name) return;
+    if (!email || !name || !bib) return;
     createPreference.mutate({
       collectionId,
       bibNumber: bib,
@@ -297,6 +297,11 @@ export function BibCheckoutModal({
                   </div>
                 )}
                 <div className="flex flex-col gap-2">
+                  {price > 0 && !bib && (
+                    <p className="text-xs text-center text-amber-700 bg-amber-50 rounded-xl px-3 py-2">
+                      Tenés fotos de distintos dorsales — comprá de a uno por vez
+                    </p>
+                  )}
                   {price > 0 && bib && (
                     <button
                       onClick={() => setStep("buy")}

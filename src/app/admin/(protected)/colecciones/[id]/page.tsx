@@ -37,7 +37,7 @@ export default async function EditCollectionPage({
     db.photo.count({ where: { collectionId: id, bibNumber: null } }),
     db.photo.findMany({
       where,
-      orderBy: [{ bibNumber: "asc" }, { order: "asc" }],
+      orderBy: [{ bibNumber: { sort: "asc", nulls: "first" } }, { order: "asc" }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
       select: { id: true, filename: true, bibNumber: true, storageKey: true },
