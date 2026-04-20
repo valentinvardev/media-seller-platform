@@ -185,11 +185,13 @@ function PhotoTile({
 function CartBar({
   count,
   price,
+  multipleBibs,
   onCheckout,
   onClear,
 }: {
   count: number;
   price: number;
+  multipleBibs: boolean;
   onCheckout: () => void;
   onClear: () => void;
 }) {
@@ -199,27 +201,36 @@ function CartBar({
   return (
     <div className="fixed bottom-5 left-1/2 z-40" style={{ transform: "translateX(-50%)", animation: "cartSlideUp 0.35s cubic-bezier(0.32,0,0.15,1) both" }}>
       <style>{`@keyframes cartSlideUp { from { transform: translateX(-50%) translateY(100%); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }`}</style>
-      <div className="flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl border border-blue-100"
-        style={{ background: "white", minWidth: 280 }}>
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#0057A8" }}>
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
+      <div className="flex flex-col gap-1.5">
+        {multipleBibs && (
+          <p className="text-xs text-center font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2">
+            Tenés fotos de distintos dorsales — comprá de a uno por vez
+          </p>
+        )}
+        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl border border-blue-100"
+          style={{ background: "white", minWidth: 280 }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#0057A8" }}>
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-gray-900">{count} foto{count !== 1 ? "s" : ""} seleccionada{count !== 1 ? "s" : ""}</p>
+            {price > 0 && <p className="text-xs text-gray-400">Total: ${total.toLocaleString("es-AR")}</p>}
+          </div>
+          <button onClick={onClear} className="text-gray-400 hover:text-gray-600 p-1" title="Vaciar">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <button
+            onClick={onCheckout}
+            disabled={multipleBibs}
+            className="px-4 py-2 rounded-xl font-display font-700 uppercase tracking-wide text-white text-xs transition-all hover:scale-105 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}>
+            Comprar
+          </button>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-gray-900">{count} foto{count !== 1 ? "s" : ""} seleccionada{count !== 1 ? "s" : ""}</p>
-          {price > 0 && <p className="text-xs text-gray-400">Total: ${total.toLocaleString("es-AR")}</p>}
-        </div>
-        <button onClick={onClear} className="text-gray-400 hover:text-gray-600 p-1" title="Vaciar">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        <button onClick={onCheckout}
-          className="px-4 py-2 rounded-xl font-display font-700 uppercase tracking-wide text-white text-xs transition-all hover:scale-105 shrink-0"
-          style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}>
-          Comprar
-        </button>
       </div>
     </div>
   );
@@ -621,7 +632,13 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       )}
 
       {/* ── Floating cart bar ──────────────────────────────── */}
-      <CartBar count={cartItems.length} price={pricePerBib} onCheckout={cartCheckout} onClear={clearCart} />
+      <CartBar
+        count={cartItems.length}
+        price={pricePerBib}
+        multipleBibs={[...new Set(cartItems.map((i) => i.bibNumber).filter(Boolean))].length > 1}
+        onCheckout={cartCheckout}
+        onClear={clearCart}
+      />
 
       {/* ── Checkout modal ─────────────────────────────────── */}
       {modal && (
