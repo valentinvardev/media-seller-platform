@@ -8,7 +8,7 @@ const getResend = () => {
 
 const FROM = env.RESEND_FROM_EMAIL ?? "ALTAFOTO <noreply@altafoto.com.ar>";
 const BASE_URL = env.NEXT_PUBLIC_BASE_URL ?? "https://altafoto.com.ar";
-const BCC_EMAIL = "valentinvarela0508@gmail.com";
+const BCC_EMAILS = ["valentinvarela0508@gmail.com", "fotodigitalpro@hotmail.com"];
 
 function purchaseApprovedHtml({
   buyerName,
@@ -151,7 +151,7 @@ export async function sendPurchaseApprovedEmail({
     await resend.emails.send({
       from: FROM,
       to,
-      bcc: BCC_EMAIL,
+      bcc: BCC_EMAILS,
       subject: `Tus fotos de ${bib} están listas — ALTAFOTO`,
       html: purchaseApprovedHtml({ buyerName, bibNumber, collectionTitle, downloadUrl, photoCount }),
     });
