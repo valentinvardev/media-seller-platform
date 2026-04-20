@@ -2,11 +2,14 @@ import { env } from "~/env";
 import { PrismaClient } from "../../generated/prisma";
 
 function buildDbUrl(base: string) {
-  // Always override pool settings to avoid P2024 under concurrent background tasks
-  const url = new URL(base);
-  url.searchParams.set("connection_limit", "25");
-  url.searchParams.set("pool_timeout", "60");
-  return url.toString();
+  // Strip existing pool params then append new values
+  let url = base
+    .replace(/[&?]connection_limit=[^&]*/g, "")
+    .replace(/[&?]pool_timeout=[^&]*/g, "");
+  // Fix leftover ?& after removal
+  url = url.replace(/\?&/, "?").replace(/[?&]$/, "");
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}connection_limit=25&pool_timeout=60`;
 }
 
 const createPrismaClient = () =>
