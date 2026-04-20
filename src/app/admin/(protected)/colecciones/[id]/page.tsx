@@ -4,6 +4,7 @@ import { api } from "~/trpc/server";
 import { PhotoUploader } from "~/app/_components/admin/PhotoUploader";
 import { PhotoManager } from "~/app/_components/admin/PhotoManager";
 import { CollectionActions } from "~/app/_components/admin/CollectionActions";
+import { CoverUploader } from "~/app/_components/admin/CoverUploader";
 import { FaceReindexButton } from "~/app/_components/admin/FaceReindexButton";
 import { createSignedUrl } from "~/lib/supabase/admin";
 
@@ -114,6 +115,11 @@ export default async function EditCollectionPage({
             </Link>
             <CollectionActions id={collection.id} isPublished={collection.isPublished} />
           </div>
+        </div>
+
+        {/* Cover */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <CoverUploader collectionId={collection.id} currentUrl={collection.coverUrl} />
         </div>
 
         {/* Face reindex */}
