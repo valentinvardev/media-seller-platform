@@ -24,8 +24,7 @@ export const purchaseRouter = createTRPCRouter({
     .input(
       z.object({
         collectionId: z.string(),
-        bibNumber: z.string().min(1),
-        photoCount: z.number().min(1),
+        bibGroups: z.array(z.object({ bibNumber: z.string().min(1), photoCount: z.number().min(1) })).min(1),
         buyerEmail: z.string().email(),
         buyerName: z.string().optional(),
         buyerLastName: z.string().optional(),
@@ -33,46 +32,48 @@ export const purchaseRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log(`[createPreference] start collectionId=${input.collectionId} bib=${input.bibNumber} photoCount=${input.photoCount}`);
-
       const collection = await ctx.db.collection.findFirstOrThrow({
         where: { id: input.collectionId, isPublished: true },
         select: { title: true, slug: true, pricePerBib: true },
       });
-      console.log(`[createPreference] collection found: ${collection.title} price=${collection.pricePerBib}`);
 
-      const photoCount = await ctx.db.photo.count({
-        where: { collectionId: input.collectionId, bibNumber: { contains: input.bibNumber, mode: "insensitive" } },
-      });
-      console.log(`[createPreference] photoCount=${photoCount}`);
-      if (photoCount === 0) {
-        throw new Error("No hay fotos para este dorsal en la colección.");
+      // Validate each bib has photos
+      for (const group of input.bibGroups) {
+        const count = await ctx.db.photo.count({
+          where: { collectionId: input.collectionId, bibNumber: { contains: group.bibNumber, mode: "insensitive" } },
+        });
+        if (count === 0) throw new Error(`No hay fotos para el dorsal ${group.bibNumber} en esta colección.`);
       }
 
-      const purchase = await ctx.db.purchase.create({
-        data: {
-          collectionId: input.collectionId,
-          bibNumber: input.bibNumber,
-          buyerEmail: input.buyerEmail,
-          buyerName: input.buyerName,
-          buyerLastName: input.buyerLastName,
-          buyerPhone: input.buyerPhone,
-          amountPaid: collection.pricePerBib.mul(input.photoCount),
-        },
-      });
+      // One purchase per bib
+      const purchases = await Promise.all(
+        input.bibGroups.map((group) =>
+          ctx.db.purchase.create({
+            data: {
+              collectionId: input.collectionId,
+              bibNumber: group.bibNumber,
+              buyerEmail: input.buyerEmail,
+              buyerName: input.buyerName,
+              buyerLastName: input.buyerLastName,
+              buyerPhone: input.buyerPhone,
+              amountPaid: collection.pricePerBib.mul(group.photoCount),
+            },
+          })
+        )
+      );
 
-      console.log(`[createPreference] purchase created id=${purchase.id}, calling MercadoPago...`);
+      const externalRef = purchases.map((p) => p.id).join(",");
+      const firstPurchaseId = purchases[0]!.id;
+
       const preference = await new Preference(await getMp(ctx.db)).create({
         body: {
-          items: [
-            {
-              id: `${input.collectionId}-${input.bibNumber}`,
-              title: `Fotos dorsal #${input.bibNumber} — ${collection.title}`,
-              quantity: input.photoCount,
-              unit_price: Number(collection.pricePerBib),
-              currency_id: "ARS",
-            },
-          ],
+          items: input.bibGroups.map((group) => ({
+            id: `${input.collectionId}-${group.bibNumber}`,
+            title: `Fotos dorsal #${group.bibNumber} — ${collection.title}`,
+            quantity: group.photoCount,
+            unit_price: Number(collection.pricePerBib),
+            currency_id: "ARS",
+          })),
           payer: {
             email: input.buyerEmail,
             name: input.buyerName,
@@ -82,24 +83,23 @@ export const purchaseRouter = createTRPCRouter({
           ...(env.NEXT_PUBLIC_BASE_URL && !env.NEXT_PUBLIC_BASE_URL.includes("localhost")
             ? {
                 back_urls: {
-                  success: `${env.NEXT_PUBLIC_BASE_URL}/descarga/pendiente?purchase=${purchase.id}`,
+                  success: `${env.NEXT_PUBLIC_BASE_URL}/descarga/pendiente?purchase=${firstPurchaseId}`,
                   failure: `${env.NEXT_PUBLIC_BASE_URL}/colecciones/${collection.slug}`,
-                  pending: `${env.NEXT_PUBLIC_BASE_URL}/descarga/pendiente?purchase=${purchase.id}`,
+                  pending: `${env.NEXT_PUBLIC_BASE_URL}/descarga/pendiente?purchase=${firstPurchaseId}`,
                 },
                 auto_return: "approved" as const,
                 notification_url: `${env.NEXT_PUBLIC_BASE_URL}/api/webhooks/mercadopago`,
               }
             : {}),
-          external_reference: purchase.id,
+          external_reference: externalRef,
         },
       });
 
-      await ctx.db.purchase.update({
-        where: { id: purchase.id },
+      await ctx.db.purchase.updateMany({
+        where: { id: { in: purchases.map((p) => p.id) } },
         data: { mercadopagoPreferenceId: preference.id },
       });
 
-      console.log(`[createPreference] done preferenceId=${preference.id}`);
       return {
         preferenceId: preference.id,
         initPoint: preference.init_point,

@@ -65,46 +65,51 @@ export async function POST(request: NextRequest) {
       order?: { id?: string };
     };
 
-    const purchaseId = payment.external_reference;
-    if (!purchaseId) return NextResponse.json({ received: true });
+    const externalRef = payment.external_reference;
+    if (!externalRef) return NextResponse.json({ received: true });
+
+    const purchaseIds = externalRef.split(",").filter(Boolean);
 
     const statusMap: Record<string, string> = {
       approved: "APPROVED",
       rejected: "REJECTED",
       refunded: "REFUNDED",
     };
-
     const newStatus = statusMap[payment.status] ?? "PENDING";
 
-    const updateData: Record<string, unknown> = {
-      mercadopagoPaymentId: String(payment.id),
-      mercadopagoOrderId: payment.order?.id ? String(payment.order.id) : undefined,
-      status: newStatus,
-    };
+    for (const purchaseId of purchaseIds) {
+      const token = newStatus === "APPROVED" ? crypto.randomUUID() : undefined;
 
-    if (newStatus === "APPROVED") {
-      updateData.downloadToken = crypto.randomUUID();
-      updateData.downloadTokenExpires = null;
-    }
-
-    const updated = await db.purchase.update({
-      where: { id: purchaseId },
-      data: updateData,
-      include: { collection: { select: { title: true } } },
-    });
-
-    if (newStatus === "APPROVED" && updated.downloadToken) {
-      const photoCount = await db.photo.count({
-        where: { collectionId: updated.collectionId, bibNumber: updated.bibNumber ?? undefined },
+      const updated = await db.purchase.update({
+        where: { id: purchaseId },
+        data: {
+          mercadopagoPaymentId: String(payment.id),
+          mercadopagoOrderId: payment.order?.id ? String(payment.order.id) : undefined,
+          status: newStatus as "APPROVED" | "REJECTED" | "REFUNDED" | "PENDING",
+          ...(token ? { downloadToken: token, downloadTokenExpires: null } : {}),
+        },
       });
-      void sendPurchaseApprovedEmail({
-        to: updated.buyerEmail,
-        buyerName: updated.buyerName,
-        bibNumber: updated.bibNumber,
-        collectionTitle: updated.collection.title,
-        downloadToken: updated.downloadToken,
-        photoCount,
-      });
+
+      if (newStatus === "APPROVED" && token) {
+        const collection = await db.collection.findUnique({
+          where: { id: updated.collectionId },
+          select: { title: true },
+        });
+        const photoCount = await db.photo.count({
+          where: {
+            collectionId: updated.collectionId,
+            ...(updated.bibNumber ? { bibNumber: { contains: updated.bibNumber, mode: "insensitive" } } : {}),
+          },
+        });
+        void sendPurchaseApprovedEmail({
+          to: updated.buyerEmail,
+          buyerName: updated.buyerName,
+          bibNumber: updated.bibNumber,
+          collectionTitle: collection?.title ?? "",
+          downloadToken: token,
+          photoCount,
+        });
+      }
     }
 
     return NextResponse.json({ received: true });
