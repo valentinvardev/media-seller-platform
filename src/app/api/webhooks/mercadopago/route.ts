@@ -95,12 +95,14 @@ export async function POST(request: NextRequest) {
           where: { id: updated.collectionId },
           select: { title: true },
         });
-        const photoCount = await db.photo.count({
-          where: {
-            collectionId: updated.collectionId,
-            ...(updated.bibNumber ? { bibNumber: { contains: updated.bibNumber, mode: "insensitive" } } : {}),
-          },
-        });
+        const photoCount = updated.photoIds
+          ? (JSON.parse(updated.photoIds) as string[]).length
+          : await db.photo.count({
+              where: {
+                collectionId: updated.collectionId,
+                ...(updated.bibNumber ? { bibNumber: { contains: updated.bibNumber, mode: "insensitive" } } : {}),
+              },
+            });
         void sendPurchaseApprovedEmail({
           to: updated.buyerEmail,
           buyerName: updated.buyerName,
