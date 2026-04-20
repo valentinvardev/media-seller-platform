@@ -297,7 +297,7 @@ export function BibCheckoutModal({
                   </div>
                 )}
                 <div className="flex flex-col gap-2">
-                  {price > 0 && (
+                  {price > 0 && bib && (
                     <button
                       onClick={() => setStep("buy")}
                       className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 active:scale-[0.98]"

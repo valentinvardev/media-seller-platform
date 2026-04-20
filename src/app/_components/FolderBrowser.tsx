@@ -397,8 +397,8 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const cartCheckout = () => {
     if (cartItems.length === 0) return;
     const allBibs = [...new Set(cartItems.map((i) => i.bibNumber).filter(Boolean))];
-    if (allBibs.length === 0) return; // no bib photos can't be purchased
-    const bib = allBibs.length === 1 ? (allBibs[0] ?? "") : "";
+    if (allBibs.length !== 1) return; // need exactly one bib
+    const bib = allBibs[0]!;
     setModal({ bib, photoIds: cartItems.map((i) => i.photoId) });
   };
 
