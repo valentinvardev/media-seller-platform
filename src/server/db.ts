@@ -2,10 +2,10 @@ import { env } from "~/env";
 import { PrismaClient } from "../../generated/prisma";
 
 function buildDbUrl(base: string) {
-  // Increase pool size and timeout to avoid P2024 under concurrent background tasks
+  // Always override pool settings to avoid P2024 under concurrent background tasks
   const url = new URL(base);
-  if (!url.searchParams.has("connection_limit")) url.searchParams.set("connection_limit", "20");
-  if (!url.searchParams.has("pool_timeout")) url.searchParams.set("pool_timeout", "60");
+  url.searchParams.set("connection_limit", "25");
+  url.searchParams.set("pool_timeout", "60");
   return url.toString();
 }
 
