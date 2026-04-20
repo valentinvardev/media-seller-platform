@@ -118,6 +118,7 @@ export function AdminShell({
         <NavItem href="/admin" label="Dashboard" icon="▦" onNavigate={close} />
         <NavItem href="/admin/colecciones" label="Eventos" icon="◫" onNavigate={close} />
         <NavItem href="/admin/ventas" label="Ventas" icon="◈" onNavigate={close} />
+        <NavItem href="/admin/entregas" label="Entrega manual" icon="↗" onNavigate={close} />
         <NavItem href="/admin/reconocimiento" label="Reconocimiento facial" svgIcon={faceIcon} onNavigate={close} />
         <NavItem href="/admin/qr" label="Códigos QR" svgIcon={qrIcon} onNavigate={close} />
         <NavItem href="/admin/configuracion" label="Configuración" svgIcon={settingsIcon} onNavigate={close} />

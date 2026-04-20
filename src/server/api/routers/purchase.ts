@@ -232,6 +232,50 @@ export const purchaseRouter = createTRPCRouter({
       return { items, total, pages: Math.ceil(total / input.limit) };
     }),
 
+  manualDeliver: protectedProcedure
+    .input(z.object({
+      collectionId: z.string(),
+      bibNumber: z.string().min(1),
+      buyerEmail: z.string().email(),
+      buyerName: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const [collection, photoCount] = await Promise.all([
+        ctx.db.collection.findFirstOrThrow({
+          where: { id: input.collectionId },
+          select: { title: true },
+        }),
+        ctx.db.photo.count({
+          where: { collectionId: input.collectionId, bibNumber: input.bibNumber },
+        }),
+      ]);
+
+      const token = crypto.randomUUID();
+      await ctx.db.purchase.create({
+        data: {
+          collectionId: input.collectionId,
+          bibNumber: input.bibNumber,
+          buyerEmail: input.buyerEmail,
+          buyerName: input.buyerName ?? null,
+          amountPaid: 0,
+          status: "APPROVED",
+          downloadToken: token,
+          downloadTokenExpires: null,
+        },
+      });
+
+      void sendPurchaseApprovedEmail({
+        to: input.buyerEmail,
+        buyerName: input.buyerName ?? null,
+        bibNumber: input.bibNumber,
+        collectionTitle: collection.title,
+        downloadToken: token,
+        photoCount,
+      });
+
+      return { downloadToken: token, photoCount };
+    }),
+
   searchStats: protectedProcedure.query(async ({ ctx }) => {
     const [total, bib, face] = await Promise.all([
       ctx.db.searchLog.count(),
