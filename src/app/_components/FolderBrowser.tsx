@@ -75,6 +75,7 @@ function PhotoTile({
   price,
   inCart,
   isFuzzy,
+  url: propUrl,
   onOpenLightbox,
   onToggleCart,
 }: {
@@ -83,11 +84,12 @@ function PhotoTile({
   price: number;
   inCart: boolean;
   isFuzzy?: boolean;
+  url?: string;
   onOpenLightbox: (url: string) => void;
   onToggleCart: (url: string) => void;
 }) {
-  const { data, isLoading } = api.photo.getPreviewUrls.useQuery({ ids: [photoId] });
-  const url = data?.[0]?.url;
+  const url = propUrl;
+  const isLoading = !url;
 
   const [cartAnim, setCartAnim] = useState<"add" | "remove" | null>(null);
 
@@ -221,16 +223,27 @@ function CartBar({
 
 // ─── Main FolderBrowser ───────────────────────────────────────────────────────
 
+const PAGE_SIZE = 48;
+
+type GalleryPhoto = { id: string; bibNumber: string | null; url: string };
+
 export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: string; pricePerBib: number }) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [faceActive, setFaceActive] = useState(false);
   const [faceStatus, setFaceStatus] = useState<"idle" | "uploading" | "done" | "no-face" | "error">("idle");
-  const [faceBibs, setFaceBibs] = useState<{ bib: string; photoIds: string[] }[] | null>(null);
+  const [faceBibs, setFaceBibs] = useState<{ bib: string; photoIds: string[] } | null>(null);
   const [modal, setModal] = useState<{ bib: string; photoIds: string[] } | null>(null);
   const [lightbox, setLightbox] = useState<{ url: string; bibNumber: string | null; photoIds: string[] } | null>(null);
   const { items: cartItems, inCart: isInCart, toggle: toggleCart, clear: clearCart } = useCart();
 
+  // Pagination state
+  const [pages, setPages] = useState<GalleryPhoto[][]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [total, setTotal] = useState(0);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -238,15 +251,56 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
     return () => clearTimeout(t);
   }, [search]);
 
-  const { data: allPhotos, isLoading: galleryLoading } = api.photo.listAll.useQuery({ collectionId });
-
   const hasSearch = debouncedSearch.length > 0;
+
+  // Paginated gallery query — always load offset 0 first
+  const { data: pageData, isFetching: pageFetching } = api.photo.listPaginated.useQuery(
+    { collectionId, limit: PAGE_SIZE, offset },
+    { enabled: !hasSearch && !faceActive },
+  );
+
+  useEffect(() => {
+    if (!pageData) return;
+    setTotal(pageData.total);
+    setHasMore(pageData.hasMore);
+    setPages((prev) => {
+      const pageIndex = offset / PAGE_SIZE;
+      const next = [...prev];
+      next[pageIndex] = pageData.photos;
+      return next;
+    });
+    loadingRef.current = false;
+  }, [pageData, offset]);
+
+  // IntersectionObserver to trigger next page
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting && hasMore && !pageFetching && !loadingRef.current && !hasSearch && !faceActive) {
+        loadingRef.current = true;
+        setOffset((prev) => prev + PAGE_SIZE);
+      }
+    }, { rootMargin: "400px" });
+    obs.observe(sentinelRef.current);
+    return () => obs.disconnect();
+  }, [hasMore, pageFetching, hasSearch, faceActive]);
+
+  // Reset pagination when switching modes
+  useEffect(() => {
+    if (hasSearch || faceActive) return;
+    setPages([]);
+    setOffset(0);
+    setHasMore(true);
+    loadingRef.current = false;
+  }, [collectionId, hasSearch, faceActive]);
+
+  const allGalleryPhotos = pages.flat();
+
   const { data: searchData, isLoading: searchLoading } = api.photo.searchByBib.useQuery(
     { collectionId, bib: debouncedSearch },
     { enabled: hasSearch },
   );
 
-  // Flatten search results into individual photo entries (same as gallery)
   const exactPhotos = searchData?.exact.flatMap((g) =>
     g.photos.map((p) => ({ ...p, isFuzzy: false })),
   ) ?? [];
@@ -313,7 +367,8 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
         setFaceStatus("no-face");
         return;
       }
-      setFaceBibs(json.groups);
+      const allIds = json.groups.flatMap((g: { bib: string; photoIds: string[] }) => g.photoIds);
+      setFaceBibs({ bib: json.groups[0]?.bib ?? "", photoIds: allIds });
       setFaceStatus("done");
       setFaceActive(true);
     } catch (err) {
@@ -326,17 +381,15 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
 
   const cartCheckout = () => {
     if (cartItems.length === 0) return;
-    // Pass all cart photo IDs; bib is empty string when mixed/no bibs
     const allBibs = [...new Set(cartItems.map((i) => i.bibNumber).filter(Boolean))];
     const bib = allBibs.length === 1 ? (allBibs[0] ?? "") : "";
     setModal({ bib, photoIds: cartItems.map((i) => i.photoId) });
   };
 
-  // Shared tile handler factory
   const makeTileHandlers = (p: { id: string; bibNumber: string | null }) => ({
     onOpenLightbox: (url: string) => {
-      const sameBibIds = p.bibNumber && allPhotos
-        ? allPhotos.filter((ph) => ph.bibNumber === p.bibNumber).map((ph) => ph.id)
+      const sameBibIds = p.bibNumber
+        ? allGalleryPhotos.filter((ph) => ph.bibNumber === p.bibNumber).map((ph) => ph.id)
         : [p.id];
       setLightbox({ url, bibNumber: p.bibNumber, photoIds: sameBibIds });
     },
@@ -427,10 +480,10 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
 
           {faceStatus === "done" && (
             <p className="text-xs text-gray-500">
-              {faceBibs?.length
-                ? `${faceBibs.length} coincidencia${faceBibs.length !== 1 ? "s" : ""} · `
+              {faceBibs?.photoIds.length
+                ? `${faceBibs.photoIds.length} foto${faceBibs.photoIds.length !== 1 ? "s" : ""} encontrada${faceBibs.photoIds.length !== 1 ? "s" : ""} · `
                 : "Sin coincidencias · "}
-              <button onClick={() => { setFaceStatus("idle"); setFaceBibs(null); if (fileRef.current) fileRef.current.value = ""; }}
+              <button onClick={() => { setFaceStatus("idle"); setFaceBibs(null); setFaceActive(false); if (fileRef.current) fileRef.current.value = ""; }}
                 className="underline hover:text-gray-700">intentar con otra foto</button>
             </p>
           )}
@@ -452,20 +505,10 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       </div>
 
       {/* ── Face results ───────────────────────────────────── */}
-      {showingFace && faceBibs && faceBibs.length > 0 && (
+      {showingFace && faceBibs && faceBibs.photoIds.length > 0 && (
         <div className="mb-10">
           <SectionLabel label="Resultados por reconocimiento facial" />
-          <div className={GRID}>
-            {faceBibs.flatMap((g) =>
-              g.photoIds.map((id) => {
-                const p = { id, bibNumber: g.bib };
-                return (
-                  <PhotoTile key={id} photoId={id} bibNumber={g.bib} price={pricePerBib}
-                    inCart={isInCart(id)} {...makeTileHandlers(p)} />
-                );
-              }),
-            )}
-          </div>
+          <FaceTiles collectionId={collectionId} faceBibs={faceBibs} pricePerBib={pricePerBib} isInCart={isInCart} toggleCart={toggleCart} setLightbox={setLightbox} />
         </div>
       )}
 
@@ -504,6 +547,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
                     price={pricePerBib}
                     inCart={isInCart(p.id)}
                     isFuzzy={p.isFuzzy}
+                    url={p.url}
                     {...makeTileHandlers(p)}
                   />
                 ))}
@@ -516,35 +560,45 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
       {/* ── Full photo gallery ─────────────────────────────── */}
       {!hasSearch && !showingFace && (
         <>
-          {galleryLoading ? (
+          {allGalleryPhotos.length === 0 && pageFetching ? (
             <div className={GRID}>
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="rounded-lg overflow-hidden bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
               ))}
             </div>
-          ) : allPhotos && allPhotos.length > 0 ? (
+          ) : allGalleryPhotos.length > 0 ? (
             <>
               <p className="hidden sm:block text-xs text-gray-400 mb-4 text-center">
-                {allPhotos.length} foto{allPhotos.length !== 1 ? "s" : ""} · clic para vista previa · carrito para comprar
+                {total} foto{total !== 1 ? "s" : ""} · clic para vista previa · carrito para comprar
               </p>
               <div className={GRID}>
-                {allPhotos.map((p) => (
+                {allGalleryPhotos.map((p) => (
                   <PhotoTile
                     key={p.id}
                     photoId={p.id}
                     bibNumber={p.bibNumber}
                     price={pricePerBib}
                     inCart={isInCart(p.id)}
+                    url={p.url}
                     {...makeTileHandlers(p)}
                   />
                 ))}
               </div>
+              {/* Sentinel + load-more skeleton */}
+              <div ref={sentinelRef} className="h-1" />
+              {pageFetching && hasMore && (
+                <div className={`${GRID} mt-1.5`}>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="rounded-lg overflow-hidden bg-gray-200 animate-pulse" style={{ aspectRatio: "4/3" }} />
+                  ))}
+                </div>
+              )}
             </>
-          ) : (
+          ) : !pageFetching ? (
             <div className="text-center py-16">
               <p className="text-gray-400 text-sm">No hay fotos en esta colección aún</p>
             </div>
-          )}
+          ) : null}
         </>
       )}
 
@@ -574,6 +628,42 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
         />
       )}
     </section>
+  );
+}
+
+function FaceTiles({
+  collectionId,
+  faceBibs,
+  pricePerBib,
+  isInCart,
+  toggleCart,
+  setLightbox,
+}: {
+  collectionId: string;
+  faceBibs: { bib: string; photoIds: string[] };
+  pricePerBib: number;
+  isInCart: (id: string) => boolean;
+  toggleCart: (item: { photoId: string; bibNumber: string | null; url: string }) => void;
+  setLightbox: (v: { url: string; bibNumber: string | null; photoIds: string[] } | null) => void;
+}) {
+  const { data } = api.photo.getPreviewUrls.useQuery({ ids: faceBibs.photoIds });
+  const urlMap = Object.fromEntries(data?.map((u) => [u.id, u.url]) ?? []);
+  const GRID = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5";
+  return (
+    <div className={GRID}>
+      {faceBibs.photoIds.map((id) => (
+        <PhotoTile
+          key={id}
+          photoId={id}
+          bibNumber={faceBibs.bib}
+          price={pricePerBib}
+          inCart={isInCart(id)}
+          url={urlMap[id]}
+          onOpenLightbox={(url) => setLightbox({ url, bibNumber: faceBibs.bib, photoIds: faceBibs.photoIds })}
+          onToggleCart={(url) => toggleCart({ photoId: id, bibNumber: faceBibs.bib, url })}
+        />
+      ))}
+    </div>
   );
 }
 

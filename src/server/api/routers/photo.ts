@@ -25,11 +25,39 @@ export const photoRouter = createTRPCRouter({
         orderBy: { order: "asc" },
         select: { id: true, bibNumber: true },
       });
-      // null bibs first (unidentified), then identified
       return [
         ...photos.filter((p) => !p.bibNumber),
         ...photos.filter((p) => !!p.bibNumber),
       ];
+    }),
+
+  listPaginated: publicProcedure
+    .input(z.object({
+      collectionId: z.string(),
+      limit: z.number().min(1).max(100).default(48),
+      offset: z.number().default(0),
+    }))
+    .query(async ({ ctx, input }) => {
+      const total = await ctx.db.photo.count({ where: { collectionId: input.collectionId } });
+      const raw = await ctx.db.photo.findMany({
+        where: { collectionId: input.collectionId },
+        orderBy: { order: "asc" },
+        select: { id: true, bibNumber: true, storageKey: true, previewKey: true },
+        skip: input.offset,
+        take: input.limit,
+      });
+      const photos = await Promise.all(
+        raw.map(async (p) => {
+          const key = p.previewKey ?? p.storageKey;
+          const url = await createSignedUrl(key, 3600);
+          return { id: p.id, bibNumber: p.bibNumber, url };
+        }),
+      );
+      return {
+        photos: photos.filter((p): p is { id: string; bibNumber: string | null; url: string } => p.url !== null),
+        total,
+        hasMore: input.offset + input.limit < total,
+      };
     }),
 
   searchByBib: publicProcedure
@@ -87,9 +115,31 @@ export const photoRouter = createTRPCRouter({
         return Array.from(map.entries()).map(([bib, photos]) => ({ bib, photos }));
       };
 
+      const resolveUrls = async (photos: typeof exact) =>
+        Promise.all(photos.map(async (p) => {
+          const key = p.previewKey ?? p.storageKey;
+          const url = await createSignedUrl(key, 3600);
+          return { id: p.id, bibNumber: p.bibNumber, url: url ?? "" };
+        }));
+
+      const [exactResolved, fuzzyResolved] = await Promise.all([
+        resolveUrls(exact),
+        resolveUrls(fuzzy),
+      ]);
+
+      const groupByBibWithUrls = (photos: { id: string; bibNumber: string | null; url: string }[]) => {
+        const map = new Map<string, typeof photos>();
+        for (const p of photos) {
+          const key = p.bibNumber ?? "?";
+          if (!map.has(key)) map.set(key, []);
+          map.get(key)!.push(p);
+        }
+        return Array.from(map.entries()).map(([bib, photos]) => ({ bib, photos }));
+      };
+
       return {
-        exact: groupByBib(exact),
-        fuzzy: groupByBib(fuzzy),
+        exact: groupByBibWithUrls(exactResolved),
+        fuzzy: groupByBibWithUrls(fuzzyResolved),
       };
     }),
 
