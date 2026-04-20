@@ -33,14 +33,18 @@ export const purchaseRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      console.log(`[createPreference] start collectionId=${input.collectionId} bib=${input.bibNumber} photoCount=${input.photoCount}`);
+
       const collection = await ctx.db.collection.findFirstOrThrow({
         where: { id: input.collectionId, isPublished: true },
         select: { title: true, slug: true, pricePerBib: true },
       });
+      console.log(`[createPreference] collection found: ${collection.title} price=${collection.pricePerBib}`);
 
       const photoCount = await ctx.db.photo.count({
         where: { collectionId: input.collectionId, bibNumber: { contains: input.bibNumber, mode: "insensitive" } },
       });
+      console.log(`[createPreference] photoCount=${photoCount}`);
       if (photoCount === 0) {
         throw new Error("No hay fotos para este dorsal en la colección.");
       }
@@ -57,6 +61,7 @@ export const purchaseRouter = createTRPCRouter({
         },
       });
 
+      console.log(`[createPreference] purchase created id=${purchase.id}, calling MercadoPago...`);
       const preference = await new Preference(await getMp(ctx.db)).create({
         body: {
           items: [
@@ -94,6 +99,7 @@ export const purchaseRouter = createTRPCRouter({
         data: { mercadopagoPreferenceId: preference.id },
       });
 
+      console.log(`[createPreference] done preferenceId=${preference.id}`);
       return {
         preferenceId: preference.id,
         initPoint: preference.init_point,

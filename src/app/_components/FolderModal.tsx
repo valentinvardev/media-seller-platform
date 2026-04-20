@@ -344,7 +344,7 @@ export function BibCheckoutModal({
                 {createPreference.isPending ? "Redirigiendo a MercadoPago..." : `Pagar $${total.toLocaleString("es-AR")}`}
               </button>
               {createPreference.isError && (
-                <p className="text-red-500 text-xs text-center">Ocurrió un error. Intentá de nuevo.</p>
+                <p className="text-red-500 text-xs text-center">Error: {createPreference.error?.message ?? "Intentá de nuevo."}</p>
               )}
               <button onClick={() => setStep("cart")} className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors mt-1">
                 ← Volver
