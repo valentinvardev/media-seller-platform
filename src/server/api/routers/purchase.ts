@@ -39,7 +39,7 @@ export const purchaseRouter = createTRPCRouter({
       });
 
       const photoCount = await ctx.db.photo.count({
-        where: { collectionId: input.collectionId, bibNumber: input.bibNumber },
+        where: { collectionId: input.collectionId, bibNumber: { contains: input.bibNumber, mode: "insensitive" } },
       });
       if (photoCount === 0) {
         throw new Error("No hay fotos para este dorsal en la colección.");
@@ -129,11 +129,13 @@ export const purchaseRouter = createTRPCRouter({
       if (!purchase) return null;
       if (purchase.status !== "APPROVED") return null;
 
-      // Fetch all photos for this bib in this collection
+      // Fetch all photos for this bib — use contains so it matches the same photos the search shows
       const photos = await ctx.db.photo.findMany({
         where: {
           collectionId: purchase.collectionId,
-          bibNumber: purchase.bibNumber ?? undefined,
+          ...(purchase.bibNumber
+            ? { bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } }
+            : {}),
         },
         orderBy: { order: "asc" },
       });
@@ -246,7 +248,7 @@ export const purchaseRouter = createTRPCRouter({
           select: { title: true },
         }),
         ctx.db.photo.count({
-          where: { collectionId: input.collectionId, bibNumber: input.bibNumber },
+          where: { collectionId: input.collectionId, bibNumber: { contains: input.bibNumber, mode: "insensitive" } },
         }),
       ]);
 
