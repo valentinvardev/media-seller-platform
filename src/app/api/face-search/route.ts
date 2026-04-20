@@ -102,6 +102,7 @@ export async function POST(req: NextRequest) {
     }));
 
     console.log(`[face-search] collectionId=${collectionId} found ${matchedPhotoIds.length} photos in ${groups.length} groups`);
+    void db.searchLog.create({ data: { collectionId, type: "face" } });
     return NextResponse.json({ groups });
   } catch (err) {
     console.error("[face-search] error:", err);

@@ -24,7 +24,8 @@ export const purchaseRouter = createTRPCRouter({
     .input(
       z.object({
         collectionId: z.string(),
-        bibNumber: z.string(),
+        bibNumber: z.string().min(1),
+        photoCount: z.number().min(1),
         buyerEmail: z.string().email(),
         buyerName: z.string().optional(),
         buyerLastName: z.string().optional(),
@@ -37,6 +38,13 @@ export const purchaseRouter = createTRPCRouter({
         select: { title: true, slug: true, pricePerBib: true },
       });
 
+      const photoCount = await ctx.db.photo.count({
+        where: { collectionId: input.collectionId, bibNumber: input.bibNumber },
+      });
+      if (photoCount === 0) {
+        throw new Error("No hay fotos para este dorsal en la colección.");
+      }
+
       const purchase = await ctx.db.purchase.create({
         data: {
           collectionId: input.collectionId,
@@ -45,7 +53,7 @@ export const purchaseRouter = createTRPCRouter({
           buyerName: input.buyerName,
           buyerLastName: input.buyerLastName,
           buyerPhone: input.buyerPhone,
-          amountPaid: collection.pricePerBib,
+          amountPaid: collection.pricePerBib.mul(input.photoCount),
         },
       });
 
@@ -55,7 +63,7 @@ export const purchaseRouter = createTRPCRouter({
             {
               id: `${input.collectionId}-${input.bibNumber}`,
               title: `Fotos dorsal #${input.bibNumber} — ${collection.title}`,
-              quantity: 1,
+              quantity: input.photoCount,
               unit_price: Number(collection.pricePerBib),
               currency_id: "ARS",
             },
@@ -223,6 +231,15 @@ export const purchaseRouter = createTRPCRouter({
       ]);
       return { items, total, pages: Math.ceil(total / input.limit) };
     }),
+
+  searchStats: protectedProcedure.query(async ({ ctx }) => {
+    const [total, bib, face] = await Promise.all([
+      ctx.db.searchLog.count(),
+      ctx.db.searchLog.count({ where: { type: "bib" } }),
+      ctx.db.searchLog.count({ where: { type: "face" } }),
+    ]);
+    return { total, bib, face };
+  }),
 
   manualApprove: protectedProcedure
     .input(z.object({ id: z.string() }))

@@ -219,6 +219,13 @@ exports.Prisma.FaceRecordScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.SearchLogScalarFieldEnum = {
+  id: 'id',
+  collectionId: 'collectionId',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SettingScalarFieldEnum = {
   key: 'key',
   value: 'value',
@@ -255,6 +262,7 @@ exports.Prisma.ModelName = {
   Photo: 'Photo',
   Purchase: 'Purchase',
   FaceRecord: 'FaceRecord',
+  SearchLog: 'SearchLog',
   Setting: 'Setting'
 };
 

@@ -2,7 +2,10 @@ import { api } from "~/trpc/server";
 import { SalesTable } from "~/app/_components/admin/SalesTable";
 
 export default async function SalesPage() {
-  const sales = await api.purchase.adminList({ page: 1, limit: 50 });
+  const [sales, searchStats] = await Promise.all([
+    api.purchase.adminList({ page: 1, limit: 50 }),
+    api.purchase.searchStats(),
+  ]);
 
   const approved = sales.items.filter((s) => s.status === "APPROVED");
   const totalRevenue = approved.reduce((acc, s) => acc + Number(s.amountPaid), 0);
@@ -26,6 +29,24 @@ export default async function SalesPage() {
             <p className={`font-bold text-gray-900 ${c.isText ? "text-lg" : "text-2xl"}`}>{c.value}</p>
           </div>
         ))}
+      </div>
+
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-4 mb-8">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Búsquedas</p>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <p className="text-2xl font-bold text-gray-900">{searchStats.total}</p>
+            <p className="text-xs text-gray-400 mt-0.5">Total</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900">{searchStats.bib}</p>
+            <p className="text-xs text-gray-400 mt-0.5">Por dorsal</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900">{searchStats.face}</p>
+            <p className="text-xs text-gray-400 mt-0.5">Reconocimiento facial</p>
+          </div>
+        </div>
       </div>
 
       <SalesTable items={sales.items} />

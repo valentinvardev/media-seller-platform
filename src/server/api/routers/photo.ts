@@ -137,6 +137,9 @@ export const photoRouter = createTRPCRouter({
         return Array.from(map.entries()).map(([bib, photos]) => ({ bib, photos }));
       };
 
+      // Fire-and-forget search log
+      void ctx.db.searchLog.create({ data: { collectionId: input.collectionId, type: "bib" } });
+
       return {
         exact: groupByBibWithUrls(exactResolved),
         fuzzy: groupByBibWithUrls(fuzzyResolved),

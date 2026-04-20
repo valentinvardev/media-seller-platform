@@ -16,7 +16,7 @@ function PhotoLightbox({
   url: string;
   bibNumber: string | null;
   onClose: () => void;
-  onBuy: () => void;
+  onBuy?: () => void;
 }) {
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -53,14 +53,18 @@ function PhotoLightbox({
             : <p className="text-sm font-bold text-gray-900">Foto sin dorsal</p>}
             <p className="text-xs text-gray-400 mt-0.5">Vista previa · descargá en HD sin marca de agua</p>
           </div>
-          <button onClick={onBuy}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-700 uppercase tracking-wide text-white text-xs transition-all hover:scale-105 shrink-0"
-            style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            Comprar
-          </button>
+          {onBuy ? (
+            <button onClick={onBuy}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-700 uppercase tracking-wide text-white text-xs transition-all hover:scale-105 shrink-0"
+              style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Comprar
+            </button>
+          ) : (
+            <p className="text-xs text-gray-400 shrink-0">Sin dorsal asignado</p>
+          )}
         </div>
       </div>
     </div>
@@ -150,8 +154,8 @@ function PhotoTile({
           )}
         </div>
 
-        {/* Cart button */}
-        <button
+        {/* Cart button — only show for photos with an identified bib number */}
+        {bibNumber && <button
           onClick={handleCart}
           disabled={!url}
           className={`relative w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 active:scale-90 disabled:opacity-40 ${
@@ -170,7 +174,7 @@ function PhotoTile({
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             )}
           </svg>
-        </button>
+        </button>}
       </div>
     </div>
   );
@@ -382,6 +386,7 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
   const cartCheckout = () => {
     if (cartItems.length === 0) return;
     const allBibs = [...new Set(cartItems.map((i) => i.bibNumber).filter(Boolean))];
+    if (allBibs.length === 0) return; // no bib photos can't be purchased
     const bib = allBibs.length === 1 ? (allBibs[0] ?? "") : "";
     setModal({ bib, photoIds: cartItems.map((i) => i.photoId) });
   };
@@ -608,10 +613,10 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           url={lightbox.url}
           bibNumber={lightbox.bibNumber}
           onClose={() => setLightbox(null)}
-          onBuy={() => {
-            setModal({ bib: lightbox.bibNumber ?? "", photoIds: lightbox.photoIds });
+          onBuy={lightbox.bibNumber ? () => {
+            setModal({ bib: lightbox.bibNumber!, photoIds: lightbox.photoIds });
             setLightbox(null);
-          }}
+          } : undefined}
         />
       )}
 
@@ -648,6 +653,8 @@ function FaceTiles({
 }) {
   const { data } = api.photo.getPreviewUrls.useQuery({ ids: faceBibs.photoIds });
   const urlMap = Object.fromEntries(data?.map((u) => [u.id, u.url]) ?? []);
+  // "sin-dorsal" is a display placeholder — treat as null so photos can't be purchased
+  const realBib = faceBibs.bib === "sin-dorsal" ? null : faceBibs.bib;
   const GRID = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5";
   return (
     <div className={GRID}>
@@ -655,12 +662,12 @@ function FaceTiles({
         <PhotoTile
           key={id}
           photoId={id}
-          bibNumber={faceBibs.bib}
+          bibNumber={realBib}
           price={pricePerBib}
           inCart={isInCart(id)}
           url={urlMap[id]}
-          onOpenLightbox={(url) => setLightbox({ url, bibNumber: faceBibs.bib, photoIds: faceBibs.photoIds })}
-          onToggleCart={(url) => toggleCart({ photoId: id, bibNumber: faceBibs.bib, url })}
+          onOpenLightbox={(url) => setLightbox({ url, bibNumber: realBib, photoIds: faceBibs.photoIds })}
+          onToggleCart={(url) => toggleCart({ photoId: id, bibNumber: realBib, url })}
         />
       ))}
     </div>

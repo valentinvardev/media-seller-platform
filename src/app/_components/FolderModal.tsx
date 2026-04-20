@@ -207,6 +207,7 @@ export function BibCheckoutModal({
     createPreference.mutate({
       collectionId,
       bibNumber: bib,
+      photoCount: photoIds.length,
       buyerEmail: email,
       buyerName: name,
       buyerLastName: lastName || undefined,

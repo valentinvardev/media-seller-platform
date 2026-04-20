@@ -155,6 +155,16 @@ model FaceRecord {
   @@index([photoId])
 }
 
+model SearchLog {
+  id           String   @id @default(cuid())
+  collectionId String?
+  type         String // "bib" | "face"
+  createdAt    DateTime @default(now())
+
+  @@index([collectionId])
+  @@index([createdAt])
+}
+
 // ─── Platform Settings ───────────────────────────────────────────────────────
 
 model Setting {
