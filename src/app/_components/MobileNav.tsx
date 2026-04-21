@@ -49,7 +49,7 @@ export function MobileNav() {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-white/10 shrink-0">
-          <Image src="/logo.png" alt="ALTAFOTO" width={120} height={34} className="h-8 w-auto brightness-0 invert" />
+          <Image src="/logo.png" alt="ALTAFOTO" width={120} height={34} className="h-8 w-auto" />
           <button onClick={() => setOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg text-white/60 hover:text-white transition-colors">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
               <path d="M18 6L6 18M6 6l12 12" />

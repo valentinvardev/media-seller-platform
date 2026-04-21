@@ -16,7 +16,7 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           {/* Logo — mobile only */}
           <Link href="/" className="md:hidden flex items-center shrink-0">
-            <Image src="/logo.png" alt="ALTAFOTO" width={180} height={52} className="h-11 w-auto brightness-0 invert" priority />
+            <Image src="/logo.png" alt="ALTAFOTO" width={180} height={52} className="h-11 w-auto" priority />
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -114,7 +114,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="mb-3">
-                <Image src="/logo.png" alt="ALTAFOTO" width={120} height={34} className="h-8 w-auto brightness-0 invert" />
+                <Image src="/logo.png" alt="ALTAFOTO" width={120} height={34} className="h-8 w-auto" />
               </div>
               <p className="text-blue-300 text-xs leading-relaxed">Fotografía deportiva profesional en Argentina.</p>
             </div>

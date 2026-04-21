@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -77,16 +78,8 @@ export function AdminShell({
       {/* Logo */}
       <div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 text-white"
-            style={{ background: "linear-gradient(135deg, #1a3a6b, #2563eb)" }}
-          >
-            A
-          </div>
-          <div>
-            <p className="font-bold text-gray-900 text-sm leading-tight">ALTAFOTO</p>
-            <p className="text-xs leading-tight text-blue-600">Admin Panel</p>
-          </div>
+          <Image src="/logo.png" alt="ALTAFOTO" width={100} height={40} className="h-8 w-auto" />
+          <p className="text-xs leading-tight text-blue-600 font-semibold">Admin</p>
         </div>
         {/* Close button — mobile only */}
         <button
@@ -180,15 +173,7 @@ export function AdminShell({
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="flex items-center gap-2">
-            <div
-              className="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-white"
-              style={{ background: "linear-gradient(135deg, #1a3a6b, #2563eb)" }}
-            >
-              A
-            </div>
-            <span className="font-bold text-gray-900 text-sm">ALTAFOTO</span>
-          </div>
+          <Image src="/logo.png" alt="ALTAFOTO" width={90} height={36} className="h-7 w-auto" />
         </header>
 
         <main className="flex-1 overflow-y-auto">

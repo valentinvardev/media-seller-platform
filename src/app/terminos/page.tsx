@@ -15,7 +15,7 @@ export default function TerminosPage() {
       <nav className="sticky top-0 z-50 shadow-md" style={{ background: "#0057A8" }}>
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           <Link href="/" className="md:hidden flex items-center shrink-0">
-            <Image src="/logo.png" alt="ALTAFOTO" width={180} height={52} className="h-11 w-auto brightness-0 invert" priority />
+            <Image src="/logo.png" alt="ALTAFOTO" width={180} height={52} className="h-11 w-auto" priority />
           </Link>
           <div className="hidden md:flex items-center gap-8">
             <Link href="/" className="font-display font-600 uppercase tracking-wider text-base text-white/90 hover:text-white transition-colors">Inicio</Link>

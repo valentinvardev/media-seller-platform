@@ -105,7 +105,7 @@ export function QrPrintPage() {
                     <div className="flex flex-col items-center gap-2 py-5 px-4"
                       style={{ background: "linear-gradient(135deg, #003D7A 0%, #0057A8 100%)" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/logo.png" alt="ALTAFOTO" className="w-auto brightness-0 invert"
+                      <img src="/logo.png" alt="ALTAFOTO" className="w-auto rounded-lg"
                         style={{ height: format === "poster" ? 52 : format === "card" ? 44 : 32 }} />
                     </div>
 

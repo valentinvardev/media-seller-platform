@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -45,17 +46,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex items-center gap-3 mb-5">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-bold shrink-0 text-white"
-              style={{ background: "linear-gradient(135deg, #1a3a6b, #2563eb)" }}
-            >
-              A
-            </div>
-            <div>
-              <p className="font-bold text-gray-900 leading-tight">ALTAFOTO</p>
-              <p className="text-xs leading-tight text-blue-600">Admin Panel</p>
-            </div>
+          <div className="mb-5">
+            <Image src="/logo.png" alt="ALTAFOTO" width={160} height={64} className="h-14 w-auto mx-auto" />
           </div>
           <p className="text-sm text-gray-500">Ingresá con tus credenciales</p>
         </div>
