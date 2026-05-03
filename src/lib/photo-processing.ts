@@ -80,7 +80,9 @@ export async function runOcr(photoId: string): Promise<{ bib: string | null }> {
   const { data, error } = await supabase.storage.from("photos").download(photo.storageKey);
   if (error ?? !data) { console.error("[OCR] Download failed:", error); return { bib: null }; }
 
-  const imageBytes = new Uint8Array(await data.arrayBuffer());
+  const rawBuffer = Buffer.from(await data.arrayBuffer());
+  const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+  const imageBytes = new Uint8Array(resized);
 
   try {
     const response = await rekognition.send(new DetectTextCommand({ Image: { Bytes: imageBytes } }));
@@ -102,13 +104,24 @@ export async function runOcr(photoId: string): Promise<{ bib: string | null }> {
 
 // ── Watermark ─────────────────────────────────────────────────────────────────
 
+// Module-level cache so watermark is downloaded once per server process
+let cachedWatermark: Buffer | null | "none" = null;
+
+async function getWatermarkBuffer(client: NonNullable<ReturnType<typeof getAdminClient>>): Promise<Buffer | null> {
+  if (cachedWatermark === "none") return null;
+  if (cachedWatermark !== null) return cachedWatermark;
+  const { data, error } = await client.storage.from("photos").download(WATERMARK_KEY);
+  if (error ?? !data) { cachedWatermark = "none"; return null; }
+  cachedWatermark = Buffer.from(await data.arrayBuffer());
+  return cachedWatermark;
+}
+
 async function buildWatermarkComposite(
   client: NonNullable<ReturnType<typeof getAdminClient>>,
   imageWidth: number,
   imageHeight: number,
 ): Promise<{ input: Buffer; tile: boolean; blend: "over" }> {
-  const { data: wmData, error: wmError } = await client.storage.from("photos").download(WATERMARK_KEY);
-  const wmPng = (!wmError && wmData) ? Buffer.from(await wmData.arrayBuffer()) : null;
+  const wmPng = await getWatermarkBuffer(client);
 
   if (wmPng) {
     const meta = await sharp(wmPng).metadata();
@@ -205,7 +218,9 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
   const { data, error } = await supabase.storage.from("photos").download(photo.storageKey);
   if (error ?? !data) { console.error("[FaceIndex] Download failed:", error); return; }
 
-  const imageBytes = new Uint8Array(await data.arrayBuffer());
+  const rawBuffer = Buffer.from(await data.arrayBuffer());
+  const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+  const imageBytes = new Uint8Array(resized);
   const rekCollectionId = rekognitionCollectionId(collectionId);
 
   try {
