@@ -6,6 +6,7 @@ import { PhotoManager } from "~/app/_components/admin/PhotoManager";
 import { CollectionActions } from "~/app/_components/admin/CollectionActions";
 import { BannerUploader } from "~/app/_components/admin/BannerUploader";
 import { FaceReindexButton } from "~/app/_components/admin/FaceReindexButton";
+import { OcrRetryButton } from "~/app/_components/admin/OcrRetryButton";
 import { createSignedUrl } from "~/lib/supabase/admin";
 
 const PAGE_SIZE = 48;
@@ -128,6 +129,11 @@ export default async function EditCollectionPage({
         {/* Face reindex */}
         <div className="mt-4 pt-4 border-t border-gray-100">
           <FaceReindexButton collectionId={collection.id} totalPhotos={totalCount} />
+        </div>
+
+        {/* OCR retry */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <OcrRetryButton collectionId={collection.id} unidentifiedCount={unidentifiedCount} />
         </div>
 
         {/* Stats */}
