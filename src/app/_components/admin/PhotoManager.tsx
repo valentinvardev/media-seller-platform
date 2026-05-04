@@ -167,7 +167,6 @@ export function PhotoManager({
   totalPages,
   totalCount,
   q,
-  dupMode,
 }: {
   collectionId: string;
   photos: Photo[];
@@ -175,7 +174,6 @@ export function PhotoManager({
   totalPages: number;
   totalCount: number;
   q: string;
-  dupMode: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -191,13 +189,13 @@ export function PhotoManager({
     onSuccess: () => { setSelected(new Set()); setSelectMode(false); router.refresh(); },
   });
 
-  const navigate = (newPage: number, newQ?: string, newDup?: boolean) => {
+  const [duplicatesOpen, setDuplicatesOpen] = useState(false);
+
+  const navigate = (newPage: number, newQ?: string) => {
     const params = new URLSearchParams();
     if (newPage > 1) params.set("page", String(newPage));
     const query = newQ ?? search;
     if (query) params.set("q", query);
-    const dup = newDup ?? dupMode;
-    if (dup) params.set("dup", "1");
     const qs = params.toString();
     startTransition(() => {
       router.push(`/admin/colecciones/${collectionId}${qs ? `?${qs}` : ""}`);
@@ -208,8 +206,6 @@ export function PhotoManager({
     setSearch(val);
     navigate(1, val);
   };
-
-  const toggleDup = () => navigate(1, search, !dupMode);
 
   const toggleSelect = (id: string) => setSelected((prev) => {
     const next = new Set(prev);
@@ -257,14 +253,12 @@ export function PhotoManager({
         <p className="text-xs text-gray-400 shrink-0">{totalCount} foto{totalCount !== 1 ? "s" : ""}</p>
 
         <button
-          onClick={toggleDup}
+          onClick={() => setDuplicatesOpen(true)}
           className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0"
-          style={dupMode
-            ? { background: "#fee2e2", color: "#b91c1c", border: "1px solid #fecaca" }
-            : { background: "#fff", color: "#6b7280", border: "1px solid #e5e7eb" }}
-          title="Mostrar fotos con mismo nombre y tamaño que otra del evento"
+          style={{ background: "#fff", color: "#6b7280", border: "1px solid #e5e7eb" }}
+          title="Buscar y borrar fotos con el mismo nombre"
         >
-          {dupMode ? "✕ Duplicadas" : "Duplicadas"}
+          Duplicadas
         </button>
 
         <div className="flex items-center gap-1.5 shrink-0">
@@ -450,12 +444,124 @@ export function PhotoManager({
         </div>
       )}
 
+      {duplicatesOpen && (
+        <DuplicatesModal collectionId={collectionId} onClose={() => setDuplicatesOpen(false)} />
+      )}
+
       <style>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
       `}</style>
+    </div>
+  );
+}
+
+// ── Duplicates modal ──────────────────────────────────────────────────────────
+
+function DuplicatesModal({ collectionId, onClose }: { collectionId: string; onClose: () => void }) {
+  const router = useRouter();
+  const { data, isLoading, refetch } = api.photo.listDuplicates.useQuery({ collectionId });
+  const bulkDelete = api.photo.bulkDelete.useMutation({
+    onSuccess: () => { void refetch(); router.refresh(); },
+  });
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  const handleDelete = () => {
+    if (!data) return;
+    const ids = data.groups.flatMap((g) => g.duplicates.map((d) => d.id));
+    if (ids.length === 0) return;
+    bulkDelete.mutate({ ids }, { onSuccess: () => setConfirming(false) });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }} onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col" style={{ maxHeight: "85vh" }} onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+          <div>
+            <h2 className="font-bold text-gray-900 text-base">Fotos duplicadas</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {isLoading ? "Buscando..." : data
+                ? data.totalDuplicates === 0
+                  ? "No hay duplicadas"
+                  : `${data.totalDuplicates} duplicada${data.totalDuplicates !== 1 ? "s" : ""} en ${data.groups.length} grupo${data.groups.length !== 1 ? "s" : ""}`
+                : ""}
+            </p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:text-gray-800">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 min-h-0">
+          {isLoading && <p className="text-sm text-gray-400 text-center py-10">Cargando...</p>}
+          {data && data.groups.length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-10">No se encontraron fotos con nombres repetidos.</p>
+          )}
+          {data && data.groups.map((g) => (
+            <div key={g.filename} className="border border-gray-100 rounded-xl p-3 mb-3 last:mb-0">
+              <p className="text-xs font-medium text-gray-500 mb-2 truncate">{g.filename}</p>
+              <div className="flex gap-2 items-start flex-wrap">
+                <div className="flex flex-col items-center">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 border-2 border-green-400">
+                    {g.keep.url && <img src={g.keep.url} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <p className="text-[10px] font-bold text-green-600 mt-1">ORIGINAL</p>
+                </div>
+                {g.duplicates.map((d) => (
+                  <div key={d.id} className="flex flex-col items-center">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 border-2 border-red-300 opacity-70">
+                      {d.url && <img src={d.url} alt="" className="w-full h-full object-cover" />}
+                    </div>
+                    <p className="text-[10px] font-bold text-red-500 mt-1">A BORRAR</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        {data && data.totalDuplicates > 0 && (
+          <div className="px-5 py-4 border-t border-gray-100 shrink-0">
+            {!confirming ? (
+              <button
+                onClick={() => setConfirming(true)}
+                className="w-full py-3 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90"
+                style={{ background: "#dc2626" }}
+              >
+                Borrar {data.totalDuplicates} duplicada{data.totalDuplicates !== 1 ? "s" : ""}
+              </button>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <p className="text-xs text-center text-gray-600">¿Seguro? Se mantendrá una copia de cada foto.</p>
+                <div className="flex gap-2">
+                  <button onClick={() => setConfirming(false)} disabled={bulkDelete.isPending}
+                    className="flex-1 py-2.5 rounded-xl text-sm border border-gray-200 text-gray-600 hover:text-gray-900">
+                    Cancelar
+                  </button>
+                  <button onClick={handleDelete} disabled={bulkDelete.isPending}
+                    className="flex-1 py-2.5 rounded-xl font-bold text-white text-sm disabled:opacity-50"
+                    style={{ background: "#dc2626" }}>
+                    {bulkDelete.isPending ? "Borrando..." : "Sí, borrar"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

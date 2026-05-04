@@ -243,6 +243,47 @@ export const photoRouter = createTRPCRouter({
       return ctx.db.photo.delete({ where: { id: input.id } });
     }),
 
+  /**
+   * Find duplicate photos in a collection (same filename).
+   * Returns groups: keep the oldest, list the rest as duplicates to delete.
+   */
+  listDuplicates: protectedProcedure
+    .input(z.object({ collectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const rows = await ctx.db.photo.findMany({
+        where: { collectionId: input.collectionId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, filename: true, storageKey: true, previewKey: true, createdAt: true },
+      });
+
+      const grouped = new Map<string, typeof rows>();
+      for (const r of rows) {
+        const arr = grouped.get(r.filename) ?? [];
+        arr.push(r);
+        grouped.set(r.filename, arr);
+      }
+
+      const groups = await Promise.all(
+        Array.from(grouped.values())
+          .filter((g) => g.length > 1)
+          .map(async (g) => {
+            const [keep, ...duplicates] = g;
+            const resolveUrl = async (p: typeof g[number]) =>
+              await createSignedUrl(p.previewKey ?? p.storageKey, 3600);
+            return {
+              filename: keep!.filename,
+              keep: { id: keep!.id, url: await resolveUrl(keep!) },
+              duplicates: await Promise.all(
+                duplicates.map(async (d) => ({ id: d.id, url: await resolveUrl(d) })),
+              ),
+            };
+          }),
+      );
+
+      const totalDuplicates = groups.reduce((sum, g) => sum + g.duplicates.length, 0);
+      return { groups, totalDuplicates };
+    }),
+
   bulkDelete: protectedProcedure
     .input(z.object({ ids: z.array(z.string()) }))
     .mutation(async ({ ctx, input }) => {
