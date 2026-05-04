@@ -16,6 +16,23 @@ import { db } from "~/server/db";
 import { getAdminClient } from "~/lib/supabase/admin";
 import { WATERMARK_KEY } from "~/lib/watermark";
 
+// ── Supabase retry helper ─────────────────────────────────────────────────────
+
+async function downloadWithRetry(
+  client: NonNullable<ReturnType<typeof getAdminClient>>,
+  key: string,
+): Promise<Blob | null> {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const { data, error } = await client.storage.from("photos").download(key);
+    if (!error && data) return data;
+    const msg = String((error as { message?: string } | null)?.message ?? "");
+    const isRetryable = msg.includes("maximum number of connections") || msg.includes("503") || msg.includes("Bad Gateway") || msg.includes("502");
+    if (!isRetryable) return null;
+    await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt) + Math.random() * 300));
+  }
+  return null;
+}
+
 // ── Rekognition client (shared) ───────────────────────────────────────────────
 
 const rekognition = new RekognitionClient({
@@ -77,8 +94,8 @@ export async function runOcr(photoId: string): Promise<{ bib: string | null }> {
   const supabase = getAdminClient();
   if (!supabase) { console.error("[OCR] Supabase admin client not available"); return { bib: null }; }
 
-  const { data, error } = await supabase.storage.from("photos").download(photo.storageKey);
-  if (error ?? !data) { console.error("[OCR] Download failed:", error); return { bib: null }; }
+  const data = await downloadWithRetry(supabase, photo.storageKey);
+  if (!data) { console.error("[OCR] Download failed after retries"); return { bib: null }; }
 
   const rawBuffer = Buffer.from(await data.arrayBuffer());
   const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
@@ -159,8 +176,8 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
   const client = getAdminClient();
   if (!client) { console.error("[Watermark] Supabase admin client not available"); return { previewKey: null }; }
 
-  const { data, error: dlError } = await client.storage.from("photos").download(photo.storageKey);
-  if (dlError ?? !data) { console.error("[Watermark] Download failed:", dlError); return { previewKey: null }; }
+  const data = await downloadWithRetry(client, photo.storageKey);
+  if (!data) { console.error("[Watermark] Download failed after retries"); return { previewKey: null }; }
 
   const buffer = Buffer.from(await data.arrayBuffer());
   const meta = await sharp(buffer).metadata();
@@ -176,11 +193,19 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
     }
 
     const previewKey = `previews/${photo.id}.jpg`;
-    const { error: upError } = await client.storage
-      .from("photos")
-      .upload(previewKey, watermarked, { contentType: "image/jpeg", upsert: true });
-
-    if (upError) { console.error("[Watermark] Upload failed:", upError); return { previewKey: null }; }
+    let upError: unknown = null;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const result = await client.storage
+        .from("photos")
+        .upload(previewKey, watermarked, { contentType: "image/jpeg", upsert: true });
+      upError = result.error;
+      if (!upError) break;
+      const msg = String((upError as { message?: string })?.message ?? "");
+      const isRetryable = msg.includes("maximum number of connections") || msg.includes("503") || msg.includes("Bad Gateway") || msg.includes("502");
+      if (!isRetryable) break;
+      await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt) + Math.random() * 300));
+    }
+    if (upError) { console.error("[Watermark] Upload failed after retries:", upError); return { previewKey: null }; }
 
     await db.photo.update({ where: { id: photoId }, data: { previewKey } });
     console.log(`[Watermark] photoId=${photoId} done`);
@@ -215,8 +240,8 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
   const supabase = getAdminClient();
   if (!supabase) { console.error("[FaceIndex] Supabase admin client not available"); return; }
 
-  const { data, error } = await supabase.storage.from("photos").download(photo.storageKey);
-  if (error ?? !data) { console.error("[FaceIndex] Download failed:", error); return; }
+  const data = await downloadWithRetry(supabase, photo.storageKey);
+  if (!data) { console.error("[FaceIndex] Download failed after retries"); return; }
 
   const rawBuffer = Buffer.from(await data.arrayBuffer());
   const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
