@@ -15,21 +15,41 @@ export default async function EditCollectionPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; dup?: string }>;
 }) {
   const { id } = await params;
-  const { page: pageParam, q } = await searchParams;
+  const { page: pageParam, q, dup } = await searchParams;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const dupMode = dup === "1";
 
   const collection = await api.collection.adminGetById({ id });
   if (!collection) notFound();
 
   const { db } = await import("~/server/db");
 
-  // Build filter — search by bib number if q is set
+  // When dupMode is on, find photo IDs that share filename+fileSize with another photo in the collection
+  let dupIds: string[] | null = null;
+  if (dupMode) {
+    const rows = await db.$queryRaw<{ id: string }[]>`
+      SELECT p.id
+      FROM "Photo" p
+      WHERE p."collectionId" = ${id}
+        AND p."fileSize" IS NOT NULL
+        AND (p.filename, p."fileSize") IN (
+          SELECT filename, "fileSize"
+          FROM "Photo"
+          WHERE "collectionId" = ${id} AND "fileSize" IS NOT NULL
+          GROUP BY filename, "fileSize"
+          HAVING COUNT(*) > 1
+        )
+    `;
+    dupIds = rows.map((r) => r.id);
+  }
+
   const where = {
     collectionId: id,
     ...(q ? { bibNumber: { contains: q } } : {}),
+    ...(dupIds !== null ? { id: { in: dupIds.length > 0 ? dupIds : ["__none__"] } } : {}),
   };
 
   const [totalCount, unidentifiedCount, rawPhotos] = await Promise.all([
@@ -54,7 +74,7 @@ export default async function EditCollectionPage({
     }),
   );
 
-  const filteredTotal = q
+  const filteredTotal = q || dupMode
     ? await db.photo.count({ where })
     : totalCount;
   const totalPages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));
@@ -176,6 +196,7 @@ export default async function EditCollectionPage({
               totalPages={totalPages}
               totalCount={filteredTotal}
               q={q ?? ""}
+              dupMode={dupMode}
             />
           </div>
         </div>

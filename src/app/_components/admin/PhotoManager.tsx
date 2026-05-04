@@ -167,6 +167,7 @@ export function PhotoManager({
   totalPages,
   totalCount,
   q,
+  dupMode,
 }: {
   collectionId: string;
   photos: Photo[];
@@ -174,6 +175,7 @@ export function PhotoManager({
   totalPages: number;
   totalCount: number;
   q: string;
+  dupMode: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -189,11 +191,13 @@ export function PhotoManager({
     onSuccess: () => { setSelected(new Set()); setSelectMode(false); router.refresh(); },
   });
 
-  const navigate = (newPage: number, newQ?: string) => {
+  const navigate = (newPage: number, newQ?: string, newDup?: boolean) => {
     const params = new URLSearchParams();
     if (newPage > 1) params.set("page", String(newPage));
     const query = newQ ?? search;
     if (query) params.set("q", query);
+    const dup = newDup ?? dupMode;
+    if (dup) params.set("dup", "1");
     const qs = params.toString();
     startTransition(() => {
       router.push(`/admin/colecciones/${collectionId}${qs ? `?${qs}` : ""}`);
@@ -204,6 +208,8 @@ export function PhotoManager({
     setSearch(val);
     navigate(1, val);
   };
+
+  const toggleDup = () => navigate(1, search, !dupMode);
 
   const toggleSelect = (id: string) => setSelected((prev) => {
     const next = new Set(prev);
@@ -249,6 +255,17 @@ export function PhotoManager({
         </div>
 
         <p className="text-xs text-gray-400 shrink-0">{totalCount} foto{totalCount !== 1 ? "s" : ""}</p>
+
+        <button
+          onClick={toggleDup}
+          className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0"
+          style={dupMode
+            ? { background: "#fee2e2", color: "#b91c1c", border: "1px solid #fecaca" }
+            : { background: "#fff", color: "#6b7280", border: "1px solid #e5e7eb" }}
+          title="Mostrar fotos con mismo nombre y tamaño que otra del evento"
+        >
+          {dupMode ? "✕ Duplicadas" : "Duplicadas"}
+        </button>
 
         <div className="flex items-center gap-1.5 shrink-0">
           {selectMode && selected.size > 0 && (
