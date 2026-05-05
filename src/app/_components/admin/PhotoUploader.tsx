@@ -185,11 +185,42 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
   const uploadEntries = useCallback(async (entriesToUpload: FileEntry[]) => {
     let serviceRoleError = false;
 
-    const recordAttempt = (entryId: string, log: AttemptLog) => {
+    const recordAttempt = (entry: FileEntry, log: AttemptLog) => {
       setEntries((prev) => prev.map((e) =>
-        e.id === entryId ? { ...e, attempts: [...e.attempts, log] } : e,
+        e.id === entry.id ? { ...e, attempts: [...e.attempts, log] } : e,
       ));
-      console.warn(`[upload] entry=${entryId} ${log.phase} attempt=${log.attempt + 1} status=${log.status} ${log.detail}`);
+      console.warn(`[upload] entry=${entry.id} ${log.phase} attempt=${log.attempt + 1} status=${log.status} ${log.detail}`);
+      // Fire-and-forget server-side log (shows up in pm2 logs)
+      void fetch("/api/upload-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          collectionId,
+          filename: entry.file.name,
+          fileSize: entry.file.size,
+          attempt: log.attempt + 1,
+          phase: log.phase,
+          status: log.status,
+          detail: log.detail,
+        }),
+        keepalive: true,
+      }).catch(() => undefined);
+    };
+
+    const reportFinal = (entry: FileEntry, finalStatus: "done" | "error", errorMsg?: string) => {
+      if (finalStatus === "done") return; // only report errors
+      void fetch("/api/upload-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          collectionId,
+          filename: entry.file.name,
+          fileSize: entry.file.size,
+          finalStatus,
+          errorMsg,
+        }),
+        keepalive: true,
+      }).catch(() => undefined);
     };
 
     const uploadOne = async (entry: FileEntry): Promise<UploadResult | null> => {
@@ -210,11 +241,12 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           if (!signRes.ok) {
             const body = await signRes.json().catch(() => ({})) as { error?: string };
             const msg = body.error ?? `HTTP ${signRes.status}`;
-            recordAttempt(entry.id, { attempt, phase: "sign", status: signRes.status, detail: msg, ts: Date.now() });
+            recordAttempt(entry, { attempt, phase: "sign", status: signRes.status, detail: msg, ts: Date.now() });
             if (msg.includes("SERVICE_ROLE")) {
               serviceRoleError = true;
               setGlobalError(msg);
               updateEntry(entry.id, { status: "error", errorMsg: msg });
+              reportFinal(entry, "error", msg);
               return null;
             }
             lastError = msg;
@@ -223,6 +255,7 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
               continue;
             }
             updateEntry(entry.id, { status: "error", errorMsg: msg });
+            reportFinal(entry, "error", msg);
             return null;
           }
           const { signedUrl } = await signRes.json() as { signedUrl: string };
@@ -235,13 +268,14 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           });
           if (!uploadRes.ok) {
             const txt = await uploadRes.text().catch(() => "");
-            recordAttempt(entry.id, { attempt, phase: "put", status: uploadRes.status, detail: txt.slice(0, 180), ts: Date.now() });
+            recordAttempt(entry, { attempt, phase: "put", status: uploadRes.status, detail: txt.slice(0, 180), ts: Date.now() });
             lastError = `PUT ${uploadRes.status}`;
             if (uploadRes.status >= 500 && !isLast) {
               await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt) + Math.random() * 500));
               continue;
             }
             updateEntry(entry.id, { status: "error", errorMsg: `Subida falló (${uploadRes.status})` });
+            reportFinal(entry, "error", `PUT ${uploadRes.status}: ${txt.slice(0, 100)}`);
             return null;
           }
           if (attempt > 0) console.info(`[upload] entry=${entry.id} succeeded after ${attempt + 1} attempts`);
@@ -249,13 +283,14 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           return { storageKey: path, filename: entry.file.name, fileSize: entry.file.size, entryId: entry.id };
         } catch (err) {
           const msg = err instanceof Error ? err.message : "network";
-          recordAttempt(entry.id, { attempt, phase: "sign", status: "network", detail: msg, ts: Date.now() });
+          recordAttempt(entry, { attempt, phase: "sign", status: "network", detail: msg, ts: Date.now() });
           lastError = msg;
           if (!isLast) {
             await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt) + Math.random() * 500));
             continue;
           }
           updateEntry(entry.id, { status: "error", errorMsg: lastError });
+          reportFinal(entry, "error", lastError);
           return null;
         }
       }

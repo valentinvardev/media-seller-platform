@@ -95,7 +95,7 @@ export async function runOcr(photoId: string): Promise<{ bib: string | null }> {
   if (!supabase) { console.error("[OCR] Supabase admin client not available"); return { bib: null }; }
 
   const data = await downloadWithRetry(supabase, photo.storageKey);
-  if (!data) { console.error("[OCR] Download failed after retries"); return { bib: null }; }
+  if (!data) { console.error(`[OCR] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { bib: null }; }
 
   const rawBuffer = Buffer.from(await data.arrayBuffer());
   const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
@@ -177,7 +177,7 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
   if (!client) { console.error("[Watermark] Supabase admin client not available"); return { previewKey: null }; }
 
   const data = await downloadWithRetry(client, photo.storageKey);
-  if (!data) { console.error("[Watermark] Download failed after retries"); return { previewKey: null }; }
+  if (!data) { console.error(`[Watermark] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { previewKey: null }; }
 
   const buffer = Buffer.from(await data.arrayBuffer());
   const meta = await sharp(buffer).metadata();
@@ -241,7 +241,7 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
   if (!supabase) { console.error("[FaceIndex] Supabase admin client not available"); return; }
 
   const data = await downloadWithRetry(supabase, photo.storageKey);
-  if (!data) { console.error("[FaceIndex] Download failed after retries"); return; }
+  if (!data) { console.error(`[FaceIndex] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return; }
 
   const rawBuffer = Buffer.from(await data.arrayBuffer());
   const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
