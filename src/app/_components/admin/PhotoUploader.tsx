@@ -8,6 +8,8 @@ import { StorageBar } from "./StorageBar";
 type UploadStatus = "pending" | "uploading" | "done" | "error";
 type OcrStatus = "idle" | "queued" | "processing" | "found" | "not-found" | "error";
 
+type AttemptLog = { attempt: number; phase: "sign" | "put"; status: number | "network"; detail: string; ts: number };
+
 type FileEntry = {
   id: string;
   file: File;
@@ -19,6 +21,7 @@ type FileEntry = {
   ocrStatus: OcrStatus;
   bib?: string;
   ocrSource?: string;
+  attempts: AttemptLog[];
 };
 
 const ROW_HEIGHT = 64;
@@ -26,6 +29,7 @@ const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
 const UPLOAD_CONCURRENCY = 10;
+const UPLOAD_MAX_ATTEMPTS = 5; // up to ~30s of backoff before giving up
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -118,9 +122,9 @@ function FileRow({ entry }: { entry: FileEntry }) {
               : entry.status === "error" ? "#ef4444"
               : "#94a3b8",
           }}>
-            {entry.status === "uploading" ? "Subiendo..."
-              : entry.status === "done" ? "Subida"
-              : entry.status === "error" ? (entry.errorMsg ?? "Error")
+            {entry.status === "uploading" ? (entry.attempts.length > 0 ? `Reintentando (${entry.attempts.length + 1})...` : "Subiendo...")
+              : entry.status === "done" ? (entry.attempts.length > 0 ? `Subida (${entry.attempts.length + 1} intentos)` : "Subida")
+              : entry.status === "error" ? `${entry.errorMsg ?? "Error"} · ${entry.attempts.length} intentos`
               : "En cola"}
           </p>
           {entry.status === "done" && <OcrBadge status={entry.ocrStatus} bib={entry.bib} ocrSource={entry.ocrSource} />}
@@ -181,14 +185,23 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
   const uploadEntries = useCallback(async (entriesToUpload: FileEntry[]) => {
     let serviceRoleError = false;
 
+    const recordAttempt = (entryId: string, log: AttemptLog) => {
+      setEntries((prev) => prev.map((e) =>
+        e.id === entryId ? { ...e, attempts: [...e.attempts, log] } : e,
+      ));
+      console.warn(`[upload] entry=${entryId} ${log.phase} attempt=${log.attempt + 1} status=${log.status} ${log.detail}`);
+    };
+
     const uploadOne = async (entry: FileEntry): Promise<UploadResult | null> => {
       if (serviceRoleError) return null;
       updateEntry(entry.id, { status: "uploading", errorMsg: undefined });
       const path = `${collectionId}/${Date.now()}-${entry.file.name}`;
+      let lastError = "Error de red";
 
-      // Up to 3 attempts with exponential backoff on transient errors
-      for (let attempt = 0; attempt < 3; attempt++) {
+      for (let attempt = 0; attempt < UPLOAD_MAX_ATTEMPTS; attempt++) {
+        const isLast = attempt === UPLOAD_MAX_ATTEMPTS - 1;
         try {
+          // ── 1. Get signed URL ──────────────────────────────────────────────
           const signRes = await fetch("/api/uploads/sign", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -197,41 +210,52 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           if (!signRes.ok) {
             const body = await signRes.json().catch(() => ({})) as { error?: string };
             const msg = body.error ?? `HTTP ${signRes.status}`;
+            recordAttempt(entry.id, { attempt, phase: "sign", status: signRes.status, detail: msg, ts: Date.now() });
             if (msg.includes("SERVICE_ROLE")) {
               serviceRoleError = true;
               setGlobalError(msg);
               updateEntry(entry.id, { status: "error", errorMsg: msg });
               return null;
             }
-            if (signRes.status >= 500 && attempt < 2) {
-              await new Promise((r) => setTimeout(r, 800 * Math.pow(2, attempt) + Math.random() * 400));
+            lastError = msg;
+            if (signRes.status >= 500 && !isLast) {
+              await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt) + Math.random() * 500));
               continue;
             }
             updateEntry(entry.id, { status: "error", errorMsg: msg });
             return null;
           }
           const { signedUrl } = await signRes.json() as { signedUrl: string };
+
+          // ── 2. PUT to Supabase ─────────────────────────────────────────────
           const uploadRes = await fetch(signedUrl, {
             method: "PUT",
             headers: { "Content-Type": entry.file.type },
             body: entry.file,
           });
           if (!uploadRes.ok) {
-            if (uploadRes.status >= 500 && attempt < 2) {
-              await new Promise((r) => setTimeout(r, 800 * Math.pow(2, attempt) + Math.random() * 400));
+            const txt = await uploadRes.text().catch(() => "");
+            recordAttempt(entry.id, { attempt, phase: "put", status: uploadRes.status, detail: txt.slice(0, 180), ts: Date.now() });
+            lastError = `PUT ${uploadRes.status}`;
+            if (uploadRes.status >= 500 && !isLast) {
+              await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt) + Math.random() * 500));
               continue;
             }
             updateEntry(entry.id, { status: "error", errorMsg: `Subida falló (${uploadRes.status})` });
             return null;
           }
+          if (attempt > 0) console.info(`[upload] entry=${entry.id} succeeded after ${attempt + 1} attempts`);
           updateEntry(entry.id, { status: "done" });
           return { storageKey: path, filename: entry.file.name, fileSize: entry.file.size, entryId: entry.id };
-        } catch {
-          if (attempt < 2) {
-            await new Promise((r) => setTimeout(r, 800 * Math.pow(2, attempt) + Math.random() * 400));
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "network";
+          recordAttempt(entry.id, { attempt, phase: "sign", status: "network", detail: msg, ts: Date.now() });
+          lastError = msg;
+          if (!isLast) {
+            await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt) + Math.random() * 500));
             continue;
           }
-          updateEntry(entry.id, { status: "error", errorMsg: "Error de red" });
+          updateEntry(entry.id, { status: "error", errorMsg: lastError });
           return null;
         }
       }
@@ -292,6 +316,7 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       previewUrl: URL.createObjectURL(file),
       visible: false,
       ocrStatus: "idle",
+      attempts: [],
     }));
 
     setEntries((prev) => [...newEntries, ...prev]);
@@ -308,6 +333,30 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
     if (failed.length === 0) return;
     setGlobalError(null);
     void uploadEntries(failed);
+  };
+
+  const copyLog = async () => {
+    const lines: string[] = [];
+    lines.push(`ALTAFOTO upload log — ${new Date().toISOString()}`);
+    lines.push(`collectionId: ${collectionId}`);
+    lines.push(`total=${entries.length} done=${entries.filter((e) => e.status === "done").length} error=${entries.filter((e) => e.status === "error").length}`);
+    lines.push(`userAgent: ${navigator.userAgent}`);
+    lines.push("");
+    for (const e of entries) {
+      const sizeKb = Math.round(e.file.size / 1024);
+      lines.push(`[${e.status}${e.bib ? ` bib=${e.bib}` : ""}] ${e.file.name} (${sizeKb} KB) ${e.errorMsg ? `— ${e.errorMsg}` : ""}`);
+      for (const a of e.attempts) {
+        lines.push(`    attempt ${a.attempt + 1} ${a.phase} status=${a.status} ${a.detail}`);
+      }
+    }
+    const text = lines.join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setGlobalError("Log copiado al portapapeles. Pegalo donde corresponda.");
+    } catch {
+      console.log(text);
+      setGlobalError("Log impreso en consola del navegador (F12).");
+    }
   };
 
   const isUploading = entries.some((e) => e.status === "uploading" || e.status === "pending");
@@ -371,10 +420,16 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
             {doneCount > 0 && <span className="text-green-600">✓ {doneCount} subida{doneCount !== 1 ? "s" : ""}</span>}
             {ocrDone > 0 && <span className="text-amber-600 font-semibold">#{ocrDone} dorsal{ocrDone !== 1 ? "es" : ""} detectado{ocrDone !== 1 ? "s" : ""}</span>}
             {errorCount > 0 && (
-              <button onClick={retryFailed} disabled={isUploading}
-                className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors">
-                ↻ Reintentar {errorCount} fallida{errorCount !== 1 ? "s" : ""}
-              </button>
+              <>
+                <button onClick={retryFailed} disabled={isUploading}
+                  className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors">
+                  ↻ Reintentar {errorCount} fallida{errorCount !== 1 ? "s" : ""}
+                </button>
+                <button onClick={copyLog}
+                  className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                  📋 Copiar log
+                </button>
+              </>
             )}
             {isUploading && (
               <span className="text-gray-400 flex items-center gap-1">

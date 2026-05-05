@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     .createSignedUploadUrl(body.path);
 
   if (error) {
+    console.error(`[uploads/sign] failed path=${body.path} message=${error.message}`);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
