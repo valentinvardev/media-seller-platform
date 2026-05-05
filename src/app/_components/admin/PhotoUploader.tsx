@@ -175,6 +175,98 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
     void pollBib(entryId, photoId);
   }, [updateEntry, pollBib]);
 
+  // Upload pipeline used by both initial upload and retry
+  type UploadResult = { storageKey: string; filename: string; fileSize: number; entryId: string };
+
+  const uploadEntries = useCallback(async (entriesToUpload: FileEntry[]) => {
+    let serviceRoleError = false;
+
+    const uploadOne = async (entry: FileEntry): Promise<UploadResult | null> => {
+      if (serviceRoleError) return null;
+      updateEntry(entry.id, { status: "uploading", errorMsg: undefined });
+      const path = `${collectionId}/${Date.now()}-${entry.file.name}`;
+
+      // Up to 3 attempts with exponential backoff on transient errors
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const signRes = await fetch("/api/uploads/sign", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ path }),
+          });
+          if (!signRes.ok) {
+            const body = await signRes.json().catch(() => ({})) as { error?: string };
+            const msg = body.error ?? `HTTP ${signRes.status}`;
+            if (msg.includes("SERVICE_ROLE")) {
+              serviceRoleError = true;
+              setGlobalError(msg);
+              updateEntry(entry.id, { status: "error", errorMsg: msg });
+              return null;
+            }
+            if (signRes.status >= 500 && attempt < 2) {
+              await new Promise((r) => setTimeout(r, 800 * Math.pow(2, attempt) + Math.random() * 400));
+              continue;
+            }
+            updateEntry(entry.id, { status: "error", errorMsg: msg });
+            return null;
+          }
+          const { signedUrl } = await signRes.json() as { signedUrl: string };
+          const uploadRes = await fetch(signedUrl, {
+            method: "PUT",
+            headers: { "Content-Type": entry.file.type },
+            body: entry.file,
+          });
+          if (!uploadRes.ok) {
+            if (uploadRes.status >= 500 && attempt < 2) {
+              await new Promise((r) => setTimeout(r, 800 * Math.pow(2, attempt) + Math.random() * 400));
+              continue;
+            }
+            updateEntry(entry.id, { status: "error", errorMsg: `Subida falló (${uploadRes.status})` });
+            return null;
+          }
+          updateEntry(entry.id, { status: "done" });
+          return { storageKey: path, filename: entry.file.name, fileSize: entry.file.size, entryId: entry.id };
+        } catch {
+          if (attempt < 2) {
+            await new Promise((r) => setTimeout(r, 800 * Math.pow(2, attempt) + Math.random() * 400));
+            continue;
+          }
+          updateEntry(entry.id, { status: "error", errorMsg: "Error de red" });
+          return null;
+        }
+      }
+      return null;
+    };
+
+    const pendingPolls: { entryId: string; photoId: string }[] = [];
+
+    for (let i = 0; i < entriesToUpload.length; i += UPLOAD_CONCURRENCY) {
+      if (serviceRoleError) break;
+      const chunk = entriesToUpload.slice(i, i + UPLOAD_CONCURRENCY);
+      const results = await Promise.all(chunk.map(uploadOne));
+      const chunkUploaded = results.filter((r): r is UploadResult => r !== null);
+      if (chunkUploaded.length === 0) continue;
+
+      void bulkAdd.mutateAsync({
+        collectionId,
+        photos: chunkUploaded.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
+      }).then((result) => {
+        if (!result?.ids) return;
+        for (let j = 0; j < result.ids.length; j++) {
+          const photoId = result.ids[j];
+          const entryId = chunkUploaded[j]?.entryId;
+          if (photoId && entryId) pendingPolls.push({ entryId, photoId });
+        }
+      });
+    }
+
+    await new Promise((r) => setTimeout(r, 2_000));
+    for (let i = 0; i < pendingPolls.length; i++) {
+      const { entryId, photoId } = pendingPolls[i]!;
+      setTimeout(() => startOcrPolling(entryId, photoId), i * 400);
+    }
+  }, [collectionId, bulkAdd, updateEntry, startOcrPolling]);
+
   const handleFiles = async (files: FileList) => {
     if (!files.length) return;
     setGlobalError(null);
@@ -208,77 +300,14 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       setTimeout(() => updateEntry(id, { visible: true }), i * 60);
     }
 
-    // ── Upload files in parallel chunks, saving each chunk immediately ────────
-    // This makes photos appear in the gallery as each chunk finishes uploading.
-    type UploadResult = { storageKey: string; filename: string; fileSize: number; entryId: string };
-    let serviceRoleError = false;
+    await uploadEntries(newEntries);
+  };
 
-    const uploadOne = async (entry: FileEntry): Promise<UploadResult | null> => {
-      if (serviceRoleError) return null;
-      updateEntry(entry.id, { status: "uploading" });
-      const path = `${collectionId}/${Date.now()}-${entry.file.name}`;
-      try {
-        const signRes = await fetch("/api/uploads/sign", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ path }),
-        });
-        if (!signRes.ok) {
-          const body = await signRes.json() as { error?: string };
-          const msg = body.error ?? "Error al obtener URL.";
-          updateEntry(entry.id, { status: "error", errorMsg: msg });
-          if (msg.includes("SERVICE_ROLE")) { serviceRoleError = true; setGlobalError(msg); }
-          return null;
-        }
-        const { signedUrl } = await signRes.json() as { signedUrl: string };
-        const uploadRes = await fetch(signedUrl, {
-          method: "PUT",
-          headers: { "Content-Type": entry.file.type },
-          body: entry.file,
-        });
-        if (!uploadRes.ok) {
-          updateEntry(entry.id, { status: "error", errorMsg: uploadRes.statusText });
-          return null;
-        }
-        updateEntry(entry.id, { status: "done" });
-        return { storageKey: path, filename: entry.file.name, fileSize: entry.file.size, entryId: entry.id };
-      } catch {
-        updateEntry(entry.id, { status: "error", errorMsg: "Error de red." });
-        return null;
-      }
-    };
-
-    // Collect OCR polling tasks to start only after all uploads finish
-    const pendingPolls: { entryId: string; photoId: string }[] = [];
-
-    // Upload all chunks as fast as possible — no delays between chunks
-    for (let i = 0; i < newEntries.length; i += UPLOAD_CONCURRENCY) {
-      if (serviceRoleError) break;
-      const chunk = newEntries.slice(i, i + UPLOAD_CONCURRENCY);
-      const results = await Promise.all(chunk.map(uploadOne));
-      const chunkUploaded = results.filter((r): r is UploadResult => r !== null);
-      if (chunkUploaded.length === 0) continue;
-
-      // Save to DB without blocking — gallery updates progressively
-      void bulkAdd.mutateAsync({
-        collectionId,
-        photos: chunkUploaded.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
-      }).then((result) => {
-        if (!result?.ids) return;
-        for (let j = 0; j < result.ids.length; j++) {
-          const photoId = result.ids[j];
-          const entryId = chunkUploaded[j]?.entryId;
-          if (photoId && entryId) pendingPolls.push({ entryId, photoId });
-        }
-      });
-    }
-
-    // Start OCR polling only after all uploads are done — OCR gets zero priority during upload
-    await new Promise((r) => setTimeout(r, 2_000)); // brief settle time
-    for (let i = 0; i < pendingPolls.length; i++) {
-      const { entryId, photoId } = pendingPolls[i]!;
-      setTimeout(() => startOcrPolling(entryId, photoId), i * 400);
-    }
+  const retryFailed = () => {
+    const failed = entries.filter((e) => e.status === "error");
+    if (failed.length === 0) return;
+    setGlobalError(null);
+    void uploadEntries(failed);
   };
 
   const isUploading = entries.some((e) => e.status === "uploading" || e.status === "pending");
@@ -341,7 +370,12 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           <div className="flex items-center gap-3 text-xs flex-wrap">
             {doneCount > 0 && <span className="text-green-600">✓ {doneCount} subida{doneCount !== 1 ? "s" : ""}</span>}
             {ocrDone > 0 && <span className="text-amber-600 font-semibold">#{ocrDone} dorsal{ocrDone !== 1 ? "es" : ""} detectado{ocrDone !== 1 ? "s" : ""}</span>}
-            {errorCount > 0 && <span className="text-red-500">✕ {errorCount} con error</span>}
+            {errorCount > 0 && (
+              <button onClick={retryFailed} disabled={isUploading}
+                className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors">
+                ↻ Reintentar {errorCount} fallida{errorCount !== 1 ? "s" : ""}
+              </button>
+            )}
             {isUploading && (
               <span className="text-gray-400 flex items-center gap-1">
                 <span className="inline-block w-2 h-2 rounded-full animate-pulse bg-blue-400" />
