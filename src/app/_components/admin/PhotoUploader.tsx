@@ -28,9 +28,9 @@ const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
-const UPLOAD_CONCURRENCY = 2;
-const SIGN_STAGGER_MS = 250; // delay between sign requests inside a chunk to avoid hammering Supabase storage API
-const UPLOAD_MAX_ATTEMPTS = 5; // up to ~30s of backoff before giving up
+const UPLOAD_CONCURRENCY = 1; // strictly serial — Supabase Storage API is throttled, anything more = errors
+const SIGN_STAGGER_MS = 400;
+const UPLOAD_MAX_ATTEMPTS = 8; // up to ~2 min of backoff per file before giving up — Supabase is currently flaky
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -234,11 +234,10 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         const isLast = attempt === UPLOAD_MAX_ATTEMPTS - 1;
         try {
           // ── 1. Get signed URL ──────────────────────────────────────────────
-          // 18s ceiling — server has 5s timeout + 1 retry + buffer = ~11s worst
-          // case, so 18s gives breathing room. keepalive lets the request
-          // survive if the user backgrounds the tab momentarily.
+          // 60s ceiling — server has 15s × 3 attempts with backoff = ~50s
+          // worst case. keepalive lets the request survive tab backgrounding.
           const signCtrl = new AbortController();
-          const signTimeout = setTimeout(() => signCtrl.abort(), 18_000);
+          const signTimeout = setTimeout(() => signCtrl.abort(), 60_000);
           const signRes = await fetch("/api/uploads/sign", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
