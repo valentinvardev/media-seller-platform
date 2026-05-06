@@ -213,12 +213,14 @@ export const purchaseRouter = createTRPCRouter({
         page: z.number().default(1),
         limit: z.number().default(20),
         status: z.enum(["PENDING", "APPROVED", "REJECTED", "REFUNDED"]).optional(),
+        collectionId: z.string().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const where = {
         buyerEmail: { not: "public@system" },
         ...(input.status ? { status: input.status } : {}),
+        ...(input.collectionId ? { collectionId: input.collectionId } : {}),
       };
       const [items, total] = await Promise.all([
         ctx.db.purchase.findMany({
@@ -277,14 +279,73 @@ export const purchaseRouter = createTRPCRouter({
       return { downloadToken: token, photoCount };
     }),
 
-  searchStats: protectedProcedure.query(async ({ ctx }) => {
-    const [total, bib, face] = await Promise.all([
-      ctx.db.searchLog.count(),
-      ctx.db.searchLog.count({ where: { type: "bib" } }),
-      ctx.db.searchLog.count({ where: { type: "face" } }),
+  searchStats: protectedProcedure
+    .input(z.object({ collectionId: z.string().optional() }).optional())
+    .query(async ({ ctx, input }) => {
+      const base = input?.collectionId ? { collectionId: input.collectionId } : {};
+      const [total, bib, face] = await Promise.all([
+        ctx.db.searchLog.count({ where: base }),
+        ctx.db.searchLog.count({ where: { ...base, type: "bib" } }),
+        ctx.db.searchLog.count({ where: { ...base, type: "face" } }),
+      ]);
+      return { total, bib, face };
+    }),
+
+  eventsSummary: protectedProcedure.query(async ({ ctx }) => {
+    const [collections, grouped] = await Promise.all([
+      ctx.db.collection.findMany({
+        orderBy: { createdAt: "desc" },
+        select: { id: true, title: true, slug: true },
+      }),
+      ctx.db.purchase.groupBy({
+        by: ["collectionId", "status"],
+        where: { buyerEmail: { not: "public@system" } },
+        _count: { _all: true },
+        _sum: { amountPaid: true },
+      }),
     ]);
-    return { total, bib, face };
+    const byCol = new Map<string, { total: number; approved: number; pending: number; revenue: number }>();
+    for (const g of grouped) {
+      const cur = byCol.get(g.collectionId) ?? { total: 0, approved: 0, pending: 0, revenue: 0 };
+      cur.total += g._count._all;
+      if (g.status === "APPROVED") {
+        cur.approved += g._count._all;
+        cur.revenue += Number(g._sum.amountPaid ?? 0);
+      }
+      if (g.status === "PENDING") cur.pending += g._count._all;
+      byCol.set(g.collectionId, cur);
+    }
+    return collections.map((c) => ({
+      id: c.id,
+      title: c.title,
+      slug: c.slug,
+      ...(byCol.get(c.id) ?? { total: 0, approved: 0, pending: 0, revenue: 0 }),
+    }));
   }),
+
+  adminStats: protectedProcedure
+    .input(z.object({ collectionId: z.string().optional() }).optional())
+    .query(async ({ ctx, input }) => {
+      const base = {
+        buyerEmail: { not: "public@system" as const },
+        ...(input?.collectionId ? { collectionId: input.collectionId } : {}),
+      };
+      const [total, approved, pending, revenueAgg] = await Promise.all([
+        ctx.db.purchase.count({ where: base }),
+        ctx.db.purchase.count({ where: { ...base, status: "APPROVED" } }),
+        ctx.db.purchase.count({ where: { ...base, status: "PENDING" } }),
+        ctx.db.purchase.aggregate({
+          where: { ...base, status: "APPROVED" },
+          _sum: { amountPaid: true },
+        }),
+      ]);
+      return {
+        total,
+        approved,
+        pending,
+        totalRevenue: Number(revenueAgg._sum.amountPaid ?? 0),
+      };
+    }),
 
   manualApprove: protectedProcedure
     .input(z.object({ id: z.string() }))
