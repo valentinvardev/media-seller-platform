@@ -23,25 +23,26 @@ export async function POST(request: NextRequest) {
 
   const supabaseAdmin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-  // Retry up to 4 times on transient Supabase Storage failures
-  // (Gateway Timeout, DB timeout, pooler exhaustion).
+  // Single quick retry on transient Supabase failure — keep total response
+  // time short so the browser doesn't time out. The client retries the
+  // whole request up to 5 times with longer backoff if needed.
   let lastMessage = "unknown";
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     const { data, error } = await supabaseAdmin.storage
       .from("photos")
       .createSignedUploadUrl(body.path);
 
     if (!error && data) {
-      if (attempt > 0) console.info(`[uploads/sign] succeeded after ${attempt + 1} attempts path=${body.path}`);
+      if (attempt > 0) console.info(`[uploads/sign] succeeded after retry path=${body.path}`);
       return NextResponse.json(data);
     }
 
     lastMessage = error?.message ?? "unknown";
     const retryable = /timeout|timed out|gateway|503|504|connection|ECONNRESET|fetch failed/i.test(lastMessage);
-    console.error(`[uploads/sign] attempt=${attempt + 1} path=${body.path} message=${lastMessage}${retryable ? " (retrying)" : ""}`);
+    console.error(`[uploads/sign] attempt=${attempt + 1} path=${body.path} message=${lastMessage}${retryable && attempt === 0 ? " (retrying)" : ""}`);
 
-    if (!retryable || attempt === 3) break;
-    await new Promise((r) => setTimeout(r, 600 * Math.pow(2, attempt) + Math.random() * 400));
+    if (!retryable || attempt === 1) break;
+    await new Promise((r) => setTimeout(r, 300));
   }
 
   return NextResponse.json({ error: lastMessage }, { status: 500 });
