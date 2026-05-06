@@ -28,7 +28,8 @@ const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
-const UPLOAD_CONCURRENCY = 10;
+const UPLOAD_CONCURRENCY = 5;
+const SIGN_STAGGER_MS = 80; // small delay between sign requests inside a chunk to avoid hammering Supabase storage API
 const UPLOAD_MAX_ATTEMPTS = 5; // up to ~30s of backoff before giving up
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -302,7 +303,10 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
     for (let i = 0; i < entriesToUpload.length; i += UPLOAD_CONCURRENCY) {
       if (serviceRoleError) break;
       const chunk = entriesToUpload.slice(i, i + UPLOAD_CONCURRENCY);
-      const results = await Promise.all(chunk.map(uploadOne));
+      // Stagger the sign requests within a chunk by SIGN_STAGGER_MS to spread load on Supabase
+      const results = await Promise.all(chunk.map((entry, j) => new Promise<UploadResult | null>((resolve) => {
+        setTimeout(() => { void uploadOne(entry).then(resolve); }, j * SIGN_STAGGER_MS);
+      })));
       const chunkUploaded = results.filter((r): r is UploadResult => r !== null);
       if (chunkUploaded.length === 0) continue;
 
