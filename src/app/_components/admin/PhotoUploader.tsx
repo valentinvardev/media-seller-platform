@@ -186,42 +186,20 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
   const uploadEntries = useCallback(async (entriesToUpload: FileEntry[]) => {
     let serviceRoleError = false;
 
+    // Local-only attempt tracking. We DO NOT fire POSTs to /api/upload-log
+    // during the upload — Safari/WebKit chokes on parallel POSTs and was
+    // dropping the sign response with "Load failed". Errors are reported in
+    // bulk after the batch finishes.
     const recordAttempt = (entry: FileEntry, log: AttemptLog) => {
       setEntries((prev) => prev.map((e) =>
         e.id === entry.id ? { ...e, attempts: [...e.attempts, log] } : e,
       ));
       console.warn(`[upload] entry=${entry.id} ${log.phase} attempt=${log.attempt + 1} status=${log.status} ${log.detail}`);
-      // Fire-and-forget server-side log (shows up in pm2 logs)
-      void fetch("/api/upload-log", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          collectionId,
-          filename: entry.file.name,
-          fileSize: entry.file.size,
-          attempt: log.attempt + 1,
-          phase: log.phase,
-          status: log.status,
-          detail: log.detail,
-        }),
-        keepalive: true,
-      }).catch(() => undefined);
     };
 
-    const reportFinal = (entry: FileEntry, finalStatus: "done" | "error", errorMsg?: string) => {
-      if (finalStatus === "done") return; // only report errors
-      void fetch("/api/upload-log", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          collectionId,
-          filename: entry.file.name,
-          fileSize: entry.file.size,
-          finalStatus,
-          errorMsg,
-        }),
-        keepalive: true,
-      }).catch(() => undefined);
+    const reportFinal = (_entry: FileEntry, _finalStatus: "done" | "error", _errorMsg?: string) => {
+      // Intentionally a no-op during the upload. The "📋 Copiar log" button
+      // dumps everything to the clipboard at the end.
     };
 
     const uploadOne = async (entry: FileEntry): Promise<UploadResult | null> => {
@@ -234,17 +212,13 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         const isLast = attempt === UPLOAD_MAX_ATTEMPTS - 1;
         try {
           // ── 1. Get signed URL ──────────────────────────────────────────────
-          // 30s ceiling — server takes max 25s. Faster fail = faster retry.
-          // No keepalive: in Safari/WebKit, keepalive + AbortController has
-          // known bugs that drop responses silently ("Load failed").
-          const signCtrl = new AbortController();
-          const signTimeout = setTimeout(() => signCtrl.abort(), 30_000);
+          // Plain fetch, no AbortController, no signal. This matches the
+          // version that worked reliably on macOS/Safari — keep it simple.
           const signRes = await fetch("/api/uploads/sign", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ path }),
-            signal: signCtrl.signal,
-          }).finally(() => clearTimeout(signTimeout));
+          });
           if (!signRes.ok) {
             const body = await signRes.json().catch(() => ({})) as { error?: string };
             const msg = body.error ?? `HTTP ${signRes.status}`;
