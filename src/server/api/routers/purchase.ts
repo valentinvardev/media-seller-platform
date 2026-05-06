@@ -1,4 +1,4 @@
-import { MercadoPagoConfig, Preference } from "mercadopago";
+import { MercadoPagoConfig, Payment, Preference } from "mercadopago";
 import { z } from "zod";
 import { env } from "~/env";
 import { sendPurchaseApprovedEmail } from "~/lib/email";
@@ -307,5 +307,117 @@ export const purchaseRouter = createTRPCRouter({
         photoCount,
       });
       return updated;
+    }),
+
+  /**
+   * Reconcile our purchase records with MercadoPago.
+   * Fetches the last N days of payments from MP and updates any purchase
+   * whose status is out of sync (e.g. webhook failed during a Supabase outage).
+   * Idempotent: re-running is safe and won't duplicate emails.
+   */
+  reconcileWithMercadoPago: protectedProcedure
+    .input(z.object({ days: z.number().min(1).max(90).default(7) }))
+    .mutation(async ({ ctx, input }) => {
+      const since = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+
+      // Pull every purchase in the window that's NOT already terminal-approved
+      // OR that has no MP payment id yet (webhook never landed).
+      const candidates = await ctx.db.purchase.findMany({
+        where: {
+          createdAt: { gte: since },
+          OR: [
+            { status: "PENDING" },
+            { mercadopagoPaymentId: null },
+          ],
+        },
+        include: { collection: { select: { title: true } } },
+      });
+
+      if (candidates.length === 0) {
+        return { checked: 0, updated: 0, approvedNow: 0, errors: [] as string[], details: [] as Array<{ id: string; from: string; to: string }> };
+      }
+
+      const mp = await getMp(ctx.db);
+      const paymentClient = new Payment(mp);
+
+      const statusMap: Record<string, "APPROVED" | "REJECTED" | "REFUNDED" | "PENDING"> = {
+        approved: "APPROVED",
+        rejected: "REJECTED",
+        refunded: "REFUNDED",
+        cancelled: "REJECTED",
+        in_process: "PENDING",
+        pending: "PENDING",
+      };
+
+      const errors: string[] = [];
+      const details: Array<{ id: string; from: string; to: string }> = [];
+      let approvedNow = 0;
+      let updated = 0;
+
+      for (const purchase of candidates) {
+        try {
+          // Search MP for any payment whose external_reference is this purchase id
+          const result = await paymentClient.search({
+            options: { external_reference: purchase.id, limit: 5 },
+          });
+          const payments = (result.results ?? []) as unknown as Array<{
+            id: number | string;
+            status: string;
+            external_reference?: string;
+            order?: { id?: string };
+          }>;
+
+          if (payments.length === 0) continue;
+
+          // Take the most recent approved/rejected/refunded payment if any,
+          // otherwise the most recent of any status.
+          const sorted = [...payments].sort((a, b) => Number(b.id) - Number(a.id));
+          const best = sorted.find((p) => ["approved", "refunded", "rejected"].includes(p.status)) ?? sorted[0]!;
+
+          const newStatus = statusMap[best.status] ?? "PENDING";
+          if (newStatus === purchase.status && purchase.mercadopagoPaymentId === String(best.id)) continue;
+
+          const needsToken = newStatus === "APPROVED" && !purchase.downloadToken;
+          const token = needsToken ? crypto.randomUUID() : undefined;
+
+          await ctx.db.purchase.update({
+            where: { id: purchase.id },
+            data: {
+              status: newStatus,
+              mercadopagoPaymentId: String(best.id),
+              mercadopagoOrderId: best.order?.id ? String(best.order.id) : undefined,
+              ...(token ? { downloadToken: token, downloadTokenExpires: null } : {}),
+            },
+          });
+          updated++;
+          details.push({ id: purchase.id, from: purchase.status, to: newStatus });
+
+          // Send email only if we just transitioned to APPROVED and didn't have
+          // a token before (= email was never sent).
+          if (newStatus === "APPROVED" && token) {
+            approvedNow++;
+            const photoCount = purchase.photoIds
+              ? (JSON.parse(purchase.photoIds) as string[]).length
+              : await ctx.db.photo.count({
+                  where: {
+                    collectionId: purchase.collectionId,
+                    ...(purchase.bibNumber ? { bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } } : {}),
+                  },
+                });
+            void sendPurchaseApprovedEmail({
+              to: purchase.buyerEmail,
+              buyerName: purchase.buyerName,
+              bibNumber: purchase.bibNumber,
+              collectionTitle: purchase.collection.title,
+              downloadToken: token,
+              photoCount,
+            });
+          }
+        } catch (err) {
+          errors.push(`${purchase.id}: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+
+      return { checked: candidates.length, updated, approvedNow, errors, details };
     }),
 });

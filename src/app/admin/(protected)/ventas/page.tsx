@@ -1,5 +1,6 @@
 import { api } from "~/trpc/server";
 import { SalesTable } from "~/app/_components/admin/SalesTable";
+import { ReconcileButton } from "~/app/_components/admin/ReconcileButton";
 
 export default async function SalesPage() {
   const [sales, searchStats] = await Promise.all([
@@ -48,6 +49,8 @@ export default async function SalesPage() {
           </div>
         </div>
       </div>
+
+      <ReconcileButton />
 
       <SalesTable items={sales.items} />
     </div>
