@@ -234,15 +234,17 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         const isLast = attempt === UPLOAD_MAX_ATTEMPTS - 1;
         try {
           // ── 1. Get signed URL ──────────────────────────────────────────────
-          // 12s ceiling so hung requests fail fast and our retry kicks in
-          // instead of the browser silently dropping with "Load failed".
+          // 18s ceiling — server has 5s timeout + 1 retry + buffer = ~11s worst
+          // case, so 18s gives breathing room. keepalive lets the request
+          // survive if the user backgrounds the tab momentarily.
           const signCtrl = new AbortController();
-          const signTimeout = setTimeout(() => signCtrl.abort(), 12_000);
+          const signTimeout = setTimeout(() => signCtrl.abort(), 18_000);
           const signRes = await fetch("/api/uploads/sign", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ path }),
             signal: signCtrl.signal,
+            keepalive: true,
           }).finally(() => clearTimeout(signTimeout));
           if (!signRes.ok) {
             const body = await signRes.json().catch(() => ({})) as { error?: string };
