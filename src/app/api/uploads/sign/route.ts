@@ -26,32 +26,20 @@ export async function POST(request: NextRequest) {
   // Single quick retry on transient Supabase failure — keep total response
   // time short so the browser doesn't time out. The client retries the
   // whole request up to 5 times with longer backoff if needed.
-  const trySign = async () => {
-    // Hard 5s timeout so a stuck Supabase Storage call doesn't pile up
-    return await Promise.race([
-      supabaseAdmin.storage.from("photos").createSignedUploadUrl(body.path!),
-      new Promise<{ data: null; error: { message: string } }>((resolve) =>
-        setTimeout(() => resolve({ data: null, error: { message: "client-side timeout (5s)" } }), 5_000),
-      ),
-    ]);
-  };
+  // Single attempt with a generous 12s ceiling — Supabase Storage can be slow
+  // under load, but if it hasn't answered in 12s we let the client retry the
+  // whole request. No server-side retry: that just doubles the wait when
+  // Supabase is consistently slow.
+  const { data, error } = await Promise.race([
+    supabaseAdmin.storage.from("photos").createSignedUploadUrl(body.path),
+    new Promise<{ data: null; error: { message: string } }>((resolve) =>
+      setTimeout(() => resolve({ data: null, error: { message: "Supabase Storage timeout (12s)" } }), 12_000),
+    ),
+  ]);
 
-  let lastMessage = "unknown";
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const { data, error } = await trySign();
+  if (!error && data) return NextResponse.json(data);
 
-    if (!error && data) {
-      if (attempt > 0) console.info(`[uploads/sign] succeeded after retry path=${body.path}`);
-      return NextResponse.json(data);
-    }
-
-    lastMessage = error?.message ?? "unknown";
-    const retryable = /timeout|timed out|gateway|503|504|connection|ECONNRESET|fetch failed/i.test(lastMessage);
-    console.error(`[uploads/sign] attempt=${attempt + 1} path=${body.path} message=${lastMessage}${retryable && attempt === 0 ? " (retrying)" : ""}`);
-
-    if (!retryable || attempt === 1) break;
-    await new Promise((r) => setTimeout(r, 300));
-  }
-
-  return NextResponse.json({ error: lastMessage }, { status: 500 });
+  const message = error?.message ?? "unknown";
+  console.error(`[uploads/sign] path=${body.path} message=${message}`);
+  return NextResponse.json({ error: message }, { status: 500 });
 }
