@@ -274,3 +274,38 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
     console.error(`[FaceIndex] Error for photoId=${photoId}:`, err);
   }
 }
+
+// ── Concurrency limiter (semaphore) ──────────────────────────────────────────
+// Caps how many background photo-processing ops can be in flight against
+// Supabase/Prisma at once. Without this, a 100-photo upload could fan out
+// to 200+ concurrent ops and exhaust the connection pool.
+
+function makeLimiter(max: number) {
+  let active = 0;
+  const queue: Array<() => void> = [];
+  const next = () => {
+    if (active >= max || queue.length === 0) return;
+    active++;
+    const job = queue.shift()!;
+    job();
+  };
+  return async <T>(fn: () => Promise<T>): Promise<T> => {
+    if (active >= max) {
+      await new Promise<void>((resolve) => queue.push(resolve));
+    } else {
+      active++;
+    }
+    try { return await fn(); }
+    finally { active--; next(); }
+  };
+}
+
+// 4 concurrent ops of each type = 12 total max. Tuned for connection_limit=15.
+const ocrLimit = makeLimiter(4);
+const watermarkLimit = makeLimiter(4);
+const faceLimit = makeLimiter(4);
+
+export const runOcrLimited = (photoId: string) => ocrLimit(() => runOcr(photoId));
+export const runWatermarkLimited = (photoId: string) => watermarkLimit(() => runWatermark(photoId));
+export const runFaceIndexLimited = (photoId: string, collectionId: string) =>
+  faceLimit(() => runFaceIndex(photoId, collectionId));

@@ -204,17 +204,18 @@ export const photoRouter = createTRPCRouter({
       );
       const ids = created.map((c) => c.id);
 
-      // Kick off OCR + watermark + face-index directly in the Node.js process.
-      // No HTTP — calls shared lib functions. Runs in background after response is sent.
+      // Kick off OCR + watermark + face-index in background.
+      // Uses a global semaphore (see photo-processing.ts) to cap how many
+      // concurrent ops can hit Supabase/Prisma at once.
       void (async () => {
-        const { runOcr, runWatermark, runFaceIndex } = await import("~/lib/photo-processing");
+        const { runOcrLimited, runWatermarkLimited, runFaceIndexLimited } = await import("~/lib/photo-processing");
         for (let i = 0; i < ids.length; i++) {
           const photoId = ids[i]!;
-          // Stagger all photos (including first) to avoid DB connection pool exhaustion
-          await new Promise((r) => setTimeout(r, i * 400));
-          void runOcr(photoId);
-          void runWatermark(photoId);
-          void runFaceIndex(photoId, input.collectionId);
+          // Slower stagger (800ms) gives more breathing room while batches finish
+          await new Promise((r) => setTimeout(r, i * 800));
+          void runOcrLimited(photoId);
+          void runWatermarkLimited(photoId);
+          void runFaceIndexLimited(photoId, input.collectionId);
         }
       })();
 
