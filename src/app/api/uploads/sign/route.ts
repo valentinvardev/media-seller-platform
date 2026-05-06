@@ -30,30 +30,25 @@ export async function POST(request: NextRequest) {
 
   const supabaseAdmin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-  // Up to 3 attempts with backoff. 30s timeout per attempt — long enough to
-  // ride out Supabase latency spikes without prematurely aborting (per support
-  // recommendation that 12s was masking transient spikes).
-  let lastMessage = "unknown";
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const tStart = Date.now();
-    const { data, error } = await Promise.race([
-      supabaseAdmin.storage.from("photos").createSignedUploadUrl(body.path),
-      new Promise<{ data: null; error: { message: string } }>((resolve) =>
-        setTimeout(() => resolve({ data: null, error: { message: "Supabase Storage timeout (30s)" } }), 30_000),
-      ),
-    ]);
-    const elapsed = Date.now() - tStart;
+  // Single attempt with 25s timeout. Keeps each HTTP roundtrip well under
+  // any reverse-proxy/CDN ceiling (Cloudflare free = 100s, but stacking
+  // requests + queueing can hit it). Client retries the whole call with
+  // backoff if this fails.
+  const tStart = Date.now();
+  const { data, error } = await Promise.race([
+    supabaseAdmin.storage.from("photos").createSignedUploadUrl(body.path),
+    new Promise<{ data: null; error: { message: string } }>((resolve) =>
+      setTimeout(() => resolve({ data: null, error: { message: "Supabase Storage timeout (25s)" } }), 25_000),
+    ),
+  ]);
+  const elapsed = Date.now() - tStart;
 
-    if (!error && data) {
-      console.log(`[uploads/sign ${reqId}] success attempt=${attempt + 1} elapsed=${elapsed}ms total=${Date.now() - t0}ms path=${body.path}`);
-      return NextResponse.json(data);
-    }
-
-    lastMessage = error?.message ?? "unknown";
-    console.error(`[uploads/sign ${reqId}] attempt=${attempt + 1} elapsed=${elapsed}ms path=${body.path} message="${lastMessage}"`);
-    if (attempt < 2) await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+  if (!error && data) {
+    console.log(`[uploads/sign ${reqId}] success elapsed=${elapsed}ms path=${body.path}`);
+    return NextResponse.json(data);
   }
 
-  console.error(`[uploads/sign ${reqId}] FINAL FAILURE total=${Date.now() - t0}ms path=${body.path} message="${lastMessage}"`);
-  return NextResponse.json({ error: lastMessage, reqId }, { status: 500 });
+  const message = error?.message ?? "unknown";
+  console.error(`[uploads/sign ${reqId}] FAILURE elapsed=${elapsed}ms total=${Date.now() - t0}ms path=${body.path} message="${message}"`);
+  return NextResponse.json({ error: message, reqId }, { status: 500 });
 }
