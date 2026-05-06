@@ -235,6 +235,8 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         try {
           // ── 1. Get signed URL ──────────────────────────────────────────────
           // 30s ceiling — server takes max 25s. Faster fail = faster retry.
+          // No keepalive: in Safari/WebKit, keepalive + AbortController has
+          // known bugs that drop responses silently ("Load failed").
           const signCtrl = new AbortController();
           const signTimeout = setTimeout(() => signCtrl.abort(), 30_000);
           const signRes = await fetch("/api/uploads/sign", {
@@ -242,7 +244,6 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ path }),
             signal: signCtrl.signal,
-            keepalive: true,
           }).finally(() => clearTimeout(signTimeout));
           if (!signRes.ok) {
             const body = await signRes.json().catch(() => ({})) as { error?: string };
