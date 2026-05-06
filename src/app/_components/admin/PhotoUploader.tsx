@@ -28,9 +28,9 @@ const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
-const UPLOAD_CONCURRENCY = 1; // strictly serial — Supabase Storage API is throttled, anything more = errors
-const SIGN_STAGGER_MS = 400;
-const UPLOAD_MAX_ATTEMPTS = 8; // up to ~2 min of backoff per file before giving up — Supabase is currently flaky
+const UPLOAD_CONCURRENCY = 4;
+const SIGN_STAGGER_MS = 100;
+const UPLOAD_MAX_ATTEMPTS = 1; // single attempt — failed files use the "Reintentar fallidas" button instead of blocking the queue
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
