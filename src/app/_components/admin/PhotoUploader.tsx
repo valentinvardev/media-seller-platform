@@ -28,8 +28,8 @@ const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
-const UPLOAD_CONCURRENCY = 5;
-const SIGN_STAGGER_MS = 80; // small delay between sign requests inside a chunk to avoid hammering Supabase storage API
+const UPLOAD_CONCURRENCY = 3;
+const SIGN_STAGGER_MS = 150; // delay between sign requests inside a chunk to avoid hammering Supabase storage API
 const UPLOAD_MAX_ATTEMPTS = 5; // up to ~30s of backoff before giving up
 
 // ── Icons ─────────────────────────────────────────────────────────────────────

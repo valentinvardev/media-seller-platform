@@ -26,11 +26,19 @@ export async function POST(request: NextRequest) {
   // Single quick retry on transient Supabase failure — keep total response
   // time short so the browser doesn't time out. The client retries the
   // whole request up to 5 times with longer backoff if needed.
+  const trySign = async () => {
+    // Hard 5s timeout so a stuck Supabase Storage call doesn't pile up
+    return await Promise.race([
+      supabaseAdmin.storage.from("photos").createSignedUploadUrl(body.path!),
+      new Promise<{ data: null; error: { message: string } }>((resolve) =>
+        setTimeout(() => resolve({ data: null, error: { message: "client-side timeout (5s)" } }), 5_000),
+      ),
+    ]);
+  };
+
   let lastMessage = "unknown";
   for (let attempt = 0; attempt < 2; attempt++) {
-    const { data, error } = await supabaseAdmin.storage
-      .from("photos")
-      .createSignedUploadUrl(body.path);
+    const { data, error } = await trySign();
 
     if (!error && data) {
       if (attempt > 0) console.info(`[uploads/sign] succeeded after retry path=${body.path}`);

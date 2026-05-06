@@ -5,11 +5,15 @@ function buildDbUrl(base: string) {
   // Strip existing pool params then append new values
   let url = base
     .replace(/[&?]connection_limit=[^&]*/g, "")
-    .replace(/[&?]pool_timeout=[^&]*/g, "");
+    .replace(/[&?]pool_timeout=[^&]*/g, "")
+    .replace(/[&?]connect_timeout=[^&]*/g, "");
   // Fix leftover ?& after removal
   url = url.replace(/\?&/, "?").replace(/[?&]$/, "");
   const sep = url.includes("?") ? "&" : "?";
-  return `${url}${sep}connection_limit=25&pool_timeout=60`;
+  // pool_timeout=10: fail fast when pool is saturated instead of stacking 60s waits
+  // connect_timeout=15: don't wait forever to establish a connection
+  // connection_limit=15: lower than before — Supabase pooler free tier only allows ~60 total
+  return `${url}${sep}connection_limit=15&pool_timeout=10&connect_timeout=15`;
 }
 
 const createPrismaClient = () =>
