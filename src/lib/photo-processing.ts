@@ -179,14 +179,23 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
   const data = await downloadWithRetry(client, photo.storageKey);
   if (!data) { console.error(`[Watermark] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { previewKey: null }; }
 
-  const buffer = Buffer.from(await data.arrayBuffer());
-  const meta = await sharp(buffer).metadata();
-  const w = meta.width ?? 1200;
-  const h = meta.height ?? 800;
+  // Resize first to a max preview dimension so watermark composite + final
+  // upload are both lighter. 1200px @ quality 62 looks good in a gallery on
+  // any device and roughly halves egress vs. the previous 1920/q78.
+  const PREVIEW_MAX = 1200;
+  const PREVIEW_QUALITY = 62;
+
+  const resizedBuffer = await sharp(Buffer.from(await data.arrayBuffer()))
+    .resize(PREVIEW_MAX, PREVIEW_MAX, { fit: "inside", withoutEnlargement: true })
+    .toBuffer();
+
+  const meta = await sharp(resizedBuffer).metadata();
+  const w = meta.width ?? PREVIEW_MAX;
+  const h = meta.height ?? PREVIEW_MAX;
 
   try {
     const composite = await buildWatermarkComposite(client, w, h);
-    const watermarked = await sharp(buffer).composite([composite]).jpeg({ quality: 78 }).toBuffer();
+    const watermarked = await sharp(resizedBuffer).composite([composite]).jpeg({ quality: PREVIEW_QUALITY, mozjpeg: true }).toBuffer();
 
     if (photo.previewKey) {
       await client.storage.from("photos").remove([photo.previewKey]);
@@ -197,7 +206,13 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
     for (let attempt = 0; attempt < 4; attempt++) {
       const result = await client.storage
         .from("photos")
-        .upload(previewKey, watermarked, { contentType: "image/jpeg", upsert: true });
+        .upload(previewKey, watermarked, {
+          contentType: "image/jpeg",
+          upsert: true,
+          // 1 year cache — preview never changes once generated. Lets browsers
+          // and any CDN in front (Cloudflare) avoid re-requesting from Supabase.
+          cacheControl: "public, max-age=31536000, immutable",
+        });
       upError = result.error;
       if (!upError) break;
       const msg = String((upError as { message?: string })?.message ?? "");

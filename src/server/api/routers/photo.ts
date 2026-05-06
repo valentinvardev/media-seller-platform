@@ -49,7 +49,7 @@ export const photoRouter = createTRPCRouter({
       const photos = await Promise.all(
         raw.map(async (p) => {
           const key = p.previewKey ?? p.storageKey;
-          const url = await createSignedUrl(key, 3600);
+          const url = await createSignedUrl(key, 86_400);
           return { id: p.id, bibNumber: p.bibNumber, url };
         }),
       );
@@ -118,7 +118,7 @@ export const photoRouter = createTRPCRouter({
       const resolveUrls = async (photos: typeof exact) =>
         Promise.all(photos.map(async (p) => {
           const key = p.previewKey ?? p.storageKey;
-          const url = await createSignedUrl(key, 3600);
+          const url = await createSignedUrl(key, 86_400);
           return { id: p.id, bibNumber: p.bibNumber, url: url ?? "" };
         }));
 
@@ -157,7 +157,7 @@ export const photoRouter = createTRPCRouter({
       const results = await Promise.all(
         photos.map(async (p) => {
           const key = p.previewKey ?? p.storageKey;
-          const url = await createSignedUrl(key, 3600);
+          const url = await createSignedUrl(key, 86_400);
           return { id: p.id, url };
         }),
       );
