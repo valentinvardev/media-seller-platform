@@ -3,7 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "~/server/auth";
 import { env } from "~/env";
 
+// Force Node runtime — Edge + Prisma/Supabase SDK can be unstable.
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
+  const reqId = Math.random().toString(36).slice(2, 10);
+  const t0 = Date.now();
+
   const session = await auth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,30 +30,30 @@ export async function POST(request: NextRequest) {
 
   const supabaseAdmin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-  // Single quick retry on transient Supabase failure — keep total response
-  // time short so the browser doesn't time out. The client retries the
-  // whole request up to 5 times with longer backoff if needed.
-  // Up to 3 server-side attempts with backoff. Supabase Storage's internal
-  // DB is currently throttled; we want to give it every chance to succeed
-  // before the client gets back an error.
+  // Up to 3 attempts with backoff. 30s timeout per attempt — long enough to
+  // ride out Supabase latency spikes without prematurely aborting (per support
+  // recommendation that 12s was masking transient spikes).
   let lastMessage = "unknown";
   for (let attempt = 0; attempt < 3; attempt++) {
+    const tStart = Date.now();
     const { data, error } = await Promise.race([
       supabaseAdmin.storage.from("photos").createSignedUploadUrl(body.path),
       new Promise<{ data: null; error: { message: string } }>((resolve) =>
-        setTimeout(() => resolve({ data: null, error: { message: "Supabase Storage timeout (15s)" } }), 15_000),
+        setTimeout(() => resolve({ data: null, error: { message: "Supabase Storage timeout (30s)" } }), 30_000),
       ),
     ]);
+    const elapsed = Date.now() - tStart;
 
     if (!error && data) {
-      if (attempt > 0) console.info(`[uploads/sign] succeeded after ${attempt + 1} attempts path=${body.path}`);
+      console.log(`[uploads/sign ${reqId}] success attempt=${attempt + 1} elapsed=${elapsed}ms total=${Date.now() - t0}ms path=${body.path}`);
       return NextResponse.json(data);
     }
 
     lastMessage = error?.message ?? "unknown";
-    console.error(`[uploads/sign] attempt=${attempt + 1} path=${body.path} message=${lastMessage}`);
+    console.error(`[uploads/sign ${reqId}] attempt=${attempt + 1} elapsed=${elapsed}ms path=${body.path} message="${lastMessage}"`);
     if (attempt < 2) await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
   }
 
-  return NextResponse.json({ error: lastMessage }, { status: 500 });
+  console.error(`[uploads/sign ${reqId}] FINAL FAILURE total=${Date.now() - t0}ms path=${body.path} message="${lastMessage}"`);
+  return NextResponse.json({ error: lastMessage, reqId }, { status: 500 });
 }

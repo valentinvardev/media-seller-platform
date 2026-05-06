@@ -234,10 +234,10 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
         const isLast = attempt === UPLOAD_MAX_ATTEMPTS - 1;
         try {
           // ── 1. Get signed URL ──────────────────────────────────────────────
-          // 60s ceiling — server has 15s × 3 attempts with backoff = ~50s
+          // 100s ceiling — server has 30s × 3 attempts + 4.5s backoff = ~95s
           // worst case. keepalive lets the request survive tab backgrounding.
           const signCtrl = new AbortController();
-          const signTimeout = setTimeout(() => signCtrl.abort(), 60_000);
+          const signTimeout = setTimeout(() => signCtrl.abort(), 100_000);
           const signRes = await fetch("/api/uploads/sign", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
