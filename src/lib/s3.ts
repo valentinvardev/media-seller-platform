@@ -31,12 +31,6 @@ function client(): S3Client {
         accessKeyId: env.AWS_ACCESS_KEY_ID!,
         secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
       },
-      // AWS SDK v3.729+ adds an auto-CRC32 to PutObject by default. That
-      // breaks browser-side PUTs against presigned URLs because the browser
-      // can't recompute the checksum, so S3 rejects with SignatureDoesNotMatch.
-      // Force it to only checksum when explicitly requested.
-      requestChecksumCalculation: "WHEN_REQUIRED",
-      responseChecksumValidation: "WHEN_REQUIRED",
     });
   }
   return _client;
