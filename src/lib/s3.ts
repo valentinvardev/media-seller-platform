@@ -31,6 +31,11 @@ function client(): S3Client {
         accessKeyId: env.AWS_ACCESS_KEY_ID!,
         secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
       },
+      // Disable auto-CRC32 on PutObject — it adds x-amz-checksum-crc32=AAAAAA==
+      // to presigned URLs that the browser can't recompute, causing 403
+      // SignatureDoesNotMatch on direct uploads from the client.
+      requestChecksumCalculation: "WHEN_REQUIRED",
+      responseChecksumValidation: "WHEN_REQUIRED",
     });
   }
   return _client;
