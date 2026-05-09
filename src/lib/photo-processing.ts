@@ -13,22 +13,23 @@ import {
   IndexFacesCommand,
 } from "@aws-sdk/client-rekognition";
 import { db } from "~/server/db";
-import { getAdminClient } from "~/lib/supabase/admin";
+import { downloadObject, uploadObject, deleteObjects } from "~/lib/s3";
 import { WATERMARK_KEY } from "~/lib/watermark";
 
-// ── Supabase retry helper ─────────────────────────────────────────────────────
+// ── S3 retry helper ───────────────────────────────────────────────────────────
+// Transient errors on big uploads still happen (network, throttling). Same
+// shape as the previous Supabase retry so call sites don't change.
 
-async function downloadWithRetry(
-  client: NonNullable<ReturnType<typeof getAdminClient>>,
-  key: string,
-): Promise<Blob | null> {
+async function downloadWithRetry(key: string): Promise<Buffer | null> {
   for (let attempt = 0; attempt < 4; attempt++) {
-    const { data, error } = await client.storage.from("photos").download(key);
-    if (!error && data) return data;
-    const msg = String((error as { message?: string } | null)?.message ?? "");
-    const isRetryable = msg.includes("maximum number of connections") || msg.includes("503") || msg.includes("Bad Gateway") || msg.includes("502");
-    if (!isRetryable) return null;
-    await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt) + Math.random() * 300));
+    try {
+      return await downloadObject(key);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const isRetryable = msg.includes("503") || msg.includes("Bad Gateway") || msg.includes("502") || msg.includes("Throttling") || msg.includes("SlowDown");
+      if (!isRetryable) return null;
+      await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt) + Math.random() * 300));
+    }
   }
   return null;
 }
@@ -91,13 +92,9 @@ export async function runOcr(photoId: string): Promise<{ bib: string | null }> {
   if (!photo) return { bib: null };
   if (photo.bibNumber !== null) return { bib: photo.bibNumber };
 
-  const supabase = getAdminClient();
-  if (!supabase) { console.error("[OCR] Supabase admin client not available"); return { bib: null }; }
+  const rawBuffer = await downloadWithRetry(photo.storageKey);
+  if (!rawBuffer) { console.error(`[OCR] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { bib: null }; }
 
-  const data = await downloadWithRetry(supabase, photo.storageKey);
-  if (!data) { console.error(`[OCR] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { bib: null }; }
-
-  const rawBuffer = Buffer.from(await data.arrayBuffer());
   const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
   const imageBytes = new Uint8Array(resized);
 
@@ -124,21 +121,28 @@ export async function runOcr(photoId: string): Promise<{ bib: string | null }> {
 // Module-level cache so watermark is downloaded once per server process
 let cachedWatermark: Buffer | null | "none" = null;
 
-async function getWatermarkBuffer(client: NonNullable<ReturnType<typeof getAdminClient>>): Promise<Buffer | null> {
+async function getWatermarkBuffer(): Promise<Buffer | null> {
   if (cachedWatermark === "none") return null;
   if (cachedWatermark !== null) return cachedWatermark;
-  const { data, error } = await client.storage.from("photos").download(WATERMARK_KEY);
-  if (error ?? !data) { cachedWatermark = "none"; return null; }
-  cachedWatermark = Buffer.from(await data.arrayBuffer());
-  return cachedWatermark;
+  try {
+    cachedWatermark = await downloadObject(WATERMARK_KEY);
+    return cachedWatermark;
+  } catch {
+    cachedWatermark = "none";
+    return null;
+  }
+}
+
+/** Reset the cached watermark buffer — called after upload/delete from the admin UI. */
+export function invalidateWatermarkCache(): void {
+  cachedWatermark = null;
 }
 
 async function buildWatermarkComposite(
-  client: NonNullable<ReturnType<typeof getAdminClient>>,
   imageWidth: number,
   imageHeight: number,
 ): Promise<{ input: Buffer; tile: boolean; blend: "over" }> {
-  const wmPng = await getWatermarkBuffer(client);
+  const wmPng = await getWatermarkBuffer();
 
   if (wmPng) {
     const meta = await sharp(wmPng).metadata();
@@ -173,11 +177,8 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
   const photo = await db.photo.findUnique({ where: { id: photoId } });
   if (!photo) return { previewKey: null };
 
-  const client = getAdminClient();
-  if (!client) { console.error("[Watermark] Supabase admin client not available"); return { previewKey: null }; }
-
-  const data = await downloadWithRetry(client, photo.storageKey);
-  if (!data) { console.error(`[Watermark] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { previewKey: null }; }
+  const rawBuffer = await downloadWithRetry(photo.storageKey);
+  if (!rawBuffer) { console.error(`[Watermark] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { previewKey: null }; }
 
   // Resize first to a max preview dimension so watermark composite + final
   // upload are both lighter. 1200px @ quality 62 looks good in a gallery on
@@ -185,7 +186,7 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
   const PREVIEW_MAX = 1200;
   const PREVIEW_QUALITY = 62;
 
-  const resizedBuffer = await sharp(Buffer.from(await data.arrayBuffer()))
+  const resizedBuffer = await sharp(rawBuffer)
     .resize(PREVIEW_MAX, PREVIEW_MAX, { fit: "inside", withoutEnlargement: true })
     .toBuffer();
 
@@ -194,33 +195,36 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
   const h = meta.height ?? PREVIEW_MAX;
 
   try {
-    const composite = await buildWatermarkComposite(client, w, h);
+    const composite = await buildWatermarkComposite(w, h);
     const watermarked = await sharp(resizedBuffer).composite([composite]).jpeg({ quality: PREVIEW_QUALITY, mozjpeg: true }).toBuffer();
 
     if (photo.previewKey) {
-      await client.storage.from("photos").remove([photo.previewKey]);
+      await deleteObjects([photo.previewKey]).catch(() => undefined);
     }
 
     const previewKey = `previews/${photo.id}.jpg`;
-    let upError: unknown = null;
+    let uploadErr: unknown = null;
     for (let attempt = 0; attempt < 4; attempt++) {
-      const result = await client.storage
-        .from("photos")
-        .upload(previewKey, watermarked, {
-          contentType: "image/jpeg",
-          upsert: true,
+      try {
+        await uploadObject(
+          previewKey,
+          watermarked,
+          "image/jpeg",
           // 1 year cache — preview never changes once generated. Lets browsers
-          // and any CDN in front (Cloudflare) avoid re-requesting from Supabase.
-          cacheControl: "public, max-age=31536000, immutable",
-        });
-      upError = result.error;
-      if (!upError) break;
-      const msg = String((upError as { message?: string })?.message ?? "");
-      const isRetryable = msg.includes("maximum number of connections") || msg.includes("503") || msg.includes("Bad Gateway") || msg.includes("502");
-      if (!isRetryable) break;
-      await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt) + Math.random() * 300));
+          // and any CDN in front (Cloudflare) avoid re-requesting from S3.
+          "public, max-age=31536000, immutable",
+        );
+        uploadErr = null;
+        break;
+      } catch (err) {
+        uploadErr = err;
+        const msg = err instanceof Error ? err.message : String(err);
+        const isRetryable = msg.includes("503") || msg.includes("Bad Gateway") || msg.includes("502") || msg.includes("Throttling") || msg.includes("SlowDown");
+        if (!isRetryable) break;
+        await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt) + Math.random() * 300));
+      }
     }
-    if (upError) { console.error("[Watermark] Upload failed after retries:", upError); return { previewKey: null }; }
+    if (uploadErr) { console.error("[Watermark] Upload failed after retries:", uploadErr); return { previewKey: null }; }
 
     await db.photo.update({ where: { id: photoId }, data: { previewKey } });
     console.log(`[Watermark] photoId=${photoId} done`);
@@ -252,13 +256,9 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
   });
   if (!photo) return;
 
-  const supabase = getAdminClient();
-  if (!supabase) { console.error("[FaceIndex] Supabase admin client not available"); return; }
+  const rawBuffer = await downloadWithRetry(photo.storageKey);
+  if (!rawBuffer) { console.error(`[FaceIndex] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return; }
 
-  const data = await downloadWithRetry(supabase, photo.storageKey);
-  if (!data) { console.error(`[FaceIndex] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return; }
-
-  const rawBuffer = Buffer.from(await data.arrayBuffer());
   const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
   const imageBytes = new Uint8Array(resized);
   const rekCollectionId = rekognitionCollectionId(collectionId);
@@ -292,7 +292,7 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
 
 // ── Concurrency limiter (semaphore) ──────────────────────────────────────────
 // Caps how many background photo-processing ops can be in flight against
-// Supabase/Prisma at once. Without this, a 100-photo upload could fan out
+// S3/Prisma at once. Without this, a 100-photo upload could fan out
 // to 200+ concurrent ops and exhaust the connection pool.
 
 function makeLimiter(max: number) {

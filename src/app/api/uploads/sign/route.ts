@@ -1,9 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "~/server/auth";
-import { env } from "~/env";
+import { createUploadUrl, isS3Configured } from "~/lib/s3";
 
-// Force Node runtime — Edge + Prisma/Supabase SDK can be unstable.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -16,39 +14,29 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!isS3Configured()) {
     return NextResponse.json(
-      { error: "SUPABASE_SERVICE_ROLE_KEY no configurada. Agregala en .env para habilitar uploads." },
+      { error: "S3 no configurado. Falta AWS_S3_BUCKET / AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY en .env." },
       { status: 503 },
     );
   }
 
-  const body = await request.json() as { path?: string };
+  const body = await request.json() as { path?: string; contentType?: string };
   if (!body.path) {
     return NextResponse.json({ error: "path is required" }, { status: 400 });
   }
 
-  const supabaseAdmin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+  const contentType = body.contentType ?? "application/octet-stream";
 
-  // Single attempt with 25s timeout. Keeps each HTTP roundtrip well under
-  // any reverse-proxy/CDN ceiling (Cloudflare free = 100s, but stacking
-  // requests + queueing can hit it). Client retries the whole call with
-  // backoff if this fails.
-  const tStart = Date.now();
-  const { data, error } = await Promise.race([
-    supabaseAdmin.storage.from("photos").createSignedUploadUrl(body.path),
-    new Promise<{ data: null; error: { message: string } }>((resolve) =>
-      setTimeout(() => resolve({ data: null, error: { message: "Supabase Storage timeout (25s)" } }), 25_000),
-    ),
-  ]);
-  const elapsed = Date.now() - tStart;
-
-  if (!error && data) {
-    console.log(`[uploads/sign ${reqId}] success elapsed=${elapsed}ms path=${body.path}`);
-    return NextResponse.json(data);
+  try {
+    const { signedUrl, path } = await createUploadUrl(body.path, contentType, 300);
+    console.log(`[uploads/sign ${reqId}] success elapsed=${Date.now() - t0}ms path=${path}`);
+    // Compat shape: previous Supabase response also had `signedUrl` and `path`.
+    // `token` is kept for backwards compatibility with any caller that read it.
+    return NextResponse.json({ signedUrl, path, token: null });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "unknown";
+    console.error(`[uploads/sign ${reqId}] FAILURE total=${Date.now() - t0}ms message="${message}"`);
+    return NextResponse.json({ error: message, reqId }, { status: 500 });
   }
-
-  const message = error?.message ?? "unknown";
-  console.error(`[uploads/sign ${reqId}] FAILURE elapsed=${elapsed}ms total=${Date.now() - t0}ms path=${body.path} message="${message}"`);
-  return NextResponse.json({ error: message, reqId }, { status: 500 });
 }

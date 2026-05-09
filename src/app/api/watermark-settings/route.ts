@@ -1,18 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "~/server/auth";
-import { getAdminClient } from "~/lib/supabase/admin";
+import {
+  createSignedUrl,
+  uploadObject,
+  deleteObjects,
+  isS3Configured,
+} from "~/lib/s3";
 import { WATERMARK_KEY } from "~/lib/watermark";
+import { invalidateWatermarkCache } from "~/lib/photo-processing";
 
 /** GET — returns a signed URL for the current watermark, or null */
 export async function GET() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const client = getAdminClient();
-  if (!client) return NextResponse.json({ url: null });
+  if (!isS3Configured()) return NextResponse.json({ url: null });
 
-  const { data } = await client.storage.from("photos").createSignedUrl(WATERMARK_KEY, 3600);
-  return NextResponse.json({ url: data?.signedUrl ?? null });
+  const url = await createSignedUrl(WATERMARK_KEY, 3600).catch(() => null);
+  return NextResponse.json({ url });
 }
 
 /** POST — uploads a new watermark PNG; body is FormData with field "file" */
@@ -20,8 +25,7 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const client = getAdminClient();
-  if (!client) return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
+  if (!isS3Configured()) return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
 
   const form = await req.formData();
   const file = form.get("file") as File | null;
@@ -33,13 +37,13 @@ export async function POST(req: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  const { error } = await client.storage
-    .from("photos")
-    .upload(WATERMARK_KEY, buffer, { contentType: file.type, upsert: true });
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  return NextResponse.json({ ok: true });
+  try {
+    await uploadObject(WATERMARK_KEY, buffer, file.type);
+    invalidateWatermarkCache();
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  }
 }
 
 /** DELETE — removes the current watermark */
@@ -47,9 +51,9 @@ export async function DELETE() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const client = getAdminClient();
-  if (!client) return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
+  if (!isS3Configured()) return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
 
-  await client.storage.from("photos").remove([WATERMARK_KEY]);
+  await deleteObjects([WATERMARK_KEY]).catch(() => undefined);
+  invalidateWatermarkCache();
   return NextResponse.json({ ok: true });
 }

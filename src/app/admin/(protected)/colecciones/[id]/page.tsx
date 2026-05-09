@@ -7,7 +7,7 @@ import { CollectionActions } from "~/app/_components/admin/CollectionActions";
 import { BannerUploader } from "~/app/_components/admin/BannerUploader";
 import { FaceReindexButton } from "~/app/_components/admin/FaceReindexButton";
 import { OcrRetryButton } from "~/app/_components/admin/OcrRetryButton";
-import { createSignedUrl } from "~/lib/supabase/admin";
+import { createSignedUrl } from "~/lib/s3";
 
 const PAGE_SIZE = 48;
 

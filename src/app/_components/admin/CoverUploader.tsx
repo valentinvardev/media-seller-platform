@@ -35,7 +35,7 @@ export function CoverUploader({
       const signRes = await fetch("/api/uploads/sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path }),
+        body: JSON.stringify({ path, contentType: file.type }),
       });
       if (!signRes.ok) throw new Error("No se pudo obtener URL de subida.");
       const { signedUrl } = await signRes.json() as { signedUrl: string };

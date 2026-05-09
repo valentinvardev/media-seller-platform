@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createSignedUrl } from "~/lib/supabase/admin";
+import { createSignedUrl } from "~/lib/s3";
 import {
   createTRPCRouter,
   protectedProcedure,

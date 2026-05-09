@@ -217,7 +217,7 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           const signRes = await fetch("/api/uploads/sign", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ path }),
+            body: JSON.stringify({ path, contentType: entry.file.type }),
           });
           if (!signRes.ok) {
             const body = await signRes.json().catch(() => ({})) as { error?: string };
