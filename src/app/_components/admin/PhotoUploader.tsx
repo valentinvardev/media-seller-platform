@@ -28,8 +28,11 @@ const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 4;
 const POLL_INTERVAL_MS = 4_000;
 const POLL_MAX_ATTEMPTS = 30; // ~2 min
-const UPLOAD_CONCURRENCY = 4;
-const SIGN_STAGGER_MS = 100;
+// S3 handles much higher concurrency than Supabase ever did. Browsers cap us at
+// ~6 connections per host on HTTP/1.1 but multiplex over one connection on
+// HTTP/2 (which S3 supports), so 8 simultaneous PUTs fly.
+const UPLOAD_CONCURRENCY = 8;
+const BULK_ADD_BATCH = 10;     // how many uploaded photos to commit to DB per bulkAdd call
 const UPLOAD_MAX_ATTEMPTS = 1; // single attempt — failed files use the "Reintentar fallidas" button instead of blocking the queue
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -241,7 +244,7 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
           }
           const { signedUrl } = await signRes.json() as { signedUrl: string };
 
-          // ── 2. PUT to Supabase ─────────────────────────────────────────────
+          // ── 2. PUT to S3 ───────────────────────────────────────────────────
           const uploadRes = await fetch(signedUrl, {
             method: "PUT",
             headers: { "Content-Type": entry.file.type },
@@ -280,28 +283,48 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
 
     const pendingPolls: { entryId: string; photoId: string }[] = [];
 
-    for (let i = 0; i < entriesToUpload.length; i += UPLOAD_CONCURRENCY) {
-      if (serviceRoleError) break;
-      const chunk = entriesToUpload.slice(i, i + UPLOAD_CONCURRENCY);
-      // Stagger the sign requests within a chunk by SIGN_STAGGER_MS to spread load on Supabase
-      const results = await Promise.all(chunk.map((entry, j) => new Promise<UploadResult | null>((resolve) => {
-        setTimeout(() => { void uploadOne(entry).then(resolve); }, j * SIGN_STAGGER_MS);
-      })));
-      const chunkUploaded = results.filter((r): r is UploadResult => r !== null);
-      if (chunkUploaded.length === 0) continue;
+    // Worker pool: keeps UPLOAD_CONCURRENCY uploads in flight at all times.
+    // As soon as a photo finishes, the worker pulls the next one — no waiting
+    // for a stragger to drag down the whole batch the way chunked processing did.
+    const queue = [...entriesToUpload];
+    let pendingForBulk: UploadResult[] = [];
+    let bulkChain: Promise<unknown> = Promise.resolve();
 
-      void bulkAdd.mutateAsync({
-        collectionId,
-        photos: chunkUploaded.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
-      }).then((result) => {
-        if (!result?.ids) return;
-        for (let j = 0; j < result.ids.length; j++) {
-          const photoId = result.ids[j];
-          const entryId = chunkUploaded[j]?.entryId;
-          if (photoId && entryId) pendingPolls.push({ entryId, photoId });
+    const flush = (batch: UploadResult[]) => {
+      bulkChain = bulkChain.then(() =>
+        bulkAdd.mutateAsync({
+          collectionId,
+          photos: batch.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
+        }).then((result) => {
+          if (!result?.ids) return;
+          for (let j = 0; j < result.ids.length; j++) {
+            const photoId = result.ids[j];
+            const entryId = batch[j]?.entryId;
+            if (photoId && entryId) pendingPolls.push({ entryId, photoId });
+          }
+        }).catch((err) => console.error("[upload] bulkAdd failed:", err)),
+      );
+    };
+
+    const worker = async () => {
+      while (queue.length > 0 && !serviceRoleError) {
+        const entry = queue.shift();
+        if (!entry) break;
+        const result = await uploadOne(entry);
+        if (result) {
+          pendingForBulk.push(result);
+          if (pendingForBulk.length >= BULK_ADD_BATCH) {
+            const batch = pendingForBulk;
+            pendingForBulk = [];
+            flush(batch);
+          }
         }
-      });
-    }
+      }
+    };
+
+    await Promise.all(Array.from({ length: UPLOAD_CONCURRENCY }, () => worker()));
+    if (pendingForBulk.length > 0) flush(pendingForBulk);
+    await bulkChain;
 
     await new Promise((r) => setTimeout(r, 2_000));
     for (let i = 0; i < pendingPolls.length; i++) {
