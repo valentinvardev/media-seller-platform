@@ -6177,6 +6177,7 @@ export namespace Prisma {
     eventDate: Date | null
     pricePerBib: Decimal | null
     isPublished: boolean | null
+    isHidden: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6193,6 +6194,7 @@ export namespace Prisma {
     eventDate: Date | null
     pricePerBib: Decimal | null
     isPublished: boolean | null
+    isHidden: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6209,6 +6211,7 @@ export namespace Prisma {
     eventDate: number
     pricePerBib: number
     isPublished: number
+    isHidden: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6237,6 +6240,7 @@ export namespace Prisma {
     eventDate?: true
     pricePerBib?: true
     isPublished?: true
+    isHidden?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6253,6 +6257,7 @@ export namespace Prisma {
     eventDate?: true
     pricePerBib?: true
     isPublished?: true
+    isHidden?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6269,6 +6274,7 @@ export namespace Prisma {
     eventDate?: true
     pricePerBib?: true
     isPublished?: true
+    isHidden?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6372,6 +6378,7 @@ export namespace Prisma {
     eventDate: Date | null
     pricePerBib: Decimal
     isPublished: boolean
+    isHidden: boolean
     createdAt: Date
     updatedAt: Date
     _count: CollectionCountAggregateOutputType | null
@@ -6407,6 +6414,7 @@ export namespace Prisma {
     eventDate?: boolean
     pricePerBib?: boolean
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     photos?: boolean | Collection$photosArgs<ExtArgs>
@@ -6427,6 +6435,7 @@ export namespace Prisma {
     eventDate?: boolean
     pricePerBib?: boolean
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["collection"]>
@@ -6443,6 +6452,7 @@ export namespace Prisma {
     eventDate?: boolean
     pricePerBib?: boolean
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["collection"]>
@@ -6459,11 +6469,12 @@ export namespace Prisma {
     eventDate?: boolean
     pricePerBib?: boolean
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "bannerFocalY" | "slug" | "eventDate" | "pricePerBib" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "bannerFocalY" | "slug" | "eventDate" | "pricePerBib" | "isPublished" | "isHidden" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
   export type CollectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     photos?: boolean | Collection$photosArgs<ExtArgs>
     purchases?: boolean | Collection$purchasesArgs<ExtArgs>
@@ -6492,6 +6503,7 @@ export namespace Prisma {
       eventDate: Date | null
       pricePerBib: Prisma.Decimal
       isPublished: boolean
+      isHidden: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["collection"]>
@@ -6931,6 +6943,7 @@ export namespace Prisma {
     readonly eventDate: FieldRef<"Collection", 'DateTime'>
     readonly pricePerBib: FieldRef<"Collection", 'Decimal'>
     readonly isPublished: FieldRef<"Collection", 'Boolean'>
+    readonly isHidden: FieldRef<"Collection", 'Boolean'>
     readonly createdAt: FieldRef<"Collection", 'DateTime'>
     readonly updatedAt: FieldRef<"Collection", 'DateTime'>
   }
@@ -13037,6 +13050,7 @@ export namespace Prisma {
     eventDate: 'eventDate',
     pricePerBib: 'pricePerBib',
     isPublished: 'isPublished',
+    isHidden: 'isHidden',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13509,6 +13523,7 @@ export namespace Prisma {
     eventDate?: DateTimeNullableFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Collection"> | boolean
+    isHidden?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
     photos?: PhotoListRelationFilter
@@ -13528,6 +13543,7 @@ export namespace Prisma {
     eventDate?: SortOrderInput | SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
+    isHidden?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     photos?: PhotoOrderByRelationAggregateInput
@@ -13550,6 +13566,7 @@ export namespace Prisma {
     eventDate?: DateTimeNullableFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFilter<"Collection"> | boolean
+    isHidden?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
     photos?: PhotoListRelationFilter
@@ -13569,6 +13586,7 @@ export namespace Prisma {
     eventDate?: SortOrderInput | SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
+    isHidden?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CollectionCountOrderByAggregateInput
@@ -13593,6 +13611,7 @@ export namespace Prisma {
     eventDate?: DateTimeNullableWithAggregatesFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalWithAggregatesFilter<"Collection"> | Decimal | DecimalJsLike | number | string
     isPublished?: BoolWithAggregatesFilter<"Collection"> | boolean
+    isHidden?: BoolWithAggregatesFilter<"Collection"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
   }
@@ -14252,6 +14271,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoCreateNestedManyWithoutCollectionInput
@@ -14271,6 +14291,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
@@ -14290,6 +14311,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUpdateManyWithoutCollectionNestedInput
@@ -14309,6 +14331,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
@@ -14328,6 +14351,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14344,6 +14368,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14360,6 +14385,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15146,6 +15172,7 @@ export namespace Prisma {
     eventDate?: SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
+    isHidden?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15167,6 +15194,7 @@ export namespace Prisma {
     eventDate?: SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
+    isHidden?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15183,6 +15211,7 @@ export namespace Prisma {
     eventDate?: SortOrder
     pricePerBib?: SortOrder
     isPublished?: SortOrder
+    isHidden?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -16608,6 +16637,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     purchases?: PurchaseCreateNestedManyWithoutCollectionInput
@@ -16626,6 +16656,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
@@ -16686,6 +16717,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
@@ -16704,6 +16736,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
@@ -16738,6 +16771,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoCreateNestedManyWithoutCollectionInput
@@ -16756,6 +16790,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
@@ -16790,6 +16825,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUpdateManyWithoutCollectionNestedInput
@@ -16808,6 +16844,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
@@ -16859,6 +16896,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoCreateNestedManyWithoutCollectionInput
@@ -16877,6 +16915,7 @@ export namespace Prisma {
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
     isPublished?: boolean
+    isHidden?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
@@ -16950,6 +16989,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUpdateManyWithoutCollectionNestedInput
@@ -16968,6 +17008,7 @@ export namespace Prisma {
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput

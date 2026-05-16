@@ -102,7 +102,7 @@ export default async function CollectionsPage() {
                 >
                   Gestionar
                 </Link>
-                <CollectionActions id={col.id} isPublished={col.isPublished} />
+                <CollectionActions id={col.id} isPublished={col.isPublished} isHidden={col.isHidden} />
               </div>
             </div>
           ))}

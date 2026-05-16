@@ -113,7 +113,7 @@ export default async function EditCollectionPage({
             >
               ↗ Ver público
             </Link>
-            <CollectionActions id={collection.id} isPublished={collection.isPublished} />
+            <CollectionActions id={collection.id} isPublished={collection.isPublished} isHidden={collection.isHidden} />
           </div>
         </div>
 

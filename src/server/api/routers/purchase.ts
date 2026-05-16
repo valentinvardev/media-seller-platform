@@ -97,6 +97,60 @@ export const purchaseRouter = createTRPCRouter({
       };
     }),
 
+  createFree: publicProcedure
+    .input(
+      z.object({
+        collectionId: z.string(),
+        photoIds: z.array(z.string()).min(1),
+        buyerEmail: z.string().email(),
+        buyerName: z.string().optional(),
+        buyerLastName: z.string().optional(),
+        buyerPhone: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const collection = await ctx.db.collection.findFirstOrThrow({
+        where: { id: input.collectionId, isPublished: true },
+        select: { title: true, pricePerBib: true },
+      });
+      if (Number(collection.pricePerBib) !== 0) {
+        throw new Error("Este evento no es gratuito.");
+      }
+
+      const photoCount = await ctx.db.photo.count({
+        where: { collectionId: input.collectionId, id: { in: input.photoIds } },
+      });
+      if (photoCount === 0) throw new Error("No se encontraron fotos válidas.");
+
+      const token = crypto.randomUUID();
+      await ctx.db.purchase.create({
+        data: {
+          collectionId: input.collectionId,
+          bibNumber: null,
+          buyerEmail: input.buyerEmail,
+          buyerName: input.buyerName,
+          buyerLastName: input.buyerLastName,
+          buyerPhone: input.buyerPhone,
+          amountPaid: 0,
+          status: "APPROVED",
+          downloadToken: token,
+          downloadTokenExpires: null,
+          photoIds: JSON.stringify(input.photoIds),
+        },
+      });
+
+      void sendPurchaseApprovedEmail({
+        to: input.buyerEmail,
+        buyerName: input.buyerName ?? null,
+        bibNumber: null,
+        collectionTitle: collection.title,
+        downloadToken: token,
+        photoCount,
+      });
+
+      return { downloadToken: token };
+    }),
+
   accessByEmail: publicProcedure
     .input(z.object({ email: z.string().email(), collectionId: z.string(), bibNumber: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {

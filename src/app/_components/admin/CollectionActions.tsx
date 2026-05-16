@@ -9,14 +9,19 @@ import { PublishToggle } from "./PublishToggle";
 export function CollectionActions({
   id,
   isPublished,
+  isHidden,
 }: {
   id: string;
   isPublished: boolean;
+  isHidden: boolean;
 }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
 
   const toggle = api.collection.togglePublish.useMutation({
+    onSuccess: () => router.refresh(),
+  });
+  const toggleHide = api.collection.toggleHide.useMutation({
     onSuccess: () => router.refresh(),
   });
   const del = api.collection.delete.useMutation({
@@ -29,6 +34,13 @@ export function CollectionActions({
         isPublished={isPublished}
         isPending={toggle.isPending}
         onToggle={() => toggle.mutate({ id })}
+      />
+      <PublishToggle
+        isPublished={!isHidden}
+        isPending={toggleHide.isPending}
+        onToggle={() => toggleHide.mutate({ id })}
+        labelOn="Visible"
+        labelOff="Oculto"
       />
       <button
         onClick={() => setConfirming(true)}

@@ -21,7 +21,7 @@ export const collectionRouter = createTRPCRouter({
 
   list: publicProcedure.query(async ({ ctx }) => {
     const cols = await ctx.db.collection.findMany({
-      where: { isPublished: true },
+      where: { isPublished: true, isHidden: false },
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { photos: true } } },
     });
@@ -111,6 +111,7 @@ export const collectionRouter = createTRPCRouter({
         bannerFocalY: z.number().min(0).max(1).optional(),
         pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
+        isHidden: z.boolean().optional(),
         eventDate: z.string().optional(),
       }),
     )
@@ -134,6 +135,7 @@ export const collectionRouter = createTRPCRouter({
         bannerFocalY: z.number().min(0).max(1).optional().nullable(),
         pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
+        isHidden: z.boolean().optional(),
         eventDate: z.string().optional().nullable(),
       }),
     )
@@ -169,6 +171,19 @@ export const collectionRouter = createTRPCRouter({
       return ctx.db.collection.update({
         where: { id: input.id },
         data: { isPublished: !current.isPublished },
+      });
+    }),
+
+  toggleHide: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const current = await ctx.db.collection.findUniqueOrThrow({
+        where: { id: input.id },
+        select: { isHidden: true },
+      });
+      return ctx.db.collection.update({
+        where: { id: input.id },
+        data: { isHidden: !current.isHidden },
       });
     }),
 });
