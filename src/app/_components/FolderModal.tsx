@@ -180,6 +180,10 @@ export function BibCheckoutModal({
     onSuccess: (data) => { if (data.initPoint) window.location.href = data.initPoint; },
   });
 
+  const createFree = api.purchase.createFree.useMutation({
+    onSuccess: (data) => { router.push(`/descarga/${data.downloadToken}`); },
+  });
+
   const accessByEmail = api.purchase.accessByEmail.useMutation({
     onSuccess: (token) => {
       if (token) { router.push(`/descarga/${token}`); }
@@ -195,14 +199,16 @@ export function BibCheckoutModal({
 
   const handleBuy = () => {
     if (!email || !name || photoIds.length === 0) return;
-    createPreference.mutate({
+    const payload = {
       collectionId,
       photoIds,
       buyerEmail: email,
       buyerName: name,
       buyerLastName: lastName || undefined,
       buyerPhone: phone || undefined,
-    });
+    };
+    if (price === 0) createFree.mutate(payload);
+    else createPreference.mutate(payload);
   };
 
   const handleEmailAccess = () => {
@@ -288,15 +294,15 @@ export function BibCheckoutModal({
                   </div>
                 )}
                 <div className="flex flex-col gap-2">
-                  {price > 0 && (
-                    <button
-                      onClick={() => setStep("buy")}
-                      className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 active:scale-[0.98]"
-                      style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
-                    >
-                      Comprar · ${total.toLocaleString("es-AR")}
-                    </button>
-                  )}
+                  <button
+                    onClick={() => setStep("buy")}
+                    className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 active:scale-[0.98]"
+                    style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
+                  >
+                    {price > 0
+                      ? `Comprar · $${total.toLocaleString("es-AR")}`
+                      : "Obtener fotos gratis"}
+                  </button>
                 </div>
               </div>
             </>
@@ -307,7 +313,9 @@ export function BibCheckoutModal({
             <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3 min-h-0">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-xs text-gray-400">{photoIds.length} foto{photoIds.length !== 1 ? "s" : ""}</p>
-                <p className="text-sm font-bold" style={{ color: "#F97316" }}>${total.toLocaleString("es-AR")}</p>
+                {price > 0 && (
+                  <p className="text-sm font-bold" style={{ color: "#F97316" }}>${total.toLocaleString("es-AR")}</p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)}
@@ -322,14 +330,16 @@ export function BibCheckoutModal({
                 onKeyDown={(e) => { if (e.key === "Enter" && email && name) handleBuy(); }} />
               <button
                 onClick={handleBuy}
-                disabled={!email || !name || photoIds.length === 0 || createPreference.isPending}
+                disabled={!email || !name || photoIds.length === 0 || createPreference.isPending || createFree.isPending}
                 className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all disabled:opacity-40 mt-1"
                 style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
               >
-                {createPreference.isPending ? "Redirigiendo a MercadoPago..." : `Pagar $${total.toLocaleString("es-AR")}`}
+                {price === 0
+                  ? (createFree.isPending ? "Generando acceso..." : "Obtener fotos gratis")
+                  : (createPreference.isPending ? "Redirigiendo a MercadoPago..." : `Pagar $${total.toLocaleString("es-AR")}`)}
               </button>
-              {createPreference.isError && (
-                <p className="text-red-500 text-xs text-center">Error: {createPreference.error?.message ?? "Intentá de nuevo."}</p>
+              {(createPreference.isError || createFree.isError) && (
+                <p className="text-red-500 text-xs text-center">Error: {(createPreference.error ?? createFree.error)?.message ?? "Intentá de nuevo."}</p>
               )}
               <button onClick={() => setStep("cart")} className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors mt-1">
                 ← Volver
