@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getAdminClient, createSignedUrl } from "~/lib/supabase/admin";
+import { createSignedUrl, deleteObjects } from "~/lib/s3";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -234,13 +234,10 @@ export const photoRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const photo = await ctx.db.photo.findUniqueOrThrow({ where: { id: input.id } });
-      const client = getAdminClient();
-      if (client) {
-        const toRemove: string[] = [];
-        if (!photo.storageKey.startsWith("http")) toRemove.push(photo.storageKey);
-        if (photo.previewKey) toRemove.push(photo.previewKey);
-        if (toRemove.length) await client.storage.from("photos").remove(toRemove);
-      }
+      const toRemove: string[] = [];
+      if (!photo.storageKey.startsWith("http")) toRemove.push(photo.storageKey);
+      if (photo.previewKey) toRemove.push(photo.previewKey);
+      if (toRemove.length) await deleteObjects(toRemove).catch((e) => console.error("[photo.delete] S3 delete failed:", e));
       return ctx.db.photo.delete({ where: { id: input.id } });
     }),
 
@@ -289,15 +286,12 @@ export const photoRouter = createTRPCRouter({
     .input(z.object({ ids: z.array(z.string()) }))
     .mutation(async ({ ctx, input }) => {
       const photos = await ctx.db.photo.findMany({ where: { id: { in: input.ids } } });
-      const client = getAdminClient();
-      if (client) {
-        const keys: string[] = [];
-        for (const p of photos) {
-          if (!p.storageKey.startsWith("http")) keys.push(p.storageKey);
-          if (p.previewKey) keys.push(p.previewKey);
-        }
-        if (keys.length) await client.storage.from("photos").remove(keys);
+      const keys: string[] = [];
+      for (const p of photos) {
+        if (!p.storageKey.startsWith("http")) keys.push(p.storageKey);
+        if (p.previewKey) keys.push(p.previewKey);
       }
+      if (keys.length) await deleteObjects(keys).catch((e) => console.error("[photo.bulkDelete] S3 delete failed:", e));
       await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });
     }),
 
@@ -307,6 +301,18 @@ export const photoRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const photos = await ctx.db.photo.findMany({
         where: { collectionId: input.collectionId, previewKey: null },
+        select: { id: true },
+        orderBy: { order: "asc" },
+      });
+      return photos.map((p) => p.id);
+    }),
+
+  /** ALL photo IDs in a collection — used to force-regenerate every watermark preview. */
+  listAllIds: protectedProcedure
+    .input(z.object({ collectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const photos = await ctx.db.photo.findMany({
+        where: { collectionId: input.collectionId },
         select: { id: true },
         orderBy: { order: "asc" },
       });
