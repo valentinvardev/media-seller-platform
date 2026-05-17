@@ -307,6 +307,18 @@ export const photoRouter = createTRPCRouter({
       return photos.map((p) => p.id);
     }),
 
+  /** ALL photo IDs in a collection — used to force-regenerate every watermark preview. */
+  listAllIds: protectedProcedure
+    .input(z.object({ collectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const photos = await ctx.db.photo.findMany({
+        where: { collectionId: input.collectionId },
+        select: { id: true },
+        orderBy: { order: "asc" },
+      });
+      return photos.map((p) => p.id);
+    }),
+
   setBibNumber: protectedProcedure
     .input(z.object({ id: z.string(), bibNumber: z.string().nullable() }))
     .mutation(({ ctx, input }) =>
