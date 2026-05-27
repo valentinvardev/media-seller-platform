@@ -13,7 +13,7 @@ import {
   IndexFacesCommand,
 } from "@aws-sdk/client-rekognition";
 import { db } from "~/server/db";
-import { downloadObject, uploadObject, deleteObjects } from "~/lib/s3";
+import { downloadObject, uploadObject, deleteObjects, createCFInvalidation } from "~/lib/s3";
 import { WATERMARK_KEY } from "~/lib/watermark";
 
 // ── S3 retry helper ───────────────────────────────────────────────────────────
@@ -227,6 +227,7 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
     if (uploadErr) { console.error("[Watermark] Upload failed after retries:", uploadErr); return { previewKey: null }; }
 
     await db.photo.update({ where: { id: photoId }, data: { previewKey } });
+    void createCFInvalidation([`/${previewKey}`]);
     console.log(`[Watermark] photoId=${photoId} done`);
     return { previewKey };
   } catch (err) {

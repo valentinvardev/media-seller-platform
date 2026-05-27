@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createSignedUrl, deleteObjects } from "~/lib/s3";
+import { resolveMediaUrl } from "~/lib/media";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -49,7 +50,7 @@ export const photoRouter = createTRPCRouter({
       const photos = await Promise.all(
         raw.map(async (p) => {
           const key = p.previewKey ?? p.storageKey;
-          const url = await createSignedUrl(key, 86_400);
+          const url = await resolveMediaUrl(key);
           return { id: p.id, bibNumber: p.bibNumber, url };
         }),
       );
@@ -118,7 +119,7 @@ export const photoRouter = createTRPCRouter({
       const resolveUrls = async (photos: typeof exact) =>
         Promise.all(photos.map(async (p) => {
           const key = p.previewKey ?? p.storageKey;
-          const url = await createSignedUrl(key, 86_400);
+          const url = await resolveMediaUrl(key);
           return { id: p.id, bibNumber: p.bibNumber, url: url ?? "" };
         }));
 
@@ -157,7 +158,7 @@ export const photoRouter = createTRPCRouter({
       const results = await Promise.all(
         photos.map(async (p) => {
           const key = p.previewKey ?? p.storageKey;
-          const url = await createSignedUrl(key, 86_400);
+          const url = await resolveMediaUrl(key);
           return { id: p.id, url };
         }),
       );
@@ -267,7 +268,7 @@ export const photoRouter = createTRPCRouter({
           .map(async (g) => {
             const [keep, ...duplicates] = g;
             const resolveUrl = async (p: typeof g[number]) =>
-              await createSignedUrl(p.previewKey ?? p.storageKey, 3600);
+              await resolveMediaUrl(p.previewKey ?? p.storageKey);
             return {
               filename: keep!.filename,
               keep: { id: keep!.id, url: await resolveUrl(keep!) },

@@ -1,14 +1,15 @@
 /**
- * S3 storage layer — drop-in replacement for the previous Supabase Storage code.
+ * S3 + CloudFront storage layer.
  *
- * Public API (kept compatible with old `lib/supabase/admin.ts` so the rest of
- * the app barely changes):
- *   - createSignedUrl(key, expiresIn)        → GET URL for the browser
- *   - createUploadUrl(key, contentType)      → PUT URL for the browser
- *   - downloadObject(key)                    → bytes (for OCR/watermark)
+ * Public API:
+ *   - createSignedUrl(key, expiresIn)        → presigned GET URL (originals / post-purchase)
+ *   - createUploadUrl(key, contentType)      → presigned PUT URL for browser uploads
+ *   - downloadObject(key)                    → bytes (for OCR/watermark server-side)
  *   - uploadObject(key, body, contentType)   → server-side upload
  *   - deleteObjects(keys)                    → bulk delete
  *   - objectExists(key)                      → HEAD check
+ *   - getCFUrl(key)                          → CloudFront URL if configured, else null
+ *   - createCFInvalidation(paths)            → invalidate CF cache for given paths
  */
 
 import {
@@ -19,7 +20,13 @@ import {
   HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import {
+  CloudFrontClient,
+  CreateInvalidationCommand,
+} from "@aws-sdk/client-cloudfront";
 import { env } from "~/env";
+
+// ── S3 client ─────────────────────────────────────────────────────────────────
 
 let _client: S3Client | null = null;
 
@@ -53,10 +60,55 @@ function withPrefix(key: string): string {
   return `${PREFIX}${key}`;
 }
 
+// ── CloudFront client ─────────────────────────────────────────────────────────
+
+const _cfClient = env.CLOUDFRONT_DISTRIBUTION_ID
+  ? new CloudFrontClient({
+      region: "us-east-1", // CloudFront is always us-east-1
+      credentials:
+        env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY
+          ? { accessKeyId: env.AWS_ACCESS_KEY_ID, secretAccessKey: env.AWS_SECRET_ACCESS_KEY }
+          : undefined,
+    })
+  : null;
+
 /**
- * Generate a signed GET URL for a stored object.
- * - If the input is already a full URL, returns it untouched.
- * - Returns null if S3 is not configured (so callers can no-op).
+ * Returns a CloudFront URL for the given S3 key, or null if CF is not configured.
+ * Applies the same PREFIX so keys match the S3 object paths under the distribution.
+ */
+export function getCFUrl(key: string): string | null {
+  if (!env.CLOUDFRONT_DOMAIN || !key) return null;
+  if (key.startsWith("http")) return key;
+  return `https://${env.CLOUDFRONT_DOMAIN}/${withPrefix(key)}`;
+}
+
+/**
+ * Invalidates CloudFront cache for the given paths (must start with "/").
+ * Use wildcards for bulk: ["/previews/*"].  First 1,000 paths/month are free.
+ * No-op if CF is not configured or paths is empty.
+ */
+export async function createCFInvalidation(paths: string[]): Promise<void> {
+  if (!_cfClient || !env.CLOUDFRONT_DISTRIBUTION_ID || paths.length === 0) return;
+  try {
+    await _cfClient.send(
+      new CreateInvalidationCommand({
+        DistributionId: env.CLOUDFRONT_DISTRIBUTION_ID,
+        InvalidationBatch: {
+          CallerReference: Date.now().toString(),
+          Paths: { Quantity: paths.length, Items: paths },
+        },
+      }),
+    );
+  } catch (err) {
+    console.error("[cloudfront] invalidation failed:", err);
+  }
+}
+
+// ── S3 helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Generate a presigned GET URL — use for post-purchase original downloads only.
+ * For preview/display media use resolveMediaUrl() from ~/lib/media instead.
  */
 export async function createSignedUrl(
   storageKey: string,
@@ -71,7 +123,7 @@ export async function createSignedUrl(
 }
 
 /**
- * Generate a signed PUT URL the browser can upload to directly.
+ * Generate a presigned PUT URL the browser can upload to directly.
  * IMPORTANT: the client MUST send the same Content-Type header as `contentType`,
  * otherwise S3 rejects with 403 SignatureDoesNotMatch.
  */

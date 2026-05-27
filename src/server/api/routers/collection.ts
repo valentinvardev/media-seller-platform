@@ -1,16 +1,16 @@
 import { z } from "zod";
-import { createSignedUrl } from "~/lib/s3";
+import { resolveMediaUrl } from "~/lib/media";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 
-/** Resolve a storage key or full URL to a signed/public URL. */
+/** Resolve a storage key or full URL to a display URL (CF or presigned fallback). */
 async function resolveUrl(url: string | null | undefined): Promise<string | null> {
   if (!url) return null;
   if (url.startsWith("http")) return url;
-  return createSignedUrl(url, 7200);
+  return resolveMediaUrl(url);
 }
 
 // Keep old name as alias for backwards compat inside this file

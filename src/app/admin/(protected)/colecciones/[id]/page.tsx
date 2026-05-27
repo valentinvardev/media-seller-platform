@@ -8,7 +8,7 @@ import { BannerUploader } from "~/app/_components/admin/BannerUploader";
 import { FaceReindexButton } from "~/app/_components/admin/FaceReindexButton";
 import { RewatermarkAllButton } from "~/app/_components/admin/RewatermarkAllButton";
 import { OcrRetryButton } from "~/app/_components/admin/OcrRetryButton";
-import { createSignedUrl } from "~/lib/s3";
+import { resolveMediaUrl } from "~/lib/media";
 
 const PAGE_SIZE = 48;
 
@@ -48,9 +48,7 @@ export default async function EditCollectionPage({
   // Generate signed URLs only for the current page
   const photos = await Promise.all(
     rawPhotos.map(async (p) => {
-      const url = p.storageKey.startsWith("http")
-        ? p.storageKey
-        : await createSignedUrl(p.storageKey, 3600);
+      const url = await resolveMediaUrl(p.storageKey);
       return { ...p, url };
     }),
   );
