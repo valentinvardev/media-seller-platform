@@ -377,6 +377,64 @@ export const purchaseRouter = createTRPCRouter({
     }));
   }),
 
+  /**
+   * Find all APPROVED purchases whose photoIds contain photos from this collection,
+   * regardless of the collectionId stored on the purchase. Used to recover "orphaned"
+   * sales that were saved under a wrong collection.
+   */
+  findDeliveredByCollection: protectedProcedure
+    .input(z.object({ collectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const photos = await ctx.db.photo.findMany({
+        where: { collectionId: input.collectionId },
+        select: { id: true },
+      });
+      const photoIdSet = new Set(photos.map((p) => p.id));
+
+      const purchases = await ctx.db.purchase.findMany({
+        where: { status: "APPROVED", downloadToken: { not: null }, photoIds: { not: null } },
+        orderBy: { createdAt: "desc" },
+        include: { collection: { select: { title: true } } },
+      });
+
+      const matched = purchases
+        .filter((p) => {
+          try { return (JSON.parse(p.photoIds!) as string[]).some((id) => photoIdSet.has(id)); }
+          catch { return false; }
+        })
+        .map((p) => {
+          const ids = JSON.parse(p.photoIds!) as string[];
+          return {
+            id: p.id,
+            buyerEmail: p.buyerEmail,
+            buyerName: p.buyerName,
+            amountPaid: Number(p.amountPaid),
+            createdAt: p.createdAt,
+            photoCount: ids.length,
+            collectionTitle: p.collection.title,
+            isOrphaned: p.collectionId !== input.collectionId,
+            downloadToken: p.downloadToken!,
+          };
+        });
+
+      return {
+        items: matched,
+        total: matched.length,
+        revenue: matched.reduce((sum, p) => sum + p.amountPaid, 0),
+      };
+    }),
+
+  /** Move orphaned purchases to the correct collectionId. */
+  fixOrphanedPurchases: protectedProcedure
+    .input(z.object({ purchaseIds: z.array(z.string()), collectionId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.purchase.updateMany({
+        where: { id: { in: input.purchaseIds } },
+        data: { collectionId: input.collectionId },
+      });
+      return { fixed: input.purchaseIds.length };
+    }),
+
   adminStats: protectedProcedure
     .input(z.object({ collectionId: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {

@@ -1,10 +1,16 @@
 import { createHmac } from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
+import { MercadoPagoConfig, Payment } from "mercadopago";
 import { db } from "~/server/db";
 import { sendPurchaseApprovedEmail } from "~/lib/email";
+import { env } from "~/env";
+
+async function getMpToken(): Promise<string | null> {
+  const setting = await db.setting.findUnique({ where: { key: "mp_access_token" } });
+  return setting?.value ?? env.MERCADOPAGO_ACCESS_TOKEN ?? null;
+}
 
 function verifyWebhookSignature(request: NextRequest, rawBody: string): boolean {
-  const { env } = require("~/env") as { env: { MERCADOPAGO_WEBHOOK_SECRET?: string } };
   const secret = env.MERCADOPAGO_WEBHOOK_SECRET;
   if (!secret) return true; // Skip if not configured
 
@@ -43,27 +49,11 @@ export async function POST(request: NextRequest) {
 
     const paymentId = body.data.id;
 
-    // Fetch payment details from MercadoPago
-    const { env } = await import("~/env");
-    const mpResponse = await fetch(
-      `https://api.mercadopago.com/v1/payments/${paymentId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}`,
-        },
-      },
-    );
+    const mpToken = await getMpToken();
+    if (!mpToken) return NextResponse.json({ received: true });
 
-    if (!mpResponse.ok) {
-      return NextResponse.json({ received: true });
-    }
-
-    const payment = await mpResponse.json() as {
-      id: number;
-      status: string;
-      external_reference?: string;
-      order?: { id?: string };
-    };
+    const paymentClient = new Payment(new MercadoPagoConfig({ accessToken: mpToken }));
+    const payment = await paymentClient.get({ id: paymentId });
 
     const externalRef = payment.external_reference;
     if (!externalRef) return NextResponse.json({ received: true });
@@ -75,7 +65,7 @@ export async function POST(request: NextRequest) {
       rejected: "REJECTED",
       refunded: "REFUNDED",
     };
-    const newStatus = statusMap[payment.status] ?? "PENDING";
+    const newStatus = statusMap[payment.status ?? ""] ?? "PENDING";
 
     for (const purchaseId of purchaseIds) {
       const token = newStatus === "APPROVED" ? crypto.randomUUID() : undefined;
