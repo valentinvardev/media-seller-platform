@@ -4,6 +4,7 @@ import { api } from "~/trpc/server";
 import { SalesTable } from "~/app/_components/admin/SalesTable";
 import { ReconcileButton } from "~/app/_components/admin/ReconcileButton";
 import { DeliveredSalesPanel } from "~/app/_components/admin/DeliveredSalesPanel";
+import { TokenLookup } from "~/app/_components/admin/TokenLookup";
 
 const PAGE_SIZE = 25;
 
@@ -14,7 +15,7 @@ export default async function SalesPage({
 }) {
   const { event, page } = await searchParams;
 
-  if (!event) return <EventPicker />;
+  if (!event) return <><TokenLookup /><EventPicker /></>;
   const pageNum = Math.max(1, Number(page) || 1);
   return <EventSales collectionId={event} page={pageNum} />;
 }
@@ -97,6 +98,8 @@ async function EventSales({ collectionId, page }: { collectionId: string; page: 
           </div>
         ))}
       </div>
+
+      <TokenLookup />
 
       <ReconcileButton />
 

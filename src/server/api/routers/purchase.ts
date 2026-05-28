@@ -424,6 +424,32 @@ export const purchaseRouter = createTRPCRouter({
       };
     }),
 
+  /** Look up a single purchase by its download token — admin diagnostic tool. */
+  findByToken: protectedProcedure
+    .input(z.object({ token: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const purchase = await ctx.db.purchase.findUnique({
+        where: { downloadToken: input.token },
+        include: { collection: { select: { id: true, title: true, slug: true } } },
+      });
+      if (!purchase) return null;
+      return {
+        id: purchase.id,
+        status: purchase.status,
+        collectionId: purchase.collectionId,
+        collectionTitle: purchase.collection.title,
+        collectionSlug: purchase.collection.slug,
+        buyerEmail: purchase.buyerEmail,
+        buyerName: purchase.buyerName,
+        amountPaid: Number(purchase.amountPaid),
+        photoCount: purchase.photoIds
+          ? (JSON.parse(purchase.photoIds) as string[]).length
+          : null,
+        bibNumber: purchase.bibNumber,
+        createdAt: purchase.createdAt,
+      };
+    }),
+
   /** Move orphaned purchases to the correct collectionId. */
   fixOrphanedPurchases: protectedProcedure
     .input(z.object({ purchaseIds: z.array(z.string()), collectionId: z.string() }))
