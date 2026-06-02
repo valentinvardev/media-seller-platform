@@ -1,4 +1,4 @@
-import { MercadoPagoConfig, Payment, Preference } from "mercadopago";
+import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
 import { env } from "~/env";
 import { sendPurchaseApprovedEmail } from "~/lib/email";
@@ -377,53 +377,6 @@ export const purchaseRouter = createTRPCRouter({
     }));
   }),
 
-  /**
-   * Find all APPROVED purchases whose photoIds contain photos from this collection,
-   * regardless of the collectionId stored on the purchase. Used to recover "orphaned"
-   * sales that were saved under a wrong collection.
-   */
-  findDeliveredByCollection: protectedProcedure
-    .input(z.object({ collectionId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const photos = await ctx.db.photo.findMany({
-        where: { collectionId: input.collectionId },
-        select: { id: true },
-      });
-      const photoIdSet = new Set(photos.map((p) => p.id));
-
-      const purchases = await ctx.db.purchase.findMany({
-        where: { status: "APPROVED", downloadToken: { not: null }, photoIds: { not: null } },
-        orderBy: { createdAt: "desc" },
-        include: { collection: { select: { title: true } } },
-      });
-
-      const matched = purchases
-        .filter((p) => {
-          try { return (JSON.parse(p.photoIds!) as string[]).some((id) => photoIdSet.has(id)); }
-          catch { return false; }
-        })
-        .map((p) => {
-          const ids = JSON.parse(p.photoIds!) as string[];
-          return {
-            id: p.id,
-            buyerEmail: p.buyerEmail,
-            buyerName: p.buyerName,
-            amountPaid: Number(p.amountPaid),
-            createdAt: p.createdAt,
-            photoCount: ids.length,
-            collectionTitle: p.collection.title,
-            isOrphaned: p.collectionId !== input.collectionId,
-            downloadToken: p.downloadToken!,
-          };
-        });
-
-      return {
-        items: matched,
-        total: matched.length,
-        revenue: matched.reduce((sum, p) => sum + p.amountPaid, 0),
-      };
-    }),
-
   /** Look up a single purchase by its download token — admin diagnostic tool. */
   findByToken: protectedProcedure
     .input(z.object({ token: z.string() }))
@@ -448,17 +401,6 @@ export const purchaseRouter = createTRPCRouter({
         bibNumber: purchase.bibNumber,
         createdAt: purchase.createdAt,
       };
-    }),
-
-  /** Move orphaned purchases to the correct collectionId. */
-  fixOrphanedPurchases: protectedProcedure
-    .input(z.object({ purchaseIds: z.array(z.string()), collectionId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db.purchase.updateMany({
-        where: { id: { in: input.purchaseIds } },
-        data: { collectionId: input.collectionId },
-      });
-      return { fixed: input.purchaseIds.length };
     }),
 
   adminStats: protectedProcedure
@@ -488,135 +430,33 @@ export const purchaseRouter = createTRPCRouter({
   manualApprove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      // Atomic transition — only generate token + send email if not already approved.
+      // Protects against double-clicks and races with the webhook.
       const token = crypto.randomUUID();
-      const updated = await ctx.db.purchase.update({
-        where: { id: input.id },
+      const result = await ctx.db.purchase.updateMany({
+        where: { id: input.id, status: { not: "APPROVED" } },
         data: { status: "APPROVED", downloadToken: token, downloadTokenExpires: null },
+      });
+
+      const updated = await ctx.db.purchase.findUniqueOrThrow({
+        where: { id: input.id },
         include: { collection: { select: { title: true } } },
       });
-      const photoCount = await ctx.db.photo.count({
-        where: { collectionId: updated.collectionId, bibNumber: updated.bibNumber ?? undefined },
-      });
-      void sendPurchaseApprovedEmail({
-        to: updated.buyerEmail,
-        buyerName: updated.buyerName,
-        bibNumber: updated.bibNumber,
-        collectionTitle: updated.collection.title,
-        downloadToken: token,
-        photoCount,
-      });
+
+      if (result.count === 1) {
+        const photoCount = await ctx.db.photo.count({
+          where: { collectionId: updated.collectionId, bibNumber: updated.bibNumber ?? undefined },
+        });
+        void sendPurchaseApprovedEmail({
+          to: updated.buyerEmail,
+          buyerName: updated.buyerName,
+          bibNumber: updated.bibNumber,
+          collectionTitle: updated.collection.title,
+          downloadToken: token,
+          photoCount,
+        });
+      }
+
       return updated;
-    }),
-
-  /**
-   * Reconcile our purchase records with MercadoPago.
-   * Fetches the last N days of payments from MP and updates any purchase
-   * whose status is out of sync (e.g. webhook failed during a Supabase outage).
-   * Idempotent: re-running is safe and won't duplicate emails.
-   */
-  reconcileWithMercadoPago: protectedProcedure
-    .input(z.object({ days: z.number().min(1).max(90).default(7) }))
-    .mutation(async ({ ctx, input }) => {
-      const since = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
-
-      // Pull every purchase in the window that's NOT already terminal-approved
-      // OR that has no MP payment id yet (webhook never landed).
-      const candidates = await ctx.db.purchase.findMany({
-        where: {
-          createdAt: { gte: since },
-          OR: [
-            { status: "PENDING" },
-            { mercadopagoPaymentId: null },
-          ],
-        },
-        include: { collection: { select: { title: true } } },
-      });
-
-      if (candidates.length === 0) {
-        return { checked: 0, updated: 0, approvedNow: 0, errors: [] as string[], details: [] as Array<{ id: string; from: string; to: string }> };
-      }
-
-      const mp = await getMp(ctx.db);
-      const paymentClient = new Payment(mp);
-
-      const statusMap: Record<string, "APPROVED" | "REJECTED" | "REFUNDED" | "PENDING"> = {
-        approved: "APPROVED",
-        rejected: "REJECTED",
-        refunded: "REFUNDED",
-        cancelled: "REJECTED",
-        in_process: "PENDING",
-        pending: "PENDING",
-      };
-
-      const errors: string[] = [];
-      const details: Array<{ id: string; from: string; to: string }> = [];
-      let approvedNow = 0;
-      let updated = 0;
-
-      for (const purchase of candidates) {
-        try {
-          // Search MP for any payment whose external_reference is this purchase id
-          const result = await paymentClient.search({
-            options: { external_reference: purchase.id, limit: 5 },
-          });
-          const payments = (result.results ?? []) as unknown as Array<{
-            id: number | string;
-            status: string;
-            external_reference?: string;
-            order?: { id?: string };
-          }>;
-
-          if (payments.length === 0) continue;
-
-          // Take the most recent approved/rejected/refunded payment if any,
-          // otherwise the most recent of any status.
-          const sorted = [...payments].sort((a, b) => Number(b.id) - Number(a.id));
-          const best = sorted.find((p) => ["approved", "refunded", "rejected"].includes(p.status)) ?? sorted[0]!;
-
-          const newStatus = statusMap[best.status] ?? "PENDING";
-          if (newStatus === purchase.status && purchase.mercadopagoPaymentId === String(best.id)) continue;
-
-          const needsToken = newStatus === "APPROVED" && !purchase.downloadToken;
-          const token = needsToken ? crypto.randomUUID() : undefined;
-
-          await ctx.db.purchase.update({
-            where: { id: purchase.id },
-            data: {
-              status: newStatus,
-              mercadopagoPaymentId: String(best.id),
-              mercadopagoOrderId: best.order?.id ? String(best.order.id) : undefined,
-              ...(token ? { downloadToken: token, downloadTokenExpires: null } : {}),
-            },
-          });
-          updated++;
-          details.push({ id: purchase.id, from: purchase.status, to: newStatus });
-
-          // Send email only if we just transitioned to APPROVED and didn't have
-          // a token before (= email was never sent).
-          if (newStatus === "APPROVED" && token) {
-            approvedNow++;
-            const photoCount = purchase.photoIds
-              ? (JSON.parse(purchase.photoIds) as string[]).length
-              : await ctx.db.photo.count({
-                  where: {
-                    collectionId: purchase.collectionId,
-                    ...(purchase.bibNumber ? { bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } } : {}),
-                  },
-                });
-            void sendPurchaseApprovedEmail({
-              to: purchase.buyerEmail,
-              buyerName: purchase.buyerName,
-              bibNumber: purchase.bibNumber,
-              collectionTitle: purchase.collection.title,
-              downloadToken: token,
-              photoCount,
-            });
-          }
-        } catch (err) {
-          errors.push(`${purchase.id}: ${err instanceof Error ? err.message : String(err)}`);
-        }
-      }
-
-      return { checked: candidates.length, updated, approvedNow, errors, details };
     }),
 });

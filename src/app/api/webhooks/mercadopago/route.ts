@@ -68,40 +68,61 @@ export async function POST(request: NextRequest) {
     const newStatus = statusMap[payment.status ?? ""] ?? "PENDING";
 
     for (const purchaseId of purchaseIds) {
-      const token = newStatus === "APPROVED" ? crypto.randomUUID() : undefined;
+      const mpFields = {
+        mercadopagoPaymentId: String(payment.id),
+        mercadopagoOrderId: payment.order?.id ? String(payment.order.id) : undefined,
+      };
 
-      const updated = await db.purchase.update({
-        where: { id: purchaseId },
+      if (newStatus !== "APPROVED") {
+        await db.purchase.update({
+          where: { id: purchaseId },
+          data: { ...mpFields, status: newStatus as "REJECTED" | "REFUNDED" | "PENDING" },
+        });
+        continue;
+      }
+
+      // Atomic transition: only generate token + send email if not already APPROVED.
+      // updateMany returns count=1 if this call won the "first approval", 0 if another
+      // request already approved it (handles MP webhook retries and races).
+      const token = crypto.randomUUID();
+      const result = await db.purchase.updateMany({
+        where: { id: purchaseId, status: { not: "APPROVED" } },
         data: {
-          mercadopagoPaymentId: String(payment.id),
-          mercadopagoOrderId: payment.order?.id ? String(payment.order.id) : undefined,
-          status: newStatus as "APPROVED" | "REJECTED" | "REFUNDED" | "PENDING",
-          ...(token ? { downloadToken: token, downloadTokenExpires: null } : {}),
+          ...mpFields,
+          status: "APPROVED",
+          downloadToken: token,
+          downloadTokenExpires: null,
         },
       });
 
-      if (newStatus === "APPROVED" && token) {
-        const collection = await db.collection.findUnique({
-          where: { id: updated.collectionId },
-          select: { title: true },
-        });
-        const photoCount = updated.photoIds
-          ? (JSON.parse(updated.photoIds) as string[]).length
-          : await db.photo.count({
-              where: {
-                collectionId: updated.collectionId,
-                ...(updated.bibNumber ? { bibNumber: { contains: updated.bibNumber, mode: "insensitive" } } : {}),
-              },
-            });
-        void sendPurchaseApprovedEmail({
-          to: updated.buyerEmail,
-          buyerName: updated.buyerName,
-          bibNumber: updated.bibNumber,
-          collectionTitle: collection?.title ?? "",
-          downloadToken: token,
-          photoCount,
-        });
+      if (result.count === 0) {
+        // Already approved by a previous webhook — keep MP IDs in sync, no email.
+        await db.purchase.update({ where: { id: purchaseId }, data: mpFields });
+        continue;
       }
+
+      const purchase = await db.purchase.findUnique({
+        where: { id: purchaseId },
+        include: { collection: { select: { title: true } } },
+      });
+      if (!purchase) continue;
+
+      const photoCount = purchase.photoIds
+        ? (JSON.parse(purchase.photoIds) as string[]).length
+        : await db.photo.count({
+            where: {
+              collectionId: purchase.collectionId,
+              ...(purchase.bibNumber ? { bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } } : {}),
+            },
+          });
+      void sendPurchaseApprovedEmail({
+        to: purchase.buyerEmail,
+        buyerName: purchase.buyerName,
+        bibNumber: purchase.bibNumber,
+        collectionTitle: purchase.collection.title,
+        downloadToken: token,
+        photoCount,
+      });
     }
 
     return NextResponse.json({ received: true });

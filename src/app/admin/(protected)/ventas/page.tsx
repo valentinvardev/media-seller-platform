@@ -2,8 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 import { SalesTable } from "~/app/_components/admin/SalesTable";
-import { ReconcileButton } from "~/app/_components/admin/ReconcileButton";
-import { DeliveredSalesPanel } from "~/app/_components/admin/DeliveredSalesPanel";
 import { TokenLookup } from "~/app/_components/admin/TokenLookup";
 
 const PAGE_SIZE = 25;
@@ -100,10 +98,6 @@ async function EventSales({ collectionId, page }: { collectionId: string; page: 
       </div>
 
       <TokenLookup />
-
-      <ReconcileButton />
-
-      <DeliveredSalesPanel collectionId={collectionId} />
 
       <SalesTable items={sales.items} />
 
