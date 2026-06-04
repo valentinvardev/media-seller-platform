@@ -8,18 +8,19 @@ export default async function CollectionsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Eventos</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{collections.length} evento{collections.length !== 1 ? "s" : ""} en total</p>
+      <div className="flex items-start justify-between gap-3 mb-6 sm:mb-8">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Eventos</h1>
+          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">{collections.length} evento{collections.length !== 1 ? "s" : ""} en total</p>
         </div>
         <Link
           href="/admin/colecciones/nueva"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 shadow-sm"
+          className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-white transition-all hover:opacity-90 shadow-sm shrink-0"
           style={{ background: "linear-gradient(135deg, #1a3a6b, #2563eb)" }}
         >
-          <span className="text-lg leading-none">+</span>
-          Crear evento
+          <span className="text-base sm:text-lg leading-none">+</span>
+          <span className="hidden sm:inline">Crear evento</span>
+          <span className="sm:hidden">Crear</span>
         </Link>
       </div>
 
@@ -50,11 +51,11 @@ export default async function CollectionsPage() {
           {collections.map((col) => (
             <div
               key={col.id}
-              className="group rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-4 flex items-center justify-between transition-all hover:shadow-md hover:border-blue-100"
+              className="group rounded-2xl border border-gray-100 bg-white shadow-sm px-4 sm:px-5 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-all hover:shadow-md hover:border-blue-100"
             >
-              <div className="flex items-center gap-4 min-w-0">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 {/* Cover thumbnail or placeholder */}
-                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-blue-50">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden shrink-0 bg-blue-50">
                   {col.coverUrl ? (
                     <img src={col.coverUrl} alt={col.title} className="w-full h-full object-cover" />
                   ) : (
@@ -67,11 +68,11 @@ export default async function CollectionsPage() {
                   )}
                 </div>
 
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="font-semibold text-gray-900">{col.title}</h2>
+                    <h2 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{col.title}</h2>
                     <span
-                      className="text-xs px-2 py-0.5 rounded-full font-medium"
+                      className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
                       style={col.isPublished
                         ? { background: "#dcfce7", color: "#16a34a" }
                         : { background: "#f1f5f9", color: "#64748b" }
@@ -80,24 +81,24 @@ export default async function CollectionsPage() {
                       {col.isPublished ? "Publicado" : "Borrador"}
                     </span>
                   </div>
-                  <p className="text-gray-400 text-xs mt-0.5 truncate">
+                  <p className="text-gray-400 text-[11px] sm:text-xs mt-0.5 truncate">
                     /colecciones/{col.slug} · <span className="text-gray-500">{col._count.photos} foto{col._count.photos !== 1 ? "s" : ""}</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 shrink-0 ml-4">
+              <div className="flex items-center gap-1 flex-wrap sm:flex-nowrap shrink-0 sm:ml-4 border-t sm:border-t-0 border-gray-100 pt-3 sm:pt-0 -mx-1 sm:mx-0 px-1 sm:px-0">
                 <Link
                   href={`/colecciones/${col.slug}`}
                   target="_blank"
-                  className="px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-gray-700 transition-colors hover:bg-gray-50"
+                  className="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-gray-700 transition-colors hover:bg-gray-50"
                   title="Ver en sitio público"
                 >
                   ↗
                 </Link>
                 <Link
                   href={`/admin/colecciones/${col.id}`}
-                  className="px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-all hover:opacity-90"
+                  className="px-3 sm:px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-all hover:opacity-90"
                   style={{ background: "#1a3a6b" }}
                 >
                   Gestionar
