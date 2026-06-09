@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useCart } from "./CartContext";
+import { BibCheckoutModal } from "./FolderModal";
 
-export function NavCartButton({ price }: { price: number }) {
+export function NavCartButton({ price, collectionId }: { price: number; collectionId: string }) {
   const { items, clear, toggle } = useCart();
   const [open, setOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const count = items.length;
   const total = count * price;
@@ -37,6 +39,14 @@ export function NavCartButton({ price }: { price: number }) {
           <span className="hidden sm:inline">Carrito</span>
         )}
       </button>
+
+      {checkoutOpen && (
+        <BibCheckoutModal
+          allPhotoIds={items.map((i) => i.photoId)}
+          collectionId={collectionId}
+          onClose={() => setCheckoutOpen(false)}
+        />
+      )}
 
       {open && (
         <>
@@ -113,6 +123,7 @@ export function NavCartButton({ price }: { price: number }) {
                     </div>
                   )}
                   <button
+                    onClick={() => { setOpen(false); setCheckoutOpen(true); }}
                     className="w-full py-2.5 rounded-xl font-display font-700 uppercase tracking-wide text-white text-xs transition-all hover:opacity-90"
                     style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
                   >

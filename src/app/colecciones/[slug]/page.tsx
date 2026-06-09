@@ -36,7 +36,7 @@ export default async function CollectionPage({
           </Link>
           <span className="text-gray-300">/</span>
           <span className="text-sm text-gray-900 font-semibold truncate">{collection.title}</span>
-          <NavCartButton price={Number(collection.pricePerBib)} />
+          <NavCartButton price={Number(collection.pricePerBib)} collectionId={collection.id} />
         </div>
       </nav>
 
