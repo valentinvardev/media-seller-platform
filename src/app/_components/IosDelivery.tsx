@@ -223,12 +223,7 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
       {/* Header */}
       <div className="px-6 h-14 flex items-center justify-between shrink-0 border-b border-white/10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/logo.png"
-          alt="ALTAFOTO"
-          className="h-auto"
-          style={{ width: 140, filter: "brightness(0) invert(1)" }}
-        />
+        <img src="/logo.png" alt="ALTAFOTO" className="h-auto" style={{ width: 140 }} />
         <span className="text-xs font-mono text-white/50">
           {currentIdx + 1} / {photos.length}
         </span>
