@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Photo = { id: string; filename: string; url: string };
 
@@ -32,8 +32,31 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
   const [justSaved, setJustSaved] = useState(false);
   const [useLongPress, setUseLongPress] = useState(false);
 
+  // Blob cache so the share sheet opens instantly once the user taps Save.
+  // We pre-fetch the current photo + the next one in the background while
+  // they're viewing, then read from cache on tap. Keys are photo URLs.
+  const blobCache = useRef<Map<string, Promise<Blob>>>(new Map());
+
   const currentPhoto = photos[currentIdx];
   const isLast = currentIdx === photos.length - 1;
+
+  const prefetchBlob = (url: string): Promise<Blob> => {
+    const cached = blobCache.current.get(url);
+    if (cached) return cached;
+    const p = fetch(url).then((r) => r.blob());
+    blobCache.current.set(url, p);
+    // If fetch fails, drop from cache so a retry can try again.
+    p.catch(() => blobCache.current.delete(url));
+    return p;
+  };
+
+  // Pre-fetch the current photo and the next one whenever we advance.
+  useEffect(() => {
+    if (phase !== "saving" || !currentPhoto) return;
+    void prefetchBlob(currentPhoto.url);
+    const next = photos[currentIdx + 1];
+    if (next) void prefetchBlob(next.url);
+  }, [phase, currentIdx, currentPhoto, photos]);
 
   const advance = () => {
     if (isLast) setPhase("done");
@@ -51,8 +74,7 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
     setIsLoading(true);
     let sheetOpened = false;
     try {
-      const res = await fetch(currentPhoto.url);
-      const blob = await res.blob();
+      const blob = await prefetchBlob(currentPhoto.url);
       const mimeType = blob.type || "image/jpeg";
       const file = new File([blob], currentPhoto.filename, { type: mimeType });
       sheetOpened = true;
@@ -134,7 +156,7 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
               style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
             >
               <span className="font-display font-800 uppercase tracking-wide text-lg">
-                Guardar todo
+                Continuar
               </span>
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
