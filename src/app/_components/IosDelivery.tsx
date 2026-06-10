@@ -106,10 +106,12 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
 
         <div className="px-6 h-14 flex items-center border-b border-gray-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="ALTAFOTO" className="h-auto" style={{ width: 140 }} />
+          <img src="/logo.png" alt="ALTAFOTO" className="h-auto" style={{ width: 70 }} />
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-6 pb-16" style={{ animation: "fadeUp 0.5s ease both" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="ALTAFOTO" className="h-auto mb-8" style={{ width: 140 }} />
           <p
             className="text-xs uppercase tracking-widest font-semibold mb-3"
             style={{ color: "#F97316" }}
@@ -179,7 +181,7 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
 
         <div className="px-6 h-14 flex items-center border-b border-gray-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="ALTAFOTO" className="h-auto" style={{ width: 140 }} />
+          <img src="/logo.png" alt="ALTAFOTO" className="h-auto" style={{ width: 70 }} />
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-6 pb-16">
