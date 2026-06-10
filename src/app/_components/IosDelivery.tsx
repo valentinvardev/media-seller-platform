@@ -83,12 +83,8 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
         <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
         <div className="px-6 h-14 flex items-center border-b border-gray-100">
-          <span
-            className="font-display font-800 uppercase tracking-wider text-base"
-            style={{ color: "#0057A8" }}
-          >
-            ALTAFOTO
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="ALTAFOTO" className="h-7 w-auto" />
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-6 pb-16" style={{ animation: "fadeUp 0.5s ease both" }}>
@@ -160,9 +156,8 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
         <style>{`@keyframes pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }`}</style>
 
         <div className="px-6 h-14 flex items-center border-b border-gray-100">
-          <span className="font-display font-800 uppercase tracking-wider text-base" style={{ color: "#0057A8" }}>
-            ALTAFOTO
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="ALTAFOTO" className="h-7 w-auto" />
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-6 pb-16">
@@ -205,9 +200,13 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
 
       {/* Header */}
       <div className="px-6 h-14 flex items-center justify-between shrink-0 border-b border-white/10">
-        <span className="font-display font-800 uppercase tracking-wider text-base" style={{ color: "#F97316" }}>
-          ALTAFOTO
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt="ALTAFOTO"
+          className="h-7 w-auto"
+          style={{ filter: "brightness(0) invert(1)" }}
+        />
         <span className="text-xs font-mono text-white/50">
           {currentIdx + 1} / {photos.length}
         </span>
