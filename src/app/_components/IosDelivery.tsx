@@ -84,7 +84,7 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
 
         <div className="px-6 h-14 flex items-center border-b border-gray-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="ALTAFOTO" className="h-7 w-auto" />
+          <img src="/logo.png" alt="ALTAFOTO" className="h-auto" style={{ width: 140 }} />
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-6 pb-16" style={{ animation: "fadeUp 0.5s ease both" }}>
@@ -157,7 +157,7 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
 
         <div className="px-6 h-14 flex items-center border-b border-gray-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="ALTAFOTO" className="h-7 w-auto" />
+          <img src="/logo.png" alt="ALTAFOTO" className="h-auto" style={{ width: 140 }} />
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-6 pb-16">
@@ -204,8 +204,8 @@ export function IosDelivery({ photos, buyerName, collectionTitle, bibNumber }: P
         <img
           src="/logo.png"
           alt="ALTAFOTO"
-          className="h-7 w-auto"
-          style={{ filter: "brightness(0) invert(1)" }}
+          className="h-auto"
+          style={{ width: 140, filter: "brightness(0) invert(1)" }}
         />
         <span className="text-xs font-mono text-white/50">
           {currentIdx + 1} / {photos.length}
