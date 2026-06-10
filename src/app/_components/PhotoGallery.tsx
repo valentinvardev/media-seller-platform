@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { IosDelivery } from "./IosDelivery";
 
 type Photo = { id: string; filename: string; url: string };
 
@@ -19,15 +20,20 @@ const PAGE_SIZE = 24;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function PhotoGallery({ bibNumber, collectionTitle, buyerName, photos, suggestions: _ }: Props) {
+  // iOS detection — iPhone users get the dedicated photo-by-photo save flow.
+  // Standard <a download> + blob download doesn't work reliably on iOS Safari;
+  // navigator.share({ files }) opens the share sheet with "Save to Photos".
+  const [isIphone, setIsIphone] = useState(false);
+  useEffect(() => {
+    setIsIphone(/iPhone/.test(navigator.userAgent));
+  }, []);
+
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [downloadingAll, setDownloadingAll] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-
-  const visiblePhotos = photos.slice(0, visibleCount);
-  const hasMore = visibleCount < photos.length;
 
   // ── Lightbox keyboard nav ────────────────────────────────────────────────
   const closeLightbox = useCallback(() => setLightboxIdx(null), []);
@@ -46,6 +52,22 @@ export function PhotoGallery({ bibNumber, collectionTitle, buyerName, photos, su
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxIdx, closeLightbox, prevPhoto, nextPhoto]);
+
+  // iOS gets the dedicated photo-by-photo save flow — return AFTER all hooks
+  // to avoid violating Rules of Hooks when isIphone flips after first render.
+  if (isIphone) {
+    return (
+      <IosDelivery
+        photos={photos}
+        buyerName={buyerName}
+        collectionTitle={collectionTitle}
+        bibNumber={bibNumber}
+      />
+    );
+  }
+
+  const visiblePhotos = photos.slice(0, visibleCount);
+  const hasMore = visibleCount < photos.length;
 
   // ── Selection helpers ────────────────────────────────────────────────────
   const toggleSelect = (i: number) => {

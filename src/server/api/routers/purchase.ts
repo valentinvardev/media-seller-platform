@@ -245,6 +245,25 @@ export const purchaseRouter = createTRPCRouter({
       };
     }),
 
+  /**
+   * Poll-friendly status check by purchase id (not download token).
+   * Returns the downloadToken only when status is APPROVED — used by the
+   * pending page to auto-redirect the buyer the moment the webhook confirms.
+   */
+  checkStatus: publicProcedure
+    .input(z.object({ purchaseId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const purchase = await ctx.db.purchase.findUnique({
+        where: { id: input.purchaseId },
+        select: { status: true, downloadToken: true },
+      });
+      if (!purchase) return null;
+      return {
+        status: purchase.status,
+        downloadToken: purchase.status === "APPROVED" ? purchase.downloadToken : null,
+      };
+    }),
+
   makePublic: publicProcedure
     .input(z.object({ token: z.string(), isPublic: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
