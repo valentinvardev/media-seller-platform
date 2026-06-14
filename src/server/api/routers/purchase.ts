@@ -314,17 +314,29 @@ export const purchaseRouter = createTRPCRouter({
       bibNumber: z.string().min(1),
       buyerEmail: z.string().email(),
       buyerName: z.string().optional(),
+      // Optional explicit photo selection. If omitted, all photos matching the
+      // bib are delivered (legacy behavior).
+      photoIds: z.array(z.string()).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const [collection, photoCount] = await Promise.all([
-        ctx.db.collection.findFirstOrThrow({
-          where: { id: input.collectionId },
-          select: { title: true },
-        }),
-        ctx.db.photo.count({
+      const collection = await ctx.db.collection.findFirstOrThrow({
+        where: { id: input.collectionId },
+        select: { title: true },
+      });
+
+      // Resolve the photoCount and persistable photoIds list.
+      // When the admin picks specific photos, we store them so getDownloadInfo
+      // uses the explicit list rather than re-querying by bib.
+      let photoCount: number;
+      let photoIdsJson: string | null = null;
+      if (input.photoIds && input.photoIds.length > 0) {
+        photoCount = input.photoIds.length;
+        photoIdsJson = JSON.stringify(input.photoIds);
+      } else {
+        photoCount = await ctx.db.photo.count({
           where: { collectionId: input.collectionId, bibNumber: { contains: input.bibNumber, mode: "insensitive" } },
-        }),
-      ]);
+        });
+      }
 
       const token = crypto.randomUUID();
       await ctx.db.purchase.create({
@@ -337,6 +349,7 @@ export const purchaseRouter = createTRPCRouter({
           status: "APPROVED",
           downloadToken: token,
           downloadTokenExpires: null,
+          photoIds: photoIdsJson,
         },
       });
 
