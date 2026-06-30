@@ -51,24 +51,49 @@ function extractAllBibs(
 ): string[] {
   const candidates: { value: string; score: number }[] = [];
 
+  // Score formula shared by both formats: longer-but-not-too-long bibs win,
+  // isolated detections (the whole OCR line is just the bib) get a bonus,
+  // higher OCR confidence boosts further.
+  const lenScoreFor = (digits: number) =>
+    digits === 3 ? 4 : digits === 4 ? 5 : digits === 2 ? 3 : digits === 5 ? 2 : 1;
+
   for (const d of detections) {
     if (d.Type !== "LINE") continue;
     const text = (d.DetectedText ?? "").trim();
     const confidence = d.Confidence ?? 0;
     if (confidence < 50) continue;
 
-    const matches = text.match(/\b\d{2,5}\b/g) ?? [];
-    for (const m of matches) {
-      if (/^\d{1,2}:\d{2}/.test(text)) continue;
-      if (text.includes("%")) continue;
-      if (/^\d+\s*km$/i.test(text)) continue;
+    // Line-level false-positive filters (clocks, percentages, "5 km" markers).
+    if (/^\d{1,2}:\d{2}/.test(text)) continue;
+    if (text.includes("%")) continue;
+    if (/^\d+\s*km$/i.test(text)) continue;
+
+    const confBonus = confidence / 50;
+
+    // 1) Alphanumeric bibs: single letter followed by 2–5 digits (e.g. "C1722").
+    // Used by some race series like Letape. Stored uppercased so "c1722" and
+    // "C1722" dedupe to the same bib. \b anchors prevent matches inside longer
+    // strings like "NIKE2024" or "1234B".
+    const alphaMatches = text.match(/\b[A-Za-z]\d{2,5}\b/g) ?? [];
+    const claimedDigits = new Set<string>();
+    for (const raw of alphaMatches) {
+      const value = raw.toUpperCase();
+      const digitsLen = value.length - 1;
+      const isolatedBonus = text === raw ? 3 : 0;
+      candidates.push({ value, score: lenScoreFor(digitsLen) + isolatedBonus + confBonus });
+      // Reserve the digit portion so the pure-numeric pass below doesn't
+      // double-count "C1722" as both "C1722" and "1722".
+      claimedDigits.add(value.slice(1));
+    }
+
+    // 2) Pure numeric bibs (legacy behavior).
+    const numericMatches = text.match(/\b\d{2,5}\b/g) ?? [];
+    for (const m of numericMatches) {
+      if (claimedDigits.has(m)) continue;
       if (parseInt(m) > 99999) continue;
 
-      const len = m.length;
-      const lenScore = len === 3 ? 4 : len === 4 ? 5 : len === 2 ? 3 : len === 5 ? 2 : 1;
       const isolatedBonus = text === m ? 3 : 0;
-      const confBonus = confidence / 50;
-      candidates.push({ value: m, score: lenScore + isolatedBonus + confBonus });
+      candidates.push({ value: m, score: lenScoreFor(m.length) + isolatedBonus + confBonus });
     }
   }
 

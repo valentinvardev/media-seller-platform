@@ -30,7 +30,7 @@ export default async function EditCollectionPage({
 
   const where = {
     collectionId: id,
-    ...(q ? { bibNumber: { contains: q } } : {}),
+    ...(q ? { bibNumber: { contains: q, mode: "insensitive" as const } } : {}),
   };
 
   const [totalCount, unidentifiedCount, rawPhotos] = await Promise.all([
