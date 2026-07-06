@@ -5,8 +5,13 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { StorageBar } from "./StorageBar";
 
-type UploadStatus = "pending" | "uploading" | "done" | "error";
+type UploadStatus = "pending" | "hashing" | "checking" | "uploading" | "done" | "error";
 type OcrStatus = "idle" | "queued" | "processing" | "found" | "not-found" | "error";
+// How the entry ended up "done":
+//  - "new" → uploaded a brand new photo
+//  - "duplicate" → skipped upload, an identical byte-for-byte copy already existed
+//  - "replaced" → re-uploaded because the file changed (same filename, different bytes)
+type DedupResult = "new" | "duplicate" | "replaced";
 
 type AttemptLog = { attempt: number; phase: "sign" | "put"; status: number | "network"; detail: string; ts: number };
 
@@ -22,7 +27,19 @@ type FileEntry = {
   bib?: string;
   ocrSource?: string;
   attempts: AttemptLog[];
+  contentHash?: string;
+  dedupResult?: DedupResult;
 };
+
+// SHA-256 hex of the file contents. Web Crypto API is available in every modern
+// browser and runs on a background thread — hashing a 5 MB photo is ~30-50 ms.
+async function sha256Hex(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 4;
@@ -45,7 +62,7 @@ function UploadIcon({ status }: { status: UploadStatus }) {
       </svg>
     </div>
   );
-  if (status === "uploading") return (
+  if (status === "uploading" || status === "hashing" || status === "checking") return (
     <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin flex-shrink-0"
       style={{ borderColor: "#bfdbfe", borderTopColor: "#2563eb" }} />
   );
@@ -96,9 +113,31 @@ function OcrBadge({ status, bib, ocrSource }: { status: OcrStatus; bib?: string;
 
 function FileRow({ entry }: { entry: FileEntry }) {
   const borderColor = entry.status === "error" ? "#fecaca"
+    : entry.dedupResult === "duplicate" ? "#e0e7ff"
+    : entry.dedupResult === "replaced" ? "#fef3c7"
     : entry.ocrStatus === "found" ? "#fde68a"
     : entry.status === "done" ? "#bbf7d0"
     : "#e2e8f0";
+
+  const statusText =
+    entry.status === "hashing" ? "Preparando..."
+    : entry.status === "checking" ? "Verificando..."
+    : entry.status === "uploading" ? (entry.attempts.length > 0 ? `Reintentando (${entry.attempts.length + 1})...` : "Subiendo...")
+    : entry.status === "done"
+      ? entry.dedupResult === "duplicate" ? "Ya existía"
+        : entry.dedupResult === "replaced" ? "Actualizada"
+        : entry.attempts.length > 0 ? `Subida (${entry.attempts.length + 1} intentos)` : "Subida"
+    : entry.status === "error" ? `${entry.errorMsg ?? "Error"} · ${entry.attempts.length} intentos`
+    : "En cola";
+
+  const statusColor =
+    entry.status === "error" ? "#ef4444"
+    : entry.status === "done"
+      ? entry.dedupResult === "duplicate" ? "#4f46e5"
+        : entry.dedupResult === "replaced" ? "#b45309"
+        : "#16a34a"
+    : entry.status === "uploading" || entry.status === "hashing" || entry.status === "checking" ? "#2563eb"
+    : "#94a3b8";
 
   return (
     <div
@@ -120,17 +159,7 @@ function FileRow({ entry }: { entry: FileEntry }) {
       <div className="flex-1 min-w-0">
         <p className="text-xs text-gray-800 truncate">{entry.file.name}</p>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <p className="text-xs" style={{
-            color: entry.status === "uploading" ? "#2563eb"
-              : entry.status === "done" ? "#16a34a"
-              : entry.status === "error" ? "#ef4444"
-              : "#94a3b8",
-          }}>
-            {entry.status === "uploading" ? (entry.attempts.length > 0 ? `Reintentando (${entry.attempts.length + 1})...` : "Subiendo...")
-              : entry.status === "done" ? (entry.attempts.length > 0 ? `Subida (${entry.attempts.length + 1} intentos)` : "Subida")
-              : entry.status === "error" ? `${entry.errorMsg ?? "Error"} · ${entry.attempts.length} intentos`
-              : "En cola"}
-          </p>
+          <p className="text-xs" style={{ color: statusColor }}>{statusText}</p>
           {entry.status === "done" && <OcrBadge status={entry.ocrStatus} bib={entry.bib} ocrSource={entry.ocrSource} />}
         </div>
       </div>
@@ -150,6 +179,8 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const bulkAdd = api.photo.bulkAdd.useMutation({ onSuccess: () => router.refresh() });
+  const replaceContents = api.photo.replaceContents.useMutation({ onSuccess: () => router.refresh() });
+  const trpc = api.useUtils();
 
   const updateEntry = useCallback((id: string, patch: Partial<FileEntry>) =>
     setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e))), []);
@@ -184,7 +215,15 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
   }, [updateEntry, pollBib]);
 
   // Upload pipeline used by both initial upload and retry
-  type UploadResult = { storageKey: string; filename: string; fileSize: number; entryId: string };
+  type UploadResult = {
+    storageKey: string;
+    filename: string;
+    fileSize: number;
+    entryId: string;
+    contentHash: string;
+    // Set when this upload replaces an existing photo instead of creating a new one.
+    replacesPhotoId?: string;
+  };
 
   const uploadEntries = useCallback(async (entriesToUpload: FileEntry[]) => {
     let serviceRoleError = false;
@@ -205,8 +244,55 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       // dumps everything to the clipboard at the end.
     };
 
+    // Prepare an entry: compute hash, check with server. Returns either:
+    //  - { skip: true, photoId } → duplicate; mark done, no upload
+    //  - { photoId?: string } → proceed with upload; photoId set means "replace this one"
+    const prepareEntry = async (entry: FileEntry): Promise<{ skip: true; photoId: string } | { skip: false; photoId?: string; contentHash: string } | null> => {
+      // Reuse the hash if the entry was already prepared (e.g. retry).
+      let contentHash = entry.contentHash;
+      if (!contentHash) {
+        updateEntry(entry.id, { status: "hashing", errorMsg: undefined });
+        try {
+          contentHash = await sha256Hex(entry.file);
+          updateEntry(entry.id, { contentHash });
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "hash-error";
+          updateEntry(entry.id, { status: "error", errorMsg: `Hash falló: ${msg}` });
+          return null;
+        }
+      }
+
+      updateEntry(entry.id, { status: "checking" });
+      try {
+        const res = await trpc.photo.checkExisting.fetch({
+          collectionId,
+          items: [{ filename: entry.file.name, contentHash }],
+        });
+        const result = res.results[0];
+        if (!result) return { skip: false, contentHash };
+        if (result.status === "duplicate") {
+          updateEntry(entry.id, { status: "done", dedupResult: "duplicate", photoId: result.photoId });
+          return { skip: true, photoId: result.photoId };
+        }
+        if (result.status === "changed") return { skip: false, photoId: result.photoId, contentHash };
+        return { skip: false, contentHash };
+      } catch (err) {
+        // If the check fails, fall back to normal upload (safer than blocking).
+        console.warn("[upload] checkExisting failed, uploading normally:", err);
+        return { skip: false, contentHash };
+      }
+    };
+
     const uploadOne = async (entry: FileEntry): Promise<UploadResult | null> => {
       if (serviceRoleError) return null;
+
+      const prep = await prepareEntry(entry);
+      if (prep === null) return null;
+      if (prep.skip) return null; // Already marked done by prepareEntry.
+
+      const contentHash = prep.contentHash;
+      const replacesPhotoId = prep.photoId;
+
       updateEntry(entry.id, { status: "uploading", errorMsg: undefined });
       const path = `${collectionId}/${Date.now()}-${entry.file.name}`;
       let lastError = "Error de red";
@@ -263,8 +349,15 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
             return null;
           }
           if (attempt > 0) console.info(`[upload] entry=${entry.id} succeeded after ${attempt + 1} attempts`);
-          updateEntry(entry.id, { status: "done" });
-          return { storageKey: path, filename: entry.file.name, fileSize: entry.file.size, entryId: entry.id };
+          updateEntry(entry.id, { status: "done", dedupResult: replacesPhotoId ? "replaced" : "new" });
+          return {
+            storageKey: path,
+            filename: entry.file.name,
+            fileSize: entry.file.size,
+            entryId: entry.id,
+            contentHash,
+            replacesPhotoId,
+          };
         } catch (err) {
           const msg = err instanceof Error ? err.message : "network";
           recordAttempt(entry, { attempt, phase: "sign", status: "network", detail: msg, ts: Date.now() });
@@ -291,19 +384,47 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
     let bulkChain: Promise<unknown> = Promise.resolve();
 
     const flush = (batch: UploadResult[]) => {
-      bulkChain = bulkChain.then(() =>
-        bulkAdd.mutateAsync({
-          collectionId,
-          photos: batch.map(({ storageKey, filename, fileSize }) => ({ storageKey, filename, fileSize })),
-        }).then((result) => {
-          if (!result?.ids) return;
-          for (let j = 0; j < result.ids.length; j++) {
-            const photoId = result.ids[j];
-            const entryId = batch[j]?.entryId;
-            if (photoId && entryId) pendingPolls.push({ entryId, photoId });
+      // Split into brand-new inserts and replacements — different mutations.
+      const fresh = batch.filter((b) => !b.replacesPhotoId);
+      const replacements = batch.filter((b) => b.replacesPhotoId);
+
+      bulkChain = bulkChain.then(async () => {
+        if (fresh.length > 0) {
+          try {
+            const result = await bulkAdd.mutateAsync({
+              collectionId,
+              photos: fresh.map(({ storageKey, filename, fileSize, contentHash }) => ({ storageKey, filename, fileSize, contentHash })),
+            });
+            for (let j = 0; j < (result?.ids?.length ?? 0); j++) {
+              const photoId = result.ids[j];
+              const entryId = fresh[j]?.entryId;
+              if (photoId && entryId) pendingPolls.push({ entryId, photoId });
+            }
+          } catch (err) {
+            console.error("[upload] bulkAdd failed:", err);
           }
-        }).catch((err) => console.error("[upload] bulkAdd failed:", err)),
-      );
+        }
+        if (replacements.length > 0) {
+          try {
+            await replaceContents.mutateAsync({
+              collectionId,
+              replacements: replacements.map((r) => ({
+                photoId: r.replacesPhotoId!,
+                storageKey: r.storageKey,
+                filename: r.filename,
+                fileSize: r.fileSize,
+                contentHash: r.contentHash,
+              })),
+            });
+            // Poll the (existing) photoId so we surface the fresh OCR result.
+            for (const r of replacements) {
+              pendingPolls.push({ entryId: r.entryId, photoId: r.replacesPhotoId! });
+            }
+          } catch (err) {
+            console.error("[upload] replaceContents failed:", err);
+          }
+        }
+      });
     };
 
     const worker = async () => {
@@ -331,7 +452,7 @@ export function PhotoUploader({ collectionId }: { collectionId: string }) {
       const { entryId, photoId } = pendingPolls[i]!;
       setTimeout(() => startOcrPolling(entryId, photoId), i * 400);
     }
-  }, [collectionId, bulkAdd, updateEntry, startOcrPolling]);
+  }, [collectionId, bulkAdd, replaceContents, trpc, updateEntry, startOcrPolling]);
 
   const handleFiles = async (files: FileList) => {
     if (!files.length) return;

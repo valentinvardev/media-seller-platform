@@ -179,6 +179,7 @@ export const photoRouter = createTRPCRouter({
             fileSize: z.number().optional(),
             width: z.number().optional(),
             height: z.number().optional(),
+            contentHash: z.string().optional(),
           }),
         ),
       }),
@@ -197,6 +198,7 @@ export const photoRouter = createTRPCRouter({
               fileSize: p.fileSize,
               width: p.width,
               height: p.height,
+              contentHash: p.contentHash,
               order: count + i,
             },
             select: { id: true },
@@ -221,6 +223,128 @@ export const photoRouter = createTRPCRouter({
       })();
 
       return { ids };
+    }),
+
+  /**
+   * Before uploading a batch of files, ask the server which ones already exist.
+   * Called per file (or batched) from the uploader. Match logic:
+   *  - Same collection + same contentHash → duplicate (skip upload, mark as already uploaded).
+   *  - Same collection + same filename but different hash → content changed (replace, re-run OCR/watermark/face-index).
+   *  - Neither → normal upload.
+   */
+  checkExisting: protectedProcedure
+    .input(
+      z.object({
+        collectionId: z.string(),
+        items: z.array(z.object({ filename: z.string(), contentHash: z.string() })),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      if (input.items.length === 0) return { results: [] };
+
+      const hashes = Array.from(new Set(input.items.map((i) => i.contentHash)));
+      const filenames = Array.from(new Set(input.items.map((i) => i.filename)));
+
+      // One query per index — Prisma will pick the composite index.
+      const [byHash, byFilename] = await Promise.all([
+        ctx.db.photo.findMany({
+          where: { collectionId: input.collectionId, contentHash: { in: hashes } },
+          select: { id: true, contentHash: true, filename: true },
+        }),
+        ctx.db.photo.findMany({
+          where: { collectionId: input.collectionId, filename: { in: filenames } },
+          select: { id: true, contentHash: true, filename: true },
+        }),
+      ]);
+
+      const hashMap = new Map<string, string>();
+      for (const p of byHash) if (p.contentHash) hashMap.set(p.contentHash, p.id);
+
+      const filenameMap = new Map<string, { id: string; contentHash: string | null }>();
+      for (const p of byFilename) filenameMap.set(p.filename, { id: p.id, contentHash: p.contentHash });
+
+      const results = input.items.map((item) => {
+        const byHashId = hashMap.get(item.contentHash);
+        if (byHashId) return { filename: item.filename, contentHash: item.contentHash, status: "duplicate" as const, photoId: byHashId };
+
+        const byName = filenameMap.get(item.filename);
+        if (byName && byName.contentHash !== item.contentHash) {
+          return { filename: item.filename, contentHash: item.contentHash, status: "changed" as const, photoId: byName.id };
+        }
+
+        return { filename: item.filename, contentHash: item.contentHash, status: "new" as const };
+      });
+
+      return { results };
+    }),
+
+  /**
+   * Replace the bytes of existing photos in place. The photoId stays stable so
+   * Purchase.photoIds and FaceRecord references keep working. Old S3 objects
+   * are deleted, bibNumber/previewKey are reset, and re-processing is fired.
+   */
+  replaceContents: protectedProcedure
+    .input(
+      z.object({
+        collectionId: z.string(),
+        replacements: z.array(
+          z.object({
+            photoId: z.string(),
+            storageKey: z.string(),
+            filename: z.string(),
+            fileSize: z.number().optional(),
+            contentHash: z.string(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (input.replacements.length === 0) return { count: 0 };
+
+      const { deleteObjects } = await import("~/lib/s3");
+
+      for (const r of input.replacements) {
+        const existing = await ctx.db.photo.findUnique({
+          where: { id: r.photoId },
+          select: { storageKey: true, previewKey: true, collectionId: true },
+        });
+        if (!existing || existing.collectionId !== input.collectionId) continue;
+
+        const toDelete: string[] = [];
+        if (existing.storageKey !== r.storageKey && !existing.storageKey.startsWith("http")) toDelete.push(existing.storageKey);
+        if (existing.previewKey) toDelete.push(existing.previewKey);
+        if (toDelete.length) await deleteObjects(toDelete).catch(() => undefined);
+
+        // Clear stale face records — re-indexing will insert fresh ones.
+        await ctx.db.faceRecord.deleteMany({ where: { photoId: r.photoId } });
+
+        await ctx.db.photo.update({
+          where: { id: r.photoId },
+          data: {
+            storageKey: r.storageKey,
+            filename: r.filename,
+            fileSize: r.fileSize,
+            contentHash: r.contentHash,
+            bibNumber: null,
+            previewKey: null,
+          },
+        });
+      }
+
+      // Fire re-processing for the replaced photos.
+      const ids = input.replacements.map((r) => r.photoId);
+      void (async () => {
+        const { runOcrLimited, runWatermarkLimited, runFaceIndexLimited } = await import("~/lib/photo-processing");
+        for (let i = 0; i < ids.length; i++) {
+          const photoId = ids[i]!;
+          await new Promise((r) => setTimeout(r, i * 800));
+          void runOcrLimited(photoId);
+          void runWatermarkLimited(photoId);
+          void runFaceIndexLimited(photoId, input.collectionId);
+        }
+      })();
+
+      return { count: ids.length };
     }),
 
   getStorageUsage: protectedProcedure.query(async ({ ctx }) => {

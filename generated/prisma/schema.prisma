@@ -95,6 +95,7 @@ model Photo {
   height       Int?
   order        Int      @default(0)
   previewKey   String? // Watermarked version key
+  contentHash  String? // SHA-256 of original bytes — used for dedup on resumed uploads
   createdAt    DateTime @default(now())
 
   collection  Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
@@ -102,6 +103,8 @@ model Photo {
 
   @@index([collectionId])
   @@index([collectionId, bibNumber])
+  @@index([collectionId, contentHash])
+  @@index([collectionId, filename])
 }
 
 // Purchase = buying all photos for a bib in a collection
