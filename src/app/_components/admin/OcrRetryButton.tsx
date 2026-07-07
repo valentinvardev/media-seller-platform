@@ -176,9 +176,9 @@ export function OcrRetryButton({
         </p>
       )}
 
-      {status === "done" && errorCount > 0 && firstError && (
+      {(status === "running" || status === "done") && errorCount > 0 && firstError && (
         <p className="text-xs text-amber-700 pl-1">
-          Primer error: <code className="bg-amber-50 px-1.5 py-0.5 rounded">{firstError.slice(0, 200)}</code>
+          Primer error: <code className="bg-amber-50 px-1.5 py-0.5 rounded break-all">{firstError.slice(0, 300)}</code>
         </p>
       )}
     </div>
