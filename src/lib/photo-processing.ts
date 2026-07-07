@@ -20,18 +20,21 @@ import { WATERMARK_KEY } from "~/lib/watermark";
 // Transient errors on big uploads still happen (network, throttling). Same
 // shape as the previous Supabase retry so call sites don't change.
 
-async function downloadWithRetry(key: string): Promise<Buffer | null> {
+async function downloadWithRetry(key: string): Promise<{ buffer: Buffer; error?: undefined } | { buffer: null; error: string }> {
+  let lastError = "unknown";
   for (let attempt = 0; attempt < 4; attempt++) {
     try {
-      return await downloadObject(key);
+      const buffer = await downloadObject(key);
+      return { buffer };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
+      lastError = msg;
       const isRetryable = msg.includes("503") || msg.includes("Bad Gateway") || msg.includes("502") || msg.includes("Throttling") || msg.includes("SlowDown");
-      if (!isRetryable) return null;
+      if (!isRetryable) return { buffer: null, error: msg };
       await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt) + Math.random() * 300));
     }
   }
-  return null;
+  return { buffer: null, error: lastError };
 }
 
 // ── Rekognition client (shared) ───────────────────────────────────────────────
@@ -126,11 +129,12 @@ export async function runOcr(photoId: string): Promise<OcrResult> {
   if (!photo) return { bib: null, reason: "photo-not-found" };
   if (photo.bibNumber !== null) return { bib: photo.bibNumber, reason: "existing" };
 
-  const rawBuffer = await downloadWithRetry(photo.storageKey);
-  if (!rawBuffer || rawBuffer.length === 0) {
-    console.error(`[OCR] Download failed or empty — photoId=${photoId} key=${photo.storageKey} bytes=${rawBuffer?.length ?? 0}`);
-    return { bib: null, reason: "download-failed" };
+  const dl = await downloadWithRetry(photo.storageKey);
+  if (!dl.buffer || dl.buffer.length === 0) {
+    console.error(`[OCR] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error ?? "empty-buffer"}`);
+    return { bib: null, reason: "download-failed", errorMessage: dl.error ?? `Empty response (0 bytes) for key ${photo.storageKey}` };
   }
+  const rawBuffer = dl.buffer;
 
   let imageBytes: Uint8Array;
   try {
@@ -227,8 +231,9 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
   const photo = await db.photo.findUnique({ where: { id: photoId } });
   if (!photo) return { previewKey: null };
 
-  const rawBuffer = await downloadWithRetry(photo.storageKey);
-  if (!rawBuffer) { console.error(`[Watermark] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { previewKey: null }; }
+  const dl = await downloadWithRetry(photo.storageKey);
+  if (!dl.buffer) { console.error(`[Watermark] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error}`); return { previewKey: null }; }
+  const rawBuffer = dl.buffer;
 
   // Resize first to a max preview dimension so watermark composite + final
   // upload are both lighter. 1200px @ quality 62 looks good in a gallery on
@@ -307,8 +312,9 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
   });
   if (!photo) return;
 
-  const rawBuffer = await downloadWithRetry(photo.storageKey);
-  if (!rawBuffer) { console.error(`[FaceIndex] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return; }
+  const dl = await downloadWithRetry(photo.storageKey);
+  if (!dl.buffer) { console.error(`[FaceIndex] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error}`); return; }
+  const rawBuffer = dl.buffer;
 
   const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
   const imageBytes = new Uint8Array(resized);
