@@ -25,6 +25,10 @@ export const env = createEnv({
     AWS_ACCESS_KEY_ID: z.string().optional(),
     AWS_SECRET_ACCESS_KEY: z.string().optional(),
     AWS_REGION: z.string().optional(),
+    // Optional override for S3 only. Useful when the bucket lives in a different
+    // region than the rest of AWS (Rekognition, CloudFront, etc.). Falls back
+    // to AWS_REGION when unset.
+    AWS_S3_REGION: z.string().optional(),
     AWS_S3_BUCKET: z.string().optional(),
     AWS_S3_PREFIX: z.string().optional(),
     CLOUDFRONT_DOMAIN: z.string().optional(),
@@ -54,6 +58,7 @@ export const env = createEnv({
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_REGION: process.env.AWS_REGION,
+    AWS_S3_REGION: process.env.AWS_S3_REGION,
     AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
     AWS_S3_PREFIX: process.env.AWS_S3_PREFIX,
     CLOUDFRONT_DOMAIN: process.env.CLOUDFRONT_DOMAIN,

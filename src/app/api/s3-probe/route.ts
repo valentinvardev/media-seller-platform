@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
   const bucket = env.AWS_S3_BUCKET ?? null;
   const prefix = env.AWS_S3_PREFIX ?? null;
   const region = env.AWS_REGION ?? null;
+  const s3Region = env.AWS_S3_REGION ?? region;
 
   const t0 = Date.now();
   let result: unknown;
@@ -74,7 +75,9 @@ export async function GET(req: NextRequest) {
     s3Config: {
       bucket,
       prefix,
-      region,
+      region,            // AWS_REGION (used by Rekognition too)
+      s3Region,          // Effective region for the S3 client
+      s3RegionOverride: env.AWS_S3_REGION ?? null,
       hasAccessKey: !!env.AWS_ACCESS_KEY_ID,
       hasSecretKey: !!env.AWS_SECRET_ACCESS_KEY,
     },

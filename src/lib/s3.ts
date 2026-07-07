@@ -32,8 +32,11 @@ let _client: S3Client | null = null;
 
 function client(): S3Client {
   if (!_client) {
+    // Prefer the S3-specific region override so the bucket can live in a
+    // different AWS region than Rekognition / other services.
+    const region = env.AWS_S3_REGION ?? env.AWS_REGION ?? "us-east-2";
     _client = new S3Client({
-      region: env.AWS_REGION ?? "us-east-2",
+      region,
       credentials: {
         accessKeyId: env.AWS_ACCESS_KEY_ID!,
         secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
