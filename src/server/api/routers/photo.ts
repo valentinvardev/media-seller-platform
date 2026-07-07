@@ -452,6 +452,18 @@ export const photoRouter = createTRPCRouter({
       await ctx.db.photo.deleteMany({ where: { id: { in: input.ids } } });
     }),
 
+  /** IDs of photos in a collection that don't yet have a detected bib — used by the OCR retry worker pool. */
+  listWithoutBib: protectedProcedure
+    .input(z.object({ collectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const photos = await ctx.db.photo.findMany({
+        where: { collectionId: input.collectionId, bibNumber: null },
+        select: { id: true },
+        orderBy: { order: "asc" },
+      });
+      return photos.map((p) => p.id);
+    }),
+
   /** IDs of photos in a collection that have no watermark preview yet. */
   listUnwatermarked: protectedProcedure
     .input(z.object({ collectionId: z.string() }))
