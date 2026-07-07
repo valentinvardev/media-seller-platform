@@ -150,7 +150,8 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image',
-  passwordHash: 'passwordHash'
+  passwordHash: 'passwordHash',
+  role: 'role'
 };
 
 exports.Prisma.VerificationTokenScalarFieldEnum = {
@@ -176,9 +177,30 @@ exports.Prisma.CollectionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CollectionMemberScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  collectionId: 'collectionId',
+  role: 'role',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.InvitationScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  token: 'token',
+  collectionId: 'collectionId',
+  invitedById: 'invitedById',
+  expiresAt: 'expiresAt',
+  acceptedAt: 'acceptedAt',
+  acceptedByUserId: 'acceptedByUserId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.PhotoScalarFieldEnum = {
   id: 'id',
   collectionId: 'collectionId',
+  uploaderId: 'uploaderId',
   bibNumber: 'bibNumber',
   storageKey: 'storageKey',
   filename: 'filename',
@@ -249,6 +271,16 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.UserRole = exports.$Enums.UserRole = {
+  ADMIN: 'ADMIN',
+  COLLABORATOR: 'COLLABORATOR'
+};
+
+exports.CollectionMemberRole = exports.$Enums.CollectionMemberRole = {
+  OWNER: 'OWNER',
+  PHOTOGRAPHER: 'PHOTOGRAPHER'
+};
+
 exports.PurchaseStatus = exports.$Enums.PurchaseStatus = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',
@@ -262,6 +294,8 @@ exports.Prisma.ModelName = {
   User: 'User',
   VerificationToken: 'VerificationToken',
   Collection: 'Collection',
+  CollectionMember: 'CollectionMember',
+  Invitation: 'Invitation',
   Photo: 'Photo',
   Purchase: 'Purchase',
   FaceRecord: 'FaceRecord',

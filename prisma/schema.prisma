@@ -45,8 +45,17 @@ model User {
     emailVerified DateTime?
     image         String?
     passwordHash  String?
+    role          UserRole  @default(COLLABORATOR)
     accounts      Account[]
     sessions      Session[]
+    uploads       Photo[]   @relation("PhotoUploader")
+    memberships   CollectionMember[]
+    invitesSent   Invitation[]       @relation("InvitedBy")
+}
+
+enum UserRole {
+    ADMIN
+    COLLABORATOR
 }
 
 model VerificationToken {
@@ -78,15 +87,57 @@ model Collection {
     photos      Photo[]
     purchases   Purchase[]
     faceRecords FaceRecord[]
+    members     CollectionMember[]
+    invitations Invitation[]
 
     @@index([slug])
     @@index([isPublished])
+}
+
+enum CollectionMemberRole {
+    OWNER         // admin who created the event (informational; permissions come from User.role)
+    PHOTOGRAPHER  // collaborator invited to upload photos to this event
+}
+
+model CollectionMember {
+    id           String                @id @default(cuid())
+    userId       String
+    collectionId String
+    role         CollectionMemberRole  @default(PHOTOGRAPHER)
+    createdAt    DateTime              @default(now())
+
+    user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, collectionId])
+    @@index([collectionId])
+    @@index([userId])
+}
+
+model Invitation {
+    id                String    @id @default(cuid())
+    email             String
+    token             String    @unique
+    collectionId      String
+    invitedById       String
+    expiresAt         DateTime
+    acceptedAt        DateTime?
+    acceptedByUserId  String?
+    createdAt         DateTime  @default(now())
+
+    collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    invitedBy  User       @relation("InvitedBy", fields: [invitedById], references: [id])
+
+    @@index([token])
+    @@index([collectionId])
+    @@index([email])
 }
 
 // Photos belong directly to a Collection; bibNumber is OCR-detected
 model Photo {
     id           String    @id @default(cuid())
     collectionId String
+    uploaderId   String?   // Which user uploaded this photo (null for legacy photos before this field existed)
     bibNumber    String?   // OCR-detected bib (null = not yet read or unknown)
     storageKey   String
     filename     String
@@ -99,12 +150,14 @@ model Photo {
     createdAt    DateTime  @default(now())
 
     collection  Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    uploader    User?        @relation("PhotoUploader", fields: [uploaderId], references: [id])
     faceRecords FaceRecord[]
 
     @@index([collectionId])
     @@index([collectionId, bibNumber])
     @@index([collectionId, contentHash])
     @@index([collectionId, filename])
+    @@index([uploaderId])
 }
 
 // Purchase = buying all photos for a bib in a collection

@@ -131,3 +131,18 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+/**
+ * Admin-only procedure. Requires an authenticated user whose role is ADMIN.
+ * Use this on procedures that let someone create/edit/publish events, manage
+ * settings, or see cross-collection data.
+ */
+export const adminProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(({ ctx, next }) => {
+    if (!ctx.session?.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+    if (ctx.session.user.role !== "ADMIN") throw new TRPCError({ code: "FORBIDDEN" });
+    return next({
+      ctx: { session: { ...ctx.session, user: ctx.session.user } },
+    });
+  });

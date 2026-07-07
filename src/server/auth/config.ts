@@ -4,11 +4,24 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import { db } from "~/server/db";
 
+export type AppRole = "ADMIN" | "COLLABORATOR";
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      role: AppRole;
     } & DefaultSession["user"];
+  }
+  interface User {
+    role?: AppRole;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    role?: AppRole;
   }
 }
 
@@ -44,12 +57,24 @@ export const authConfig = {
     signIn: "/admin/login",
   },
   callbacks: {
-    jwt({ token, user }) {
-      if (user) token.id = user.id;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user.role as AppRole | undefined) ?? "COLLABORATOR";
+      }
+      // If the role wasn't captured on sign-in (older sessions), fetch from DB once.
+      if (token.id && !token.role) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id },
+          select: { role: true },
+        });
+        token.role = (dbUser?.role as AppRole | undefined) ?? "COLLABORATOR";
+      }
       return token;
     },
     session({ session, token }) {
-      if (token.id) session.user.id = token.id as string;
+      if (token.id) session.user.id = token.id;
+      session.user.role = token.role ?? "COLLABORATOR";
       return session;
     },
   },

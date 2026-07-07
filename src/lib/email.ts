@@ -126,6 +126,133 @@ function purchaseApprovedHtml({
 </html>`;
 }
 
+function collaboratorInvitationHtml({
+  eventTitle,
+  inviterName,
+  acceptUrl,
+  expiresAt,
+}: {
+  eventTitle: string;
+  inviterName: string | null;
+  acceptUrl: string;
+  expiresAt: Date;
+}) {
+  const inviter = inviterName ?? "El equipo de ALTAFOTO";
+  const expiryStr = new Intl.DateTimeFormat("es-AR", {
+    day: "numeric", month: "long", year: "numeric",
+  }).format(expiresAt);
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invitación de colaboración — ALTAFOTO</title>
+</head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:48px 24px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+          <tr>
+            <td align="center" style="padding-bottom:32px;">
+              <img src="${BASE_URL}/logo.png" alt="ALTAFOTO" height="36" style="height:36px;width:auto;display:block;" />
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;padding:40px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding-bottom:28px;">
+                    <div style="display:inline-block;width:64px;height:64px;background:#eff6ff;border-radius:16px;text-align:center;line-height:64px;font-size:30px;">
+                      🎞️
+                    </div>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0 0 8px;color:#111827;font-size:22px;font-weight:800;text-align:center;line-height:1.3;">
+                Te invitaron a colaborar
+              </p>
+              <p style="margin:0 0 28px;color:#6b7280;font-size:14px;text-align:center;line-height:1.6;">
+                ${eventTitle}
+              </p>
+
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr><td style="border-top:1px solid #f1f5f9;"></td></tr>
+              </table>
+
+              <p style="margin:0 0 20px;color:#374151;font-size:15px;line-height:1.7;">
+                <strong>${inviter}</strong> te invitó a subir fotos al evento
+                <strong>${eventTitle}</strong> en ALTAFOTO. Al aceptar vas a poder
+                subir tus propias fotos y hacer seguimiento de tus ventas dentro
+                de ese evento.
+              </p>
+
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td align="center">
+                    <a href="${acceptUrl}" style="display:inline-block;padding:14px 36px;background:#0057A8;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:10px;">
+                      Aceptar invitación →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+                <tr><td style="border-top:1px solid #f1f5f9;"></td></tr>
+              </table>
+
+              <p style="margin:0;color:#9ca3af;font-size:13px;line-height:1.6;text-align:center;">
+                Esta invitación vence el ${expiryStr}. Si el botón no funciona, copiá y pegá este link:<br />
+                <a href="${acceptUrl}" style="color:#0057A8;word-break:break-all;">${acceptUrl}</a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 0 0;text-align:center;">
+              <p style="margin:0 0 4px;color:#9ca3af;font-size:12px;">
+                © ${new Date().getFullYear()} ALTAFOTO · Fotografía deportiva en Argentina
+              </p>
+              <a href="${BASE_URL}" style="color:#9ca3af;font-size:12px;text-decoration:none;">${BASE_URL.replace("https://", "")}</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export async function sendCollaboratorInvitationEmail({
+  to,
+  eventTitle,
+  inviterName,
+  acceptUrl,
+  expiresAt,
+}: {
+  to: string;
+  eventTitle: string;
+  inviterName: string | null;
+  acceptUrl: string;
+  expiresAt: Date;
+}) {
+  const resend = getResend();
+  if (!resend) return;
+
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to,
+      bcc: BCC_EMAILS,
+      subject: `Te invitaron a colaborar en ${eventTitle} — ALTAFOTO`,
+      html: collaboratorInvitationHtml({ eventTitle, inviterName, acceptUrl, expiresAt }),
+    });
+  } catch (err) {
+    console.error("[Resend] Error sending invitation email:", err);
+  }
+}
+
 export async function sendPurchaseApprovedEmail({
   to,
   buyerName,

@@ -39,6 +39,16 @@ export type VerificationToken = $Result.DefaultSelection<Prisma.$VerificationTok
  */
 export type Collection = $Result.DefaultSelection<Prisma.$CollectionPayload>
 /**
+ * Model CollectionMember
+ * 
+ */
+export type CollectionMember = $Result.DefaultSelection<Prisma.$CollectionMemberPayload>
+/**
+ * Model Invitation
+ * 
+ */
+export type Invitation = $Result.DefaultSelection<Prisma.$InvitationPayload>
+/**
  * Model Photo
  * 
  */
@@ -68,7 +78,23 @@ export type Setting = $Result.DefaultSelection<Prisma.$SettingPayload>
  * Enums
  */
 export namespace $Enums {
-  export const PurchaseStatus: {
+  export const UserRole: {
+  ADMIN: 'ADMIN',
+  COLLABORATOR: 'COLLABORATOR'
+};
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+
+export const CollectionMemberRole: {
+  OWNER: 'OWNER',
+  PHOTOGRAPHER: 'PHOTOGRAPHER'
+};
+
+export type CollectionMemberRole = (typeof CollectionMemberRole)[keyof typeof CollectionMemberRole]
+
+
+export const PurchaseStatus: {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
@@ -78,6 +104,14 @@ export namespace $Enums {
 export type PurchaseStatus = (typeof PurchaseStatus)[keyof typeof PurchaseStatus]
 
 }
+
+export type UserRole = $Enums.UserRole
+
+export const UserRole: typeof $Enums.UserRole
+
+export type CollectionMemberRole = $Enums.CollectionMemberRole
+
+export const CollectionMemberRole: typeof $Enums.CollectionMemberRole
 
 export type PurchaseStatus = $Enums.PurchaseStatus
 
@@ -250,6 +284,26 @@ export class PrismaClient<
     * ```
     */
   get collection(): Prisma.CollectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.collectionMember`: Exposes CRUD operations for the **CollectionMember** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CollectionMembers
+    * const collectionMembers = await prisma.collectionMember.findMany()
+    * ```
+    */
+  get collectionMember(): Prisma.CollectionMemberDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.invitation`: Exposes CRUD operations for the **Invitation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Invitations
+    * const invitations = await prisma.invitation.findMany()
+    * ```
+    */
+  get invitation(): Prisma.InvitationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.photo`: Exposes CRUD operations for the **Photo** model.
@@ -746,6 +800,8 @@ export namespace Prisma {
     User: 'User',
     VerificationToken: 'VerificationToken',
     Collection: 'Collection',
+    CollectionMember: 'CollectionMember',
+    Invitation: 'Invitation',
     Photo: 'Photo',
     Purchase: 'Purchase',
     FaceRecord: 'FaceRecord',
@@ -769,7 +825,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "account" | "session" | "user" | "verificationToken" | "collection" | "photo" | "purchase" | "faceRecord" | "searchLog" | "setting"
+      modelProps: "account" | "session" | "user" | "verificationToken" | "collection" | "collectionMember" | "invitation" | "photo" | "purchase" | "faceRecord" | "searchLog" | "setting"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1140,6 +1196,154 @@ export namespace Prisma {
           count: {
             args: Prisma.CollectionCountArgs<ExtArgs>
             result: $Utils.Optional<CollectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      CollectionMember: {
+        payload: Prisma.$CollectionMemberPayload<ExtArgs>
+        fields: Prisma.CollectionMemberFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CollectionMemberFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CollectionMemberFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>
+          }
+          findFirst: {
+            args: Prisma.CollectionMemberFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CollectionMemberFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>
+          }
+          findMany: {
+            args: Prisma.CollectionMemberFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>[]
+          }
+          create: {
+            args: Prisma.CollectionMemberCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>
+          }
+          createMany: {
+            args: Prisma.CollectionMemberCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CollectionMemberCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>[]
+          }
+          delete: {
+            args: Prisma.CollectionMemberDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>
+          }
+          update: {
+            args: Prisma.CollectionMemberUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>
+          }
+          deleteMany: {
+            args: Prisma.CollectionMemberDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CollectionMemberUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CollectionMemberUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>[]
+          }
+          upsert: {
+            args: Prisma.CollectionMemberUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CollectionMemberPayload>
+          }
+          aggregate: {
+            args: Prisma.CollectionMemberAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCollectionMember>
+          }
+          groupBy: {
+            args: Prisma.CollectionMemberGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CollectionMemberGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CollectionMemberCountArgs<ExtArgs>
+            result: $Utils.Optional<CollectionMemberCountAggregateOutputType> | number
+          }
+        }
+      }
+      Invitation: {
+        payload: Prisma.$InvitationPayload<ExtArgs>
+        fields: Prisma.InvitationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InvitationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InvitationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          findFirst: {
+            args: Prisma.InvitationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InvitationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          findMany: {
+            args: Prisma.InvitationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>[]
+          }
+          create: {
+            args: Prisma.InvitationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          createMany: {
+            args: Prisma.InvitationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InvitationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>[]
+          }
+          delete: {
+            args: Prisma.InvitationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          update: {
+            args: Prisma.InvitationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          deleteMany: {
+            args: Prisma.InvitationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InvitationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.InvitationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>[]
+          }
+          upsert: {
+            args: Prisma.InvitationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          aggregate: {
+            args: Prisma.InvitationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInvitation>
+          }
+          groupBy: {
+            args: Prisma.InvitationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InvitationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InvitationCountArgs<ExtArgs>
+            result: $Utils.Optional<InvitationCountAggregateOutputType> | number
           }
         }
       }
@@ -1614,6 +1818,8 @@ export namespace Prisma {
     user?: UserOmit
     verificationToken?: VerificationTokenOmit
     collection?: CollectionOmit
+    collectionMember?: CollectionMemberOmit
+    invitation?: InvitationOmit
     photo?: PhotoOmit
     purchase?: PurchaseOmit
     faceRecord?: FaceRecordOmit
@@ -1701,11 +1907,17 @@ export namespace Prisma {
   export type UserCountOutputType = {
     accounts: number
     sessions: number
+    uploads: number
+    memberships: number
+    invitesSent: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
+    uploads?: boolean | UserCountOutputTypeCountUploadsArgs
+    memberships?: boolean | UserCountOutputTypeCountMembershipsArgs
+    invitesSent?: boolean | UserCountOutputTypeCountInvitesSentArgs
   }
 
   // Custom InputTypes
@@ -1733,6 +1945,27 @@ export namespace Prisma {
     where?: SessionWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUploadsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PhotoWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CollectionMemberWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountInvitesSentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvitationWhereInput
+  }
+
 
   /**
    * Count Type CollectionCountOutputType
@@ -1742,12 +1975,16 @@ export namespace Prisma {
     photos: number
     purchases: number
     faceRecords: number
+    members: number
+    invitations: number
   }
 
   export type CollectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     photos?: boolean | CollectionCountOutputTypeCountPhotosArgs
     purchases?: boolean | CollectionCountOutputTypeCountPurchasesArgs
     faceRecords?: boolean | CollectionCountOutputTypeCountFaceRecordsArgs
+    members?: boolean | CollectionCountOutputTypeCountMembersArgs
+    invitations?: boolean | CollectionCountOutputTypeCountInvitationsArgs
   }
 
   // Custom InputTypes
@@ -1780,6 +2017,20 @@ export namespace Prisma {
    */
   export type CollectionCountOutputTypeCountFaceRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FaceRecordWhereInput
+  }
+
+  /**
+   * CollectionCountOutputType without action
+   */
+  export type CollectionCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CollectionMemberWhereInput
+  }
+
+  /**
+   * CollectionCountOutputType without action
+   */
+  export type CollectionCountOutputTypeCountInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvitationWhereInput
   }
 
 
@@ -4080,6 +4331,7 @@ export namespace Prisma {
     emailVerified: Date | null
     image: string | null
     passwordHash: string | null
+    role: $Enums.UserRole | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -4089,6 +4341,7 @@ export namespace Prisma {
     emailVerified: Date | null
     image: string | null
     passwordHash: string | null
+    role: $Enums.UserRole | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -4098,6 +4351,7 @@ export namespace Prisma {
     emailVerified: number
     image: number
     passwordHash: number
+    role: number
     _all: number
   }
 
@@ -4109,6 +4363,7 @@ export namespace Prisma {
     emailVerified?: true
     image?: true
     passwordHash?: true
+    role?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -4118,6 +4373,7 @@ export namespace Prisma {
     emailVerified?: true
     image?: true
     passwordHash?: true
+    role?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -4127,6 +4383,7 @@ export namespace Prisma {
     emailVerified?: true
     image?: true
     passwordHash?: true
+    role?: true
     _all?: true
   }
 
@@ -4209,6 +4466,7 @@ export namespace Prisma {
     emailVerified: Date | null
     image: string | null
     passwordHash: string | null
+    role: $Enums.UserRole
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -4235,8 +4493,12 @@ export namespace Prisma {
     emailVerified?: boolean
     image?: boolean
     passwordHash?: boolean
+    role?: boolean
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
+    uploads?: boolean | User$uploadsArgs<ExtArgs>
+    memberships?: boolean | User$membershipsArgs<ExtArgs>
+    invitesSent?: boolean | User$invitesSentArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4247,6 +4509,7 @@ export namespace Prisma {
     emailVerified?: boolean
     image?: boolean
     passwordHash?: boolean
+    role?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4256,6 +4519,7 @@ export namespace Prisma {
     emailVerified?: boolean
     image?: boolean
     passwordHash?: boolean
+    role?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -4265,12 +4529,16 @@ export namespace Prisma {
     emailVerified?: boolean
     image?: boolean
     passwordHash?: boolean
+    role?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "passwordHash", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "passwordHash" | "role", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
+    uploads?: boolean | User$uploadsArgs<ExtArgs>
+    memberships?: boolean | User$membershipsArgs<ExtArgs>
+    invitesSent?: boolean | User$invitesSentArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4281,6 +4549,9 @@ export namespace Prisma {
     objects: {
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       sessions: Prisma.$SessionPayload<ExtArgs>[]
+      uploads: Prisma.$PhotoPayload<ExtArgs>[]
+      memberships: Prisma.$CollectionMemberPayload<ExtArgs>[]
+      invitesSent: Prisma.$InvitationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4289,6 +4560,7 @@ export namespace Prisma {
       emailVerified: Date | null
       image: string | null
       passwordHash: string | null
+      role: $Enums.UserRole
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -4685,6 +4957,9 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    uploads<T extends User$uploadsArgs<ExtArgs> = {}>(args?: Subset<T, User$uploadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    memberships<T extends User$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    invitesSent<T extends User$invitesSentArgs<ExtArgs> = {}>(args?: Subset<T, User$invitesSentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4720,6 +4995,7 @@ export namespace Prisma {
     readonly emailVerified: FieldRef<"User", 'DateTime'>
     readonly image: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
+    readonly role: FieldRef<"User", 'UserRole'>
   }
     
 
@@ -5153,6 +5429,78 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SessionScalarFieldEnum | SessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.uploads
+   */
+  export type User$uploadsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Photo
+     */
+    select?: PhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Photo
+     */
+    omit?: PhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhotoInclude<ExtArgs> | null
+    where?: PhotoWhereInput
+    orderBy?: PhotoOrderByWithRelationInput | PhotoOrderByWithRelationInput[]
+    cursor?: PhotoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PhotoScalarFieldEnum | PhotoScalarFieldEnum[]
+  }
+
+  /**
+   * User.memberships
+   */
+  export type User$membershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    where?: CollectionMemberWhereInput
+    orderBy?: CollectionMemberOrderByWithRelationInput | CollectionMemberOrderByWithRelationInput[]
+    cursor?: CollectionMemberWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CollectionMemberScalarFieldEnum | CollectionMemberScalarFieldEnum[]
+  }
+
+  /**
+   * User.invitesSent
+   */
+  export type User$invitesSentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    where?: InvitationWhereInput
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    cursor?: InvitationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
   }
 
   /**
@@ -6420,6 +6768,8 @@ export namespace Prisma {
     photos?: boolean | Collection$photosArgs<ExtArgs>
     purchases?: boolean | Collection$purchasesArgs<ExtArgs>
     faceRecords?: boolean | Collection$faceRecordsArgs<ExtArgs>
+    members?: boolean | Collection$membersArgs<ExtArgs>
+    invitations?: boolean | Collection$invitationsArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["collection"]>
 
@@ -6479,6 +6829,8 @@ export namespace Prisma {
     photos?: boolean | Collection$photosArgs<ExtArgs>
     purchases?: boolean | Collection$purchasesArgs<ExtArgs>
     faceRecords?: boolean | Collection$faceRecordsArgs<ExtArgs>
+    members?: boolean | Collection$membersArgs<ExtArgs>
+    invitations?: boolean | Collection$invitationsArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CollectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6490,6 +6842,8 @@ export namespace Prisma {
       photos: Prisma.$PhotoPayload<ExtArgs>[]
       purchases: Prisma.$PurchasePayload<ExtArgs>[]
       faceRecords: Prisma.$FaceRecordPayload<ExtArgs>[]
+      members: Prisma.$CollectionMemberPayload<ExtArgs>[]
+      invitations: Prisma.$InvitationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6903,6 +7257,8 @@ export namespace Prisma {
     photos<T extends Collection$photosArgs<ExtArgs> = {}>(args?: Subset<T, Collection$photosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchases<T extends Collection$purchasesArgs<ExtArgs> = {}>(args?: Subset<T, Collection$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     faceRecords<T extends Collection$faceRecordsArgs<ExtArgs> = {}>(args?: Subset<T, Collection$faceRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    members<T extends Collection$membersArgs<ExtArgs> = {}>(args?: Subset<T, Collection$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    invitations<T extends Collection$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Collection$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7406,6 +7762,54 @@ export namespace Prisma {
   }
 
   /**
+   * Collection.members
+   */
+  export type Collection$membersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    where?: CollectionMemberWhereInput
+    orderBy?: CollectionMemberOrderByWithRelationInput | CollectionMemberOrderByWithRelationInput[]
+    cursor?: CollectionMemberWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CollectionMemberScalarFieldEnum | CollectionMemberScalarFieldEnum[]
+  }
+
+  /**
+   * Collection.invitations
+   */
+  export type Collection$invitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    where?: InvitationWhereInput
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    cursor?: InvitationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
    * Collection without action
    */
   export type CollectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7421,6 +7825,2190 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: CollectionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CollectionMember
+   */
+
+  export type AggregateCollectionMember = {
+    _count: CollectionMemberCountAggregateOutputType | null
+    _min: CollectionMemberMinAggregateOutputType | null
+    _max: CollectionMemberMaxAggregateOutputType | null
+  }
+
+  export type CollectionMemberMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    collectionId: string | null
+    role: $Enums.CollectionMemberRole | null
+    createdAt: Date | null
+  }
+
+  export type CollectionMemberMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    collectionId: string | null
+    role: $Enums.CollectionMemberRole | null
+    createdAt: Date | null
+  }
+
+  export type CollectionMemberCountAggregateOutputType = {
+    id: number
+    userId: number
+    collectionId: number
+    role: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CollectionMemberMinAggregateInputType = {
+    id?: true
+    userId?: true
+    collectionId?: true
+    role?: true
+    createdAt?: true
+  }
+
+  export type CollectionMemberMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    collectionId?: true
+    role?: true
+    createdAt?: true
+  }
+
+  export type CollectionMemberCountAggregateInputType = {
+    id?: true
+    userId?: true
+    collectionId?: true
+    role?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CollectionMemberAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CollectionMember to aggregate.
+     */
+    where?: CollectionMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CollectionMembers to fetch.
+     */
+    orderBy?: CollectionMemberOrderByWithRelationInput | CollectionMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CollectionMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CollectionMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CollectionMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CollectionMembers
+    **/
+    _count?: true | CollectionMemberCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CollectionMemberMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CollectionMemberMaxAggregateInputType
+  }
+
+  export type GetCollectionMemberAggregateType<T extends CollectionMemberAggregateArgs> = {
+        [P in keyof T & keyof AggregateCollectionMember]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCollectionMember[P]>
+      : GetScalarType<T[P], AggregateCollectionMember[P]>
+  }
+
+
+
+
+  export type CollectionMemberGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CollectionMemberWhereInput
+    orderBy?: CollectionMemberOrderByWithAggregationInput | CollectionMemberOrderByWithAggregationInput[]
+    by: CollectionMemberScalarFieldEnum[] | CollectionMemberScalarFieldEnum
+    having?: CollectionMemberScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CollectionMemberCountAggregateInputType | true
+    _min?: CollectionMemberMinAggregateInputType
+    _max?: CollectionMemberMaxAggregateInputType
+  }
+
+  export type CollectionMemberGroupByOutputType = {
+    id: string
+    userId: string
+    collectionId: string
+    role: $Enums.CollectionMemberRole
+    createdAt: Date
+    _count: CollectionMemberCountAggregateOutputType | null
+    _min: CollectionMemberMinAggregateOutputType | null
+    _max: CollectionMemberMaxAggregateOutputType | null
+  }
+
+  type GetCollectionMemberGroupByPayload<T extends CollectionMemberGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CollectionMemberGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CollectionMemberGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CollectionMemberGroupByOutputType[P]>
+            : GetScalarType<T[P], CollectionMemberGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CollectionMemberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    collectionId?: boolean
+    role?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["collectionMember"]>
+
+  export type CollectionMemberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    collectionId?: boolean
+    role?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["collectionMember"]>
+
+  export type CollectionMemberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    collectionId?: boolean
+    role?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["collectionMember"]>
+
+  export type CollectionMemberSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    collectionId?: boolean
+    role?: boolean
+    createdAt?: boolean
+  }
+
+  export type CollectionMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "collectionId" | "role" | "createdAt", ExtArgs["result"]["collectionMember"]>
+  export type CollectionMemberInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }
+  export type CollectionMemberIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }
+  export type CollectionMemberIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+  }
+
+  export type $CollectionMemberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CollectionMember"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      collection: Prisma.$CollectionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      collectionId: string
+      role: $Enums.CollectionMemberRole
+      createdAt: Date
+    }, ExtArgs["result"]["collectionMember"]>
+    composites: {}
+  }
+
+  type CollectionMemberGetPayload<S extends boolean | null | undefined | CollectionMemberDefaultArgs> = $Result.GetResult<Prisma.$CollectionMemberPayload, S>
+
+  type CollectionMemberCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CollectionMemberFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CollectionMemberCountAggregateInputType | true
+    }
+
+  export interface CollectionMemberDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CollectionMember'], meta: { name: 'CollectionMember' } }
+    /**
+     * Find zero or one CollectionMember that matches the filter.
+     * @param {CollectionMemberFindUniqueArgs} args - Arguments to find a CollectionMember
+     * @example
+     * // Get one CollectionMember
+     * const collectionMember = await prisma.collectionMember.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CollectionMemberFindUniqueArgs>(args: SelectSubset<T, CollectionMemberFindUniqueArgs<ExtArgs>>): Prisma__CollectionMemberClient<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CollectionMember that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CollectionMemberFindUniqueOrThrowArgs} args - Arguments to find a CollectionMember
+     * @example
+     * // Get one CollectionMember
+     * const collectionMember = await prisma.collectionMember.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CollectionMemberFindUniqueOrThrowArgs>(args: SelectSubset<T, CollectionMemberFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CollectionMemberClient<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CollectionMember that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CollectionMemberFindFirstArgs} args - Arguments to find a CollectionMember
+     * @example
+     * // Get one CollectionMember
+     * const collectionMember = await prisma.collectionMember.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CollectionMemberFindFirstArgs>(args?: SelectSubset<T, CollectionMemberFindFirstArgs<ExtArgs>>): Prisma__CollectionMemberClient<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CollectionMember that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CollectionMemberFindFirstOrThrowArgs} args - Arguments to find a CollectionMember
+     * @example
+     * // Get one CollectionMember
+     * const collectionMember = await prisma.collectionMember.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CollectionMemberFindFirstOrThrowArgs>(args?: SelectSubset<T, CollectionMemberFindFirstOrThrowArgs<ExtArgs>>): Prisma__CollectionMemberClient<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CollectionMembers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CollectionMemberFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CollectionMembers
+     * const collectionMembers = await prisma.collectionMember.findMany()
+     * 
+     * // Get first 10 CollectionMembers
+     * const collectionMembers = await prisma.collectionMember.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const collectionMemberWithIdOnly = await prisma.collectionMember.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CollectionMemberFindManyArgs>(args?: SelectSubset<T, CollectionMemberFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CollectionMember.
+     * @param {CollectionMemberCreateArgs} args - Arguments to create a CollectionMember.
+     * @example
+     * // Create one CollectionMember
+     * const CollectionMember = await prisma.collectionMember.create({
+     *   data: {
+     *     // ... data to create a CollectionMember
+     *   }
+     * })
+     * 
+     */
+    create<T extends CollectionMemberCreateArgs>(args: SelectSubset<T, CollectionMemberCreateArgs<ExtArgs>>): Prisma__CollectionMemberClient<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CollectionMembers.
+     * @param {CollectionMemberCreateManyArgs} args - Arguments to create many CollectionMembers.
+     * @example
+     * // Create many CollectionMembers
+     * const collectionMember = await prisma.collectionMember.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CollectionMemberCreateManyArgs>(args?: SelectSubset<T, CollectionMemberCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CollectionMembers and returns the data saved in the database.
+     * @param {CollectionMemberCreateManyAndReturnArgs} args - Arguments to create many CollectionMembers.
+     * @example
+     * // Create many CollectionMembers
+     * const collectionMember = await prisma.collectionMember.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CollectionMembers and only return the `id`
+     * const collectionMemberWithIdOnly = await prisma.collectionMember.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CollectionMemberCreateManyAndReturnArgs>(args?: SelectSubset<T, CollectionMemberCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CollectionMember.
+     * @param {CollectionMemberDeleteArgs} args - Arguments to delete one CollectionMember.
+     * @example
+     * // Delete one CollectionMember
+     * const CollectionMember = await prisma.collectionMember.delete({
+     *   where: {
+     *     // ... filter to delete one CollectionMember
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CollectionMemberDeleteArgs>(args: SelectSubset<T, CollectionMemberDeleteArgs<ExtArgs>>): Prisma__CollectionMemberClient<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CollectionMember.
+     * @param {CollectionMemberUpdateArgs} args - Arguments to update one CollectionMember.
+     * @example
+     * // Update one CollectionMember
+     * const collectionMember = await prisma.collectionMember.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CollectionMemberUpdateArgs>(args: SelectSubset<T, CollectionMemberUpdateArgs<ExtArgs>>): Prisma__CollectionMemberClient<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CollectionMembers.
+     * @param {CollectionMemberDeleteManyArgs} args - Arguments to filter CollectionMembers to delete.
+     * @example
+     * // Delete a few CollectionMembers
+     * const { count } = await prisma.collectionMember.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CollectionMemberDeleteManyArgs>(args?: SelectSubset<T, CollectionMemberDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CollectionMembers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CollectionMemberUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CollectionMembers
+     * const collectionMember = await prisma.collectionMember.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CollectionMemberUpdateManyArgs>(args: SelectSubset<T, CollectionMemberUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CollectionMembers and returns the data updated in the database.
+     * @param {CollectionMemberUpdateManyAndReturnArgs} args - Arguments to update many CollectionMembers.
+     * @example
+     * // Update many CollectionMembers
+     * const collectionMember = await prisma.collectionMember.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CollectionMembers and only return the `id`
+     * const collectionMemberWithIdOnly = await prisma.collectionMember.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CollectionMemberUpdateManyAndReturnArgs>(args: SelectSubset<T, CollectionMemberUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CollectionMember.
+     * @param {CollectionMemberUpsertArgs} args - Arguments to update or create a CollectionMember.
+     * @example
+     * // Update or create a CollectionMember
+     * const collectionMember = await prisma.collectionMember.upsert({
+     *   create: {
+     *     // ... data to create a CollectionMember
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CollectionMember we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CollectionMemberUpsertArgs>(args: SelectSubset<T, CollectionMemberUpsertArgs<ExtArgs>>): Prisma__CollectionMemberClient<$Result.GetResult<Prisma.$CollectionMemberPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CollectionMembers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CollectionMemberCountArgs} args - Arguments to filter CollectionMembers to count.
+     * @example
+     * // Count the number of CollectionMembers
+     * const count = await prisma.collectionMember.count({
+     *   where: {
+     *     // ... the filter for the CollectionMembers we want to count
+     *   }
+     * })
+    **/
+    count<T extends CollectionMemberCountArgs>(
+      args?: Subset<T, CollectionMemberCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CollectionMemberCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CollectionMember.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CollectionMemberAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CollectionMemberAggregateArgs>(args: Subset<T, CollectionMemberAggregateArgs>): Prisma.PrismaPromise<GetCollectionMemberAggregateType<T>>
+
+    /**
+     * Group by CollectionMember.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CollectionMemberGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CollectionMemberGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CollectionMemberGroupByArgs['orderBy'] }
+        : { orderBy?: CollectionMemberGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CollectionMemberGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCollectionMemberGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CollectionMember model
+   */
+  readonly fields: CollectionMemberFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CollectionMember.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CollectionMemberClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CollectionMember model
+   */
+  interface CollectionMemberFieldRefs {
+    readonly id: FieldRef<"CollectionMember", 'String'>
+    readonly userId: FieldRef<"CollectionMember", 'String'>
+    readonly collectionId: FieldRef<"CollectionMember", 'String'>
+    readonly role: FieldRef<"CollectionMember", 'CollectionMemberRole'>
+    readonly createdAt: FieldRef<"CollectionMember", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CollectionMember findUnique
+   */
+  export type CollectionMemberFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which CollectionMember to fetch.
+     */
+    where: CollectionMemberWhereUniqueInput
+  }
+
+  /**
+   * CollectionMember findUniqueOrThrow
+   */
+  export type CollectionMemberFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which CollectionMember to fetch.
+     */
+    where: CollectionMemberWhereUniqueInput
+  }
+
+  /**
+   * CollectionMember findFirst
+   */
+  export type CollectionMemberFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which CollectionMember to fetch.
+     */
+    where?: CollectionMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CollectionMembers to fetch.
+     */
+    orderBy?: CollectionMemberOrderByWithRelationInput | CollectionMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CollectionMembers.
+     */
+    cursor?: CollectionMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CollectionMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CollectionMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CollectionMembers.
+     */
+    distinct?: CollectionMemberScalarFieldEnum | CollectionMemberScalarFieldEnum[]
+  }
+
+  /**
+   * CollectionMember findFirstOrThrow
+   */
+  export type CollectionMemberFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which CollectionMember to fetch.
+     */
+    where?: CollectionMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CollectionMembers to fetch.
+     */
+    orderBy?: CollectionMemberOrderByWithRelationInput | CollectionMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CollectionMembers.
+     */
+    cursor?: CollectionMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CollectionMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CollectionMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CollectionMembers.
+     */
+    distinct?: CollectionMemberScalarFieldEnum | CollectionMemberScalarFieldEnum[]
+  }
+
+  /**
+   * CollectionMember findMany
+   */
+  export type CollectionMemberFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which CollectionMembers to fetch.
+     */
+    where?: CollectionMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CollectionMembers to fetch.
+     */
+    orderBy?: CollectionMemberOrderByWithRelationInput | CollectionMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CollectionMembers.
+     */
+    cursor?: CollectionMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CollectionMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CollectionMembers.
+     */
+    skip?: number
+    distinct?: CollectionMemberScalarFieldEnum | CollectionMemberScalarFieldEnum[]
+  }
+
+  /**
+   * CollectionMember create
+   */
+  export type CollectionMemberCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CollectionMember.
+     */
+    data: XOR<CollectionMemberCreateInput, CollectionMemberUncheckedCreateInput>
+  }
+
+  /**
+   * CollectionMember createMany
+   */
+  export type CollectionMemberCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CollectionMembers.
+     */
+    data: CollectionMemberCreateManyInput | CollectionMemberCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CollectionMember createManyAndReturn
+   */
+  export type CollectionMemberCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * The data used to create many CollectionMembers.
+     */
+    data: CollectionMemberCreateManyInput | CollectionMemberCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CollectionMember update
+   */
+  export type CollectionMemberUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CollectionMember.
+     */
+    data: XOR<CollectionMemberUpdateInput, CollectionMemberUncheckedUpdateInput>
+    /**
+     * Choose, which CollectionMember to update.
+     */
+    where: CollectionMemberWhereUniqueInput
+  }
+
+  /**
+   * CollectionMember updateMany
+   */
+  export type CollectionMemberUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CollectionMembers.
+     */
+    data: XOR<CollectionMemberUpdateManyMutationInput, CollectionMemberUncheckedUpdateManyInput>
+    /**
+     * Filter which CollectionMembers to update
+     */
+    where?: CollectionMemberWhereInput
+    /**
+     * Limit how many CollectionMembers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CollectionMember updateManyAndReturn
+   */
+  export type CollectionMemberUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * The data used to update CollectionMembers.
+     */
+    data: XOR<CollectionMemberUpdateManyMutationInput, CollectionMemberUncheckedUpdateManyInput>
+    /**
+     * Filter which CollectionMembers to update
+     */
+    where?: CollectionMemberWhereInput
+    /**
+     * Limit how many CollectionMembers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CollectionMember upsert
+   */
+  export type CollectionMemberUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CollectionMember to update in case it exists.
+     */
+    where: CollectionMemberWhereUniqueInput
+    /**
+     * In case the CollectionMember found by the `where` argument doesn't exist, create a new CollectionMember with this data.
+     */
+    create: XOR<CollectionMemberCreateInput, CollectionMemberUncheckedCreateInput>
+    /**
+     * In case the CollectionMember was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CollectionMemberUpdateInput, CollectionMemberUncheckedUpdateInput>
+  }
+
+  /**
+   * CollectionMember delete
+   */
+  export type CollectionMemberDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+    /**
+     * Filter which CollectionMember to delete.
+     */
+    where: CollectionMemberWhereUniqueInput
+  }
+
+  /**
+   * CollectionMember deleteMany
+   */
+  export type CollectionMemberDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CollectionMembers to delete
+     */
+    where?: CollectionMemberWhereInput
+    /**
+     * Limit how many CollectionMembers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CollectionMember without action
+   */
+  export type CollectionMemberDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CollectionMember
+     */
+    select?: CollectionMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CollectionMember
+     */
+    omit?: CollectionMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CollectionMemberInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Invitation
+   */
+
+  export type AggregateInvitation = {
+    _count: InvitationCountAggregateOutputType | null
+    _min: InvitationMinAggregateOutputType | null
+    _max: InvitationMaxAggregateOutputType | null
+  }
+
+  export type InvitationMinAggregateOutputType = {
+    id: string | null
+    email: string | null
+    token: string | null
+    collectionId: string | null
+    invitedById: string | null
+    expiresAt: Date | null
+    acceptedAt: Date | null
+    acceptedByUserId: string | null
+    createdAt: Date | null
+  }
+
+  export type InvitationMaxAggregateOutputType = {
+    id: string | null
+    email: string | null
+    token: string | null
+    collectionId: string | null
+    invitedById: string | null
+    expiresAt: Date | null
+    acceptedAt: Date | null
+    acceptedByUserId: string | null
+    createdAt: Date | null
+  }
+
+  export type InvitationCountAggregateOutputType = {
+    id: number
+    email: number
+    token: number
+    collectionId: number
+    invitedById: number
+    expiresAt: number
+    acceptedAt: number
+    acceptedByUserId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type InvitationMinAggregateInputType = {
+    id?: true
+    email?: true
+    token?: true
+    collectionId?: true
+    invitedById?: true
+    expiresAt?: true
+    acceptedAt?: true
+    acceptedByUserId?: true
+    createdAt?: true
+  }
+
+  export type InvitationMaxAggregateInputType = {
+    id?: true
+    email?: true
+    token?: true
+    collectionId?: true
+    invitedById?: true
+    expiresAt?: true
+    acceptedAt?: true
+    acceptedByUserId?: true
+    createdAt?: true
+  }
+
+  export type InvitationCountAggregateInputType = {
+    id?: true
+    email?: true
+    token?: true
+    collectionId?: true
+    invitedById?: true
+    expiresAt?: true
+    acceptedAt?: true
+    acceptedByUserId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type InvitationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Invitation to aggregate.
+     */
+    where?: InvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invitations to fetch.
+     */
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Invitations
+    **/
+    _count?: true | InvitationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InvitationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InvitationMaxAggregateInputType
+  }
+
+  export type GetInvitationAggregateType<T extends InvitationAggregateArgs> = {
+        [P in keyof T & keyof AggregateInvitation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInvitation[P]>
+      : GetScalarType<T[P], AggregateInvitation[P]>
+  }
+
+
+
+
+  export type InvitationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvitationWhereInput
+    orderBy?: InvitationOrderByWithAggregationInput | InvitationOrderByWithAggregationInput[]
+    by: InvitationScalarFieldEnum[] | InvitationScalarFieldEnum
+    having?: InvitationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InvitationCountAggregateInputType | true
+    _min?: InvitationMinAggregateInputType
+    _max?: InvitationMaxAggregateInputType
+  }
+
+  export type InvitationGroupByOutputType = {
+    id: string
+    email: string
+    token: string
+    collectionId: string
+    invitedById: string
+    expiresAt: Date
+    acceptedAt: Date | null
+    acceptedByUserId: string | null
+    createdAt: Date
+    _count: InvitationCountAggregateOutputType | null
+    _min: InvitationMinAggregateOutputType | null
+    _max: InvitationMaxAggregateOutputType | null
+  }
+
+  type GetInvitationGroupByPayload<T extends InvitationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InvitationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InvitationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InvitationGroupByOutputType[P]>
+            : GetScalarType<T[P], InvitationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InvitationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    token?: boolean
+    collectionId?: boolean
+    invitedById?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    acceptedByUserId?: boolean
+    createdAt?: boolean
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    invitedBy?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invitation"]>
+
+  export type InvitationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    token?: boolean
+    collectionId?: boolean
+    invitedById?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    acceptedByUserId?: boolean
+    createdAt?: boolean
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    invitedBy?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invitation"]>
+
+  export type InvitationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    token?: boolean
+    collectionId?: boolean
+    invitedById?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    acceptedByUserId?: boolean
+    createdAt?: boolean
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    invitedBy?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invitation"]>
+
+  export type InvitationSelectScalar = {
+    id?: boolean
+    email?: boolean
+    token?: boolean
+    collectionId?: boolean
+    invitedById?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    acceptedByUserId?: boolean
+    createdAt?: boolean
+  }
+
+  export type InvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "token" | "collectionId" | "invitedById" | "expiresAt" | "acceptedAt" | "acceptedByUserId" | "createdAt", ExtArgs["result"]["invitation"]>
+  export type InvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    invitedBy?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type InvitationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    invitedBy?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type InvitationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    invitedBy?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $InvitationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Invitation"
+    objects: {
+      collection: Prisma.$CollectionPayload<ExtArgs>
+      invitedBy: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      email: string
+      token: string
+      collectionId: string
+      invitedById: string
+      expiresAt: Date
+      acceptedAt: Date | null
+      acceptedByUserId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["invitation"]>
+    composites: {}
+  }
+
+  type InvitationGetPayload<S extends boolean | null | undefined | InvitationDefaultArgs> = $Result.GetResult<Prisma.$InvitationPayload, S>
+
+  type InvitationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<InvitationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: InvitationCountAggregateInputType | true
+    }
+
+  export interface InvitationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Invitation'], meta: { name: 'Invitation' } }
+    /**
+     * Find zero or one Invitation that matches the filter.
+     * @param {InvitationFindUniqueArgs} args - Arguments to find a Invitation
+     * @example
+     * // Get one Invitation
+     * const invitation = await prisma.invitation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InvitationFindUniqueArgs>(args: SelectSubset<T, InvitationFindUniqueArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Invitation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {InvitationFindUniqueOrThrowArgs} args - Arguments to find a Invitation
+     * @example
+     * // Get one Invitation
+     * const invitation = await prisma.invitation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InvitationFindUniqueOrThrowArgs>(args: SelectSubset<T, InvitationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Invitation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationFindFirstArgs} args - Arguments to find a Invitation
+     * @example
+     * // Get one Invitation
+     * const invitation = await prisma.invitation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InvitationFindFirstArgs>(args?: SelectSubset<T, InvitationFindFirstArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Invitation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationFindFirstOrThrowArgs} args - Arguments to find a Invitation
+     * @example
+     * // Get one Invitation
+     * const invitation = await prisma.invitation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InvitationFindFirstOrThrowArgs>(args?: SelectSubset<T, InvitationFindFirstOrThrowArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Invitations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Invitations
+     * const invitations = await prisma.invitation.findMany()
+     * 
+     * // Get first 10 Invitations
+     * const invitations = await prisma.invitation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const invitationWithIdOnly = await prisma.invitation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InvitationFindManyArgs>(args?: SelectSubset<T, InvitationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Invitation.
+     * @param {InvitationCreateArgs} args - Arguments to create a Invitation.
+     * @example
+     * // Create one Invitation
+     * const Invitation = await prisma.invitation.create({
+     *   data: {
+     *     // ... data to create a Invitation
+     *   }
+     * })
+     * 
+     */
+    create<T extends InvitationCreateArgs>(args: SelectSubset<T, InvitationCreateArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Invitations.
+     * @param {InvitationCreateManyArgs} args - Arguments to create many Invitations.
+     * @example
+     * // Create many Invitations
+     * const invitation = await prisma.invitation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InvitationCreateManyArgs>(args?: SelectSubset<T, InvitationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Invitations and returns the data saved in the database.
+     * @param {InvitationCreateManyAndReturnArgs} args - Arguments to create many Invitations.
+     * @example
+     * // Create many Invitations
+     * const invitation = await prisma.invitation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Invitations and only return the `id`
+     * const invitationWithIdOnly = await prisma.invitation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InvitationCreateManyAndReturnArgs>(args?: SelectSubset<T, InvitationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Invitation.
+     * @param {InvitationDeleteArgs} args - Arguments to delete one Invitation.
+     * @example
+     * // Delete one Invitation
+     * const Invitation = await prisma.invitation.delete({
+     *   where: {
+     *     // ... filter to delete one Invitation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InvitationDeleteArgs>(args: SelectSubset<T, InvitationDeleteArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Invitation.
+     * @param {InvitationUpdateArgs} args - Arguments to update one Invitation.
+     * @example
+     * // Update one Invitation
+     * const invitation = await prisma.invitation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InvitationUpdateArgs>(args: SelectSubset<T, InvitationUpdateArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Invitations.
+     * @param {InvitationDeleteManyArgs} args - Arguments to filter Invitations to delete.
+     * @example
+     * // Delete a few Invitations
+     * const { count } = await prisma.invitation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InvitationDeleteManyArgs>(args?: SelectSubset<T, InvitationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Invitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Invitations
+     * const invitation = await prisma.invitation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InvitationUpdateManyArgs>(args: SelectSubset<T, InvitationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Invitations and returns the data updated in the database.
+     * @param {InvitationUpdateManyAndReturnArgs} args - Arguments to update many Invitations.
+     * @example
+     * // Update many Invitations
+     * const invitation = await prisma.invitation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Invitations and only return the `id`
+     * const invitationWithIdOnly = await prisma.invitation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends InvitationUpdateManyAndReturnArgs>(args: SelectSubset<T, InvitationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Invitation.
+     * @param {InvitationUpsertArgs} args - Arguments to update or create a Invitation.
+     * @example
+     * // Update or create a Invitation
+     * const invitation = await prisma.invitation.upsert({
+     *   create: {
+     *     // ... data to create a Invitation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Invitation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InvitationUpsertArgs>(args: SelectSubset<T, InvitationUpsertArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Invitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationCountArgs} args - Arguments to filter Invitations to count.
+     * @example
+     * // Count the number of Invitations
+     * const count = await prisma.invitation.count({
+     *   where: {
+     *     // ... the filter for the Invitations we want to count
+     *   }
+     * })
+    **/
+    count<T extends InvitationCountArgs>(
+      args?: Subset<T, InvitationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InvitationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Invitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InvitationAggregateArgs>(args: Subset<T, InvitationAggregateArgs>): Prisma.PrismaPromise<GetInvitationAggregateType<T>>
+
+    /**
+     * Group by Invitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InvitationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InvitationGroupByArgs['orderBy'] }
+        : { orderBy?: InvitationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InvitationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInvitationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Invitation model
+   */
+  readonly fields: InvitationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Invitation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InvitationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    invitedBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Invitation model
+   */
+  interface InvitationFieldRefs {
+    readonly id: FieldRef<"Invitation", 'String'>
+    readonly email: FieldRef<"Invitation", 'String'>
+    readonly token: FieldRef<"Invitation", 'String'>
+    readonly collectionId: FieldRef<"Invitation", 'String'>
+    readonly invitedById: FieldRef<"Invitation", 'String'>
+    readonly expiresAt: FieldRef<"Invitation", 'DateTime'>
+    readonly acceptedAt: FieldRef<"Invitation", 'DateTime'>
+    readonly acceptedByUserId: FieldRef<"Invitation", 'String'>
+    readonly createdAt: FieldRef<"Invitation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Invitation findUnique
+   */
+  export type InvitationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitation to fetch.
+     */
+    where: InvitationWhereUniqueInput
+  }
+
+  /**
+   * Invitation findUniqueOrThrow
+   */
+  export type InvitationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitation to fetch.
+     */
+    where: InvitationWhereUniqueInput
+  }
+
+  /**
+   * Invitation findFirst
+   */
+  export type InvitationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitation to fetch.
+     */
+    where?: InvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invitations to fetch.
+     */
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Invitations.
+     */
+    cursor?: InvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invitations.
+     */
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
+   * Invitation findFirstOrThrow
+   */
+  export type InvitationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitation to fetch.
+     */
+    where?: InvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invitations to fetch.
+     */
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Invitations.
+     */
+    cursor?: InvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invitations.
+     */
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
+   * Invitation findMany
+   */
+  export type InvitationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitations to fetch.
+     */
+    where?: InvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invitations to fetch.
+     */
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Invitations.
+     */
+    cursor?: InvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invitations.
+     */
+    skip?: number
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
+   * Invitation create
+   */
+  export type InvitationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Invitation.
+     */
+    data: XOR<InvitationCreateInput, InvitationUncheckedCreateInput>
+  }
+
+  /**
+   * Invitation createMany
+   */
+  export type InvitationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Invitations.
+     */
+    data: InvitationCreateManyInput | InvitationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Invitation createManyAndReturn
+   */
+  export type InvitationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * The data used to create many Invitations.
+     */
+    data: InvitationCreateManyInput | InvitationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Invitation update
+   */
+  export type InvitationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Invitation.
+     */
+    data: XOR<InvitationUpdateInput, InvitationUncheckedUpdateInput>
+    /**
+     * Choose, which Invitation to update.
+     */
+    where: InvitationWhereUniqueInput
+  }
+
+  /**
+   * Invitation updateMany
+   */
+  export type InvitationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Invitations.
+     */
+    data: XOR<InvitationUpdateManyMutationInput, InvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which Invitations to update
+     */
+    where?: InvitationWhereInput
+    /**
+     * Limit how many Invitations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Invitation updateManyAndReturn
+   */
+  export type InvitationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * The data used to update Invitations.
+     */
+    data: XOR<InvitationUpdateManyMutationInput, InvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which Invitations to update
+     */
+    where?: InvitationWhereInput
+    /**
+     * Limit how many Invitations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Invitation upsert
+   */
+  export type InvitationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Invitation to update in case it exists.
+     */
+    where: InvitationWhereUniqueInput
+    /**
+     * In case the Invitation found by the `where` argument doesn't exist, create a new Invitation with this data.
+     */
+    create: XOR<InvitationCreateInput, InvitationUncheckedCreateInput>
+    /**
+     * In case the Invitation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InvitationUpdateInput, InvitationUncheckedUpdateInput>
+  }
+
+  /**
+   * Invitation delete
+   */
+  export type InvitationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter which Invitation to delete.
+     */
+    where: InvitationWhereUniqueInput
+  }
+
+  /**
+   * Invitation deleteMany
+   */
+  export type InvitationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Invitations to delete
+     */
+    where?: InvitationWhereInput
+    /**
+     * Limit how many Invitations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Invitation without action
+   */
+  export type InvitationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invitation
+     */
+    omit?: InvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
   }
 
 
@@ -7453,6 +10041,7 @@ export namespace Prisma {
   export type PhotoMinAggregateOutputType = {
     id: string | null
     collectionId: string | null
+    uploaderId: string | null
     bibNumber: string | null
     storageKey: string | null
     filename: string | null
@@ -7468,6 +10057,7 @@ export namespace Prisma {
   export type PhotoMaxAggregateOutputType = {
     id: string | null
     collectionId: string | null
+    uploaderId: string | null
     bibNumber: string | null
     storageKey: string | null
     filename: string | null
@@ -7483,6 +10073,7 @@ export namespace Prisma {
   export type PhotoCountAggregateOutputType = {
     id: number
     collectionId: number
+    uploaderId: number
     bibNumber: number
     storageKey: number
     filename: number
@@ -7514,6 +10105,7 @@ export namespace Prisma {
   export type PhotoMinAggregateInputType = {
     id?: true
     collectionId?: true
+    uploaderId?: true
     bibNumber?: true
     storageKey?: true
     filename?: true
@@ -7529,6 +10121,7 @@ export namespace Prisma {
   export type PhotoMaxAggregateInputType = {
     id?: true
     collectionId?: true
+    uploaderId?: true
     bibNumber?: true
     storageKey?: true
     filename?: true
@@ -7544,6 +10137,7 @@ export namespace Prisma {
   export type PhotoCountAggregateInputType = {
     id?: true
     collectionId?: true
+    uploaderId?: true
     bibNumber?: true
     storageKey?: true
     filename?: true
@@ -7646,6 +10240,7 @@ export namespace Prisma {
   export type PhotoGroupByOutputType = {
     id: string
     collectionId: string
+    uploaderId: string | null
     bibNumber: string | null
     storageKey: string
     filename: string
@@ -7680,6 +10275,7 @@ export namespace Prisma {
   export type PhotoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     collectionId?: boolean
+    uploaderId?: boolean
     bibNumber?: boolean
     storageKey?: boolean
     filename?: boolean
@@ -7691,6 +10287,7 @@ export namespace Prisma {
     contentHash?: boolean
     createdAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    uploader?: boolean | Photo$uploaderArgs<ExtArgs>
     faceRecords?: boolean | Photo$faceRecordsArgs<ExtArgs>
     _count?: boolean | PhotoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
@@ -7698,6 +10295,7 @@ export namespace Prisma {
   export type PhotoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     collectionId?: boolean
+    uploaderId?: boolean
     bibNumber?: boolean
     storageKey?: boolean
     filename?: boolean
@@ -7709,11 +10307,13 @@ export namespace Prisma {
     contentHash?: boolean
     createdAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    uploader?: boolean | Photo$uploaderArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
 
   export type PhotoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     collectionId?: boolean
+    uploaderId?: boolean
     bibNumber?: boolean
     storageKey?: boolean
     filename?: boolean
@@ -7725,11 +10325,13 @@ export namespace Prisma {
     contentHash?: boolean
     createdAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    uploader?: boolean | Photo$uploaderArgs<ExtArgs>
   }, ExtArgs["result"]["photo"]>
 
   export type PhotoSelectScalar = {
     id?: boolean
     collectionId?: boolean
+    uploaderId?: boolean
     bibNumber?: boolean
     storageKey?: boolean
     filename?: boolean
@@ -7742,28 +10344,33 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "bibNumber" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "previewKey" | "contentHash" | "createdAt", ExtArgs["result"]["photo"]>
+  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "uploaderId" | "bibNumber" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "previewKey" | "contentHash" | "createdAt", ExtArgs["result"]["photo"]>
   export type PhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    uploader?: boolean | Photo$uploaderArgs<ExtArgs>
     faceRecords?: boolean | Photo$faceRecordsArgs<ExtArgs>
     _count?: boolean | PhotoCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PhotoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    uploader?: boolean | Photo$uploaderArgs<ExtArgs>
   }
   export type PhotoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
+    uploader?: boolean | Photo$uploaderArgs<ExtArgs>
   }
 
   export type $PhotoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Photo"
     objects: {
       collection: Prisma.$CollectionPayload<ExtArgs>
+      uploader: Prisma.$UserPayload<ExtArgs> | null
       faceRecords: Prisma.$FaceRecordPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       collectionId: string
+      uploaderId: string | null
       bibNumber: string | null
       storageKey: string
       filename: string
@@ -8169,6 +10776,7 @@ export namespace Prisma {
   export interface Prisma__PhotoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    uploader<T extends Photo$uploaderArgs<ExtArgs> = {}>(args?: Subset<T, Photo$uploaderArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     faceRecords<T extends Photo$faceRecordsArgs<ExtArgs> = {}>(args?: Subset<T, Photo$faceRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaceRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -8201,6 +10809,7 @@ export namespace Prisma {
   interface PhotoFieldRefs {
     readonly id: FieldRef<"Photo", 'String'>
     readonly collectionId: FieldRef<"Photo", 'String'>
+    readonly uploaderId: FieldRef<"Photo", 'String'>
     readonly bibNumber: FieldRef<"Photo", 'String'>
     readonly storageKey: FieldRef<"Photo", 'String'>
     readonly filename: FieldRef<"Photo", 'String'>
@@ -8604,6 +11213,25 @@ export namespace Prisma {
      * Limit how many Photos to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Photo.uploader
+   */
+  export type Photo$uploaderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -13036,7 +15664,8 @@ export namespace Prisma {
     email: 'email',
     emailVerified: 'emailVerified',
     image: 'image',
-    passwordHash: 'passwordHash'
+    passwordHash: 'passwordHash',
+    role: 'role'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -13071,9 +15700,36 @@ export namespace Prisma {
   export type CollectionScalarFieldEnum = (typeof CollectionScalarFieldEnum)[keyof typeof CollectionScalarFieldEnum]
 
 
+  export const CollectionMemberScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    collectionId: 'collectionId',
+    role: 'role',
+    createdAt: 'createdAt'
+  };
+
+  export type CollectionMemberScalarFieldEnum = (typeof CollectionMemberScalarFieldEnum)[keyof typeof CollectionMemberScalarFieldEnum]
+
+
+  export const InvitationScalarFieldEnum: {
+    id: 'id',
+    email: 'email',
+    token: 'token',
+    collectionId: 'collectionId',
+    invitedById: 'invitedById',
+    expiresAt: 'expiresAt',
+    acceptedAt: 'acceptedAt',
+    acceptedByUserId: 'acceptedByUserId',
+    createdAt: 'createdAt'
+  };
+
+  export type InvitationScalarFieldEnum = (typeof InvitationScalarFieldEnum)[keyof typeof InvitationScalarFieldEnum]
+
+
   export const PhotoScalarFieldEnum: {
     id: 'id',
     collectionId: 'collectionId',
+    uploaderId: 'uploaderId',
     bibNumber: 'bibNumber',
     storageKey: 'storageKey',
     filename: 'filename',
@@ -13217,6 +15873,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'UserRole'
+   */
+  export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'UserRole[]'
+   */
+  export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -13248,6 +15918,20 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'CollectionMemberRole'
+   */
+  export type EnumCollectionMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CollectionMemberRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'CollectionMemberRole[]'
+   */
+  export type ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CollectionMemberRole[]'>
     
 
 
@@ -13426,8 +16110,12 @@ export namespace Prisma {
     emailVerified?: DateTimeNullableFilter<"User"> | Date | string | null
     image?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringNullableFilter<"User"> | string | null
+    role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
+    uploads?: PhotoListRelationFilter
+    memberships?: CollectionMemberListRelationFilter
+    invitesSent?: InvitationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -13437,8 +16125,12 @@ export namespace Prisma {
     emailVerified?: SortOrderInput | SortOrder
     image?: SortOrderInput | SortOrder
     passwordHash?: SortOrderInput | SortOrder
+    role?: SortOrder
     accounts?: AccountOrderByRelationAggregateInput
     sessions?: SessionOrderByRelationAggregateInput
+    uploads?: PhotoOrderByRelationAggregateInput
+    memberships?: CollectionMemberOrderByRelationAggregateInput
+    invitesSent?: InvitationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -13451,8 +16143,12 @@ export namespace Prisma {
     emailVerified?: DateTimeNullableFilter<"User"> | Date | string | null
     image?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringNullableFilter<"User"> | string | null
+    role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
+    uploads?: PhotoListRelationFilter
+    memberships?: CollectionMemberListRelationFilter
+    invitesSent?: InvitationListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -13462,6 +16158,7 @@ export namespace Prisma {
     emailVerified?: SortOrderInput | SortOrder
     image?: SortOrderInput | SortOrder
     passwordHash?: SortOrderInput | SortOrder
+    role?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -13477,6 +16174,7 @@ export namespace Prisma {
     emailVerified?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
     passwordHash?: StringNullableWithAggregatesFilter<"User"> | string | null
+    role?: EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   }
 
   export type VerificationTokenWhereInput = {
@@ -13543,6 +16241,8 @@ export namespace Prisma {
     photos?: PhotoListRelationFilter
     purchases?: PurchaseListRelationFilter
     faceRecords?: FaceRecordListRelationFilter
+    members?: CollectionMemberListRelationFilter
+    invitations?: InvitationListRelationFilter
   }
 
   export type CollectionOrderByWithRelationInput = {
@@ -13563,6 +16263,8 @@ export namespace Prisma {
     photos?: PhotoOrderByRelationAggregateInput
     purchases?: PurchaseOrderByRelationAggregateInput
     faceRecords?: FaceRecordOrderByRelationAggregateInput
+    members?: CollectionMemberOrderByRelationAggregateInput
+    invitations?: InvitationOrderByRelationAggregateInput
   }
 
   export type CollectionWhereUniqueInput = Prisma.AtLeast<{
@@ -13586,6 +16288,8 @@ export namespace Prisma {
     photos?: PhotoListRelationFilter
     purchases?: PurchaseListRelationFilter
     faceRecords?: FaceRecordListRelationFilter
+    members?: CollectionMemberListRelationFilter
+    invitations?: InvitationListRelationFilter
   }, "id" | "slug">
 
   export type CollectionOrderByWithAggregationInput = {
@@ -13630,12 +16334,150 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
   }
 
+  export type CollectionMemberWhereInput = {
+    AND?: CollectionMemberWhereInput | CollectionMemberWhereInput[]
+    OR?: CollectionMemberWhereInput[]
+    NOT?: CollectionMemberWhereInput | CollectionMemberWhereInput[]
+    id?: StringFilter<"CollectionMember"> | string
+    userId?: StringFilter<"CollectionMember"> | string
+    collectionId?: StringFilter<"CollectionMember"> | string
+    role?: EnumCollectionMemberRoleFilter<"CollectionMember"> | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFilter<"CollectionMember"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+  }
+
+  export type CollectionMemberOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    collectionId?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    collection?: CollectionOrderByWithRelationInput
+  }
+
+  export type CollectionMemberWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_collectionId?: CollectionMemberUserIdCollectionIdCompoundUniqueInput
+    AND?: CollectionMemberWhereInput | CollectionMemberWhereInput[]
+    OR?: CollectionMemberWhereInput[]
+    NOT?: CollectionMemberWhereInput | CollectionMemberWhereInput[]
+    userId?: StringFilter<"CollectionMember"> | string
+    collectionId?: StringFilter<"CollectionMember"> | string
+    role?: EnumCollectionMemberRoleFilter<"CollectionMember"> | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFilter<"CollectionMember"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+  }, "id" | "userId_collectionId">
+
+  export type CollectionMemberOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    collectionId?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+    _count?: CollectionMemberCountOrderByAggregateInput
+    _max?: CollectionMemberMaxOrderByAggregateInput
+    _min?: CollectionMemberMinOrderByAggregateInput
+  }
+
+  export type CollectionMemberScalarWhereWithAggregatesInput = {
+    AND?: CollectionMemberScalarWhereWithAggregatesInput | CollectionMemberScalarWhereWithAggregatesInput[]
+    OR?: CollectionMemberScalarWhereWithAggregatesInput[]
+    NOT?: CollectionMemberScalarWhereWithAggregatesInput | CollectionMemberScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CollectionMember"> | string
+    userId?: StringWithAggregatesFilter<"CollectionMember"> | string
+    collectionId?: StringWithAggregatesFilter<"CollectionMember"> | string
+    role?: EnumCollectionMemberRoleWithAggregatesFilter<"CollectionMember"> | $Enums.CollectionMemberRole
+    createdAt?: DateTimeWithAggregatesFilter<"CollectionMember"> | Date | string
+  }
+
+  export type InvitationWhereInput = {
+    AND?: InvitationWhereInput | InvitationWhereInput[]
+    OR?: InvitationWhereInput[]
+    NOT?: InvitationWhereInput | InvitationWhereInput[]
+    id?: StringFilter<"Invitation"> | string
+    email?: StringFilter<"Invitation"> | string
+    token?: StringFilter<"Invitation"> | string
+    collectionId?: StringFilter<"Invitation"> | string
+    invitedById?: StringFilter<"Invitation"> | string
+    expiresAt?: DateTimeFilter<"Invitation"> | Date | string
+    acceptedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    acceptedByUserId?: StringNullableFilter<"Invitation"> | string | null
+    createdAt?: DateTimeFilter<"Invitation"> | Date | string
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+    invitedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type InvitationOrderByWithRelationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    token?: SortOrder
+    collectionId?: SortOrder
+    invitedById?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    acceptedByUserId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    collection?: CollectionOrderByWithRelationInput
+    invitedBy?: UserOrderByWithRelationInput
+  }
+
+  export type InvitationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    token?: string
+    AND?: InvitationWhereInput | InvitationWhereInput[]
+    OR?: InvitationWhereInput[]
+    NOT?: InvitationWhereInput | InvitationWhereInput[]
+    email?: StringFilter<"Invitation"> | string
+    collectionId?: StringFilter<"Invitation"> | string
+    invitedById?: StringFilter<"Invitation"> | string
+    expiresAt?: DateTimeFilter<"Invitation"> | Date | string
+    acceptedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    acceptedByUserId?: StringNullableFilter<"Invitation"> | string | null
+    createdAt?: DateTimeFilter<"Invitation"> | Date | string
+    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+    invitedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "token">
+
+  export type InvitationOrderByWithAggregationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    token?: SortOrder
+    collectionId?: SortOrder
+    invitedById?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    acceptedByUserId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: InvitationCountOrderByAggregateInput
+    _max?: InvitationMaxOrderByAggregateInput
+    _min?: InvitationMinOrderByAggregateInput
+  }
+
+  export type InvitationScalarWhereWithAggregatesInput = {
+    AND?: InvitationScalarWhereWithAggregatesInput | InvitationScalarWhereWithAggregatesInput[]
+    OR?: InvitationScalarWhereWithAggregatesInput[]
+    NOT?: InvitationScalarWhereWithAggregatesInput | InvitationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Invitation"> | string
+    email?: StringWithAggregatesFilter<"Invitation"> | string
+    token?: StringWithAggregatesFilter<"Invitation"> | string
+    collectionId?: StringWithAggregatesFilter<"Invitation"> | string
+    invitedById?: StringWithAggregatesFilter<"Invitation"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"Invitation"> | Date | string
+    acceptedAt?: DateTimeNullableWithAggregatesFilter<"Invitation"> | Date | string | null
+    acceptedByUserId?: StringNullableWithAggregatesFilter<"Invitation"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Invitation"> | Date | string
+  }
+
   export type PhotoWhereInput = {
     AND?: PhotoWhereInput | PhotoWhereInput[]
     OR?: PhotoWhereInput[]
     NOT?: PhotoWhereInput | PhotoWhereInput[]
     id?: StringFilter<"Photo"> | string
     collectionId?: StringFilter<"Photo"> | string
+    uploaderId?: StringNullableFilter<"Photo"> | string | null
     bibNumber?: StringNullableFilter<"Photo"> | string | null
     storageKey?: StringFilter<"Photo"> | string
     filename?: StringFilter<"Photo"> | string
@@ -13647,12 +16489,14 @@ export namespace Prisma {
     contentHash?: StringNullableFilter<"Photo"> | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+    uploader?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     faceRecords?: FaceRecordListRelationFilter
   }
 
   export type PhotoOrderByWithRelationInput = {
     id?: SortOrder
     collectionId?: SortOrder
+    uploaderId?: SortOrderInput | SortOrder
     bibNumber?: SortOrderInput | SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
@@ -13664,6 +16508,7 @@ export namespace Prisma {
     contentHash?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     collection?: CollectionOrderByWithRelationInput
+    uploader?: UserOrderByWithRelationInput
     faceRecords?: FaceRecordOrderByRelationAggregateInput
   }
 
@@ -13673,6 +16518,7 @@ export namespace Prisma {
     OR?: PhotoWhereInput[]
     NOT?: PhotoWhereInput | PhotoWhereInput[]
     collectionId?: StringFilter<"Photo"> | string
+    uploaderId?: StringNullableFilter<"Photo"> | string | null
     bibNumber?: StringNullableFilter<"Photo"> | string | null
     storageKey?: StringFilter<"Photo"> | string
     filename?: StringFilter<"Photo"> | string
@@ -13684,12 +16530,14 @@ export namespace Prisma {
     contentHash?: StringNullableFilter<"Photo"> | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
+    uploader?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     faceRecords?: FaceRecordListRelationFilter
   }, "id">
 
   export type PhotoOrderByWithAggregationInput = {
     id?: SortOrder
     collectionId?: SortOrder
+    uploaderId?: SortOrderInput | SortOrder
     bibNumber?: SortOrderInput | SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
@@ -13713,6 +16561,7 @@ export namespace Prisma {
     NOT?: PhotoScalarWhereWithAggregatesInput | PhotoScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Photo"> | string
     collectionId?: StringWithAggregatesFilter<"Photo"> | string
+    uploaderId?: StringNullableWithAggregatesFilter<"Photo"> | string | null
     bibNumber?: StringNullableWithAggregatesFilter<"Photo"> | string | null
     storageKey?: StringWithAggregatesFilter<"Photo"> | string
     filename?: StringWithAggregatesFilter<"Photo"> | string
@@ -14172,8 +17021,12 @@ export namespace Prisma {
     emailVerified?: Date | string | null
     image?: string | null
     passwordHash?: string | null
+    role?: $Enums.UserRole
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    uploads?: PhotoCreateNestedManyWithoutUploaderInput
+    memberships?: CollectionMemberCreateNestedManyWithoutUserInput
+    invitesSent?: InvitationCreateNestedManyWithoutInvitedByInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -14183,8 +17036,12 @@ export namespace Prisma {
     emailVerified?: Date | string | null
     image?: string | null
     passwordHash?: string | null
+    role?: $Enums.UserRole
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    uploads?: PhotoUncheckedCreateNestedManyWithoutUploaderInput
+    memberships?: CollectionMemberUncheckedCreateNestedManyWithoutUserInput
+    invitesSent?: InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   }
 
   export type UserUpdateInput = {
@@ -14194,8 +17051,12 @@ export namespace Prisma {
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUpdateManyWithoutUploaderNestedInput
+    memberships?: CollectionMemberUpdateManyWithoutUserNestedInput
+    invitesSent?: InvitationUpdateManyWithoutInvitedByNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -14205,8 +17066,12 @@ export namespace Prisma {
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUncheckedUpdateManyWithoutUploaderNestedInput
+    memberships?: CollectionMemberUncheckedUpdateManyWithoutUserNestedInput
+    invitesSent?: InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -14216,6 +17081,7 @@ export namespace Prisma {
     emailVerified?: Date | string | null
     image?: string | null
     passwordHash?: string | null
+    role?: $Enums.UserRole
   }
 
   export type UserUpdateManyMutationInput = {
@@ -14225,6 +17091,7 @@ export namespace Prisma {
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -14234,6 +17101,7 @@ export namespace Prisma {
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   }
 
   export type VerificationTokenCreateInput = {
@@ -14296,6 +17164,8 @@ export namespace Prisma {
     photos?: PhotoCreateNestedManyWithoutCollectionInput
     purchases?: PurchaseCreateNestedManyWithoutCollectionInput
     faceRecords?: FaceRecordCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUncheckedCreateInput = {
@@ -14316,6 +17186,8 @@ export namespace Prisma {
     photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
     purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
     faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberUncheckedCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUpdateInput = {
@@ -14336,6 +17208,8 @@ export namespace Prisma {
     photos?: PhotoUpdateManyWithoutCollectionNestedInput
     purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
     faceRecords?: FaceRecordUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionUncheckedUpdateInput = {
@@ -14356,6 +17230,8 @@ export namespace Prisma {
     photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
     purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
     faceRecords?: FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUncheckedUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionCreateManyInput = {
@@ -14409,6 +17285,142 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CollectionMemberCreateInput = {
+    id?: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutMembershipsInput
+    collection: CollectionCreateNestedOneWithoutMembersInput
+  }
+
+  export type CollectionMemberUncheckedCreateInput = {
+    id?: string
+    userId: string
+    collectionId: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+  }
+
+  export type CollectionMemberUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutMembershipsNestedInput
+    collection?: CollectionUpdateOneRequiredWithoutMembersNestedInput
+  }
+
+  export type CollectionMemberUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CollectionMemberCreateManyInput = {
+    id?: string
+    userId: string
+    collectionId: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+  }
+
+  export type CollectionMemberUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CollectionMemberUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationCreateInput = {
+    id?: string
+    email: string
+    token: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
+    collection: CollectionCreateNestedOneWithoutInvitationsInput
+    invitedBy: UserCreateNestedOneWithoutInvitesSentInput
+  }
+
+  export type InvitationUncheckedCreateInput = {
+    id?: string
+    email: string
+    token: string
+    collectionId: string
+    invitedById: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type InvitationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collection?: CollectionUpdateOneRequiredWithoutInvitationsNestedInput
+    invitedBy?: UserUpdateOneRequiredWithoutInvitesSentNestedInput
+  }
+
+  export type InvitationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    invitedById?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationCreateManyInput = {
+    id?: string
+    email: string
+    token: string
+    collectionId: string
+    invitedById: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type InvitationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    invitedById?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type PhotoCreateInput = {
     id?: string
     bibNumber?: string | null
@@ -14422,12 +17434,14 @@ export namespace Prisma {
     contentHash?: string | null
     createdAt?: Date | string
     collection: CollectionCreateNestedOneWithoutPhotosInput
+    uploader?: UserCreateNestedOneWithoutUploadsInput
     faceRecords?: FaceRecordCreateNestedManyWithoutPhotoInput
   }
 
   export type PhotoUncheckedCreateInput = {
     id?: string
     collectionId: string
+    uploaderId?: string | null
     bibNumber?: string | null
     storageKey: string
     filename: string
@@ -14454,12 +17468,14 @@ export namespace Prisma {
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
+    uploader?: UserUpdateOneWithoutUploadsNestedInput
     faceRecords?: FaceRecordUpdateManyWithoutPhotoNestedInput
   }
 
   export type PhotoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     collectionId?: StringFieldUpdateOperationsInput | string
+    uploaderId?: NullableStringFieldUpdateOperationsInput | string | null
     bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
@@ -14476,6 +17492,7 @@ export namespace Prisma {
   export type PhotoCreateManyInput = {
     id?: string
     collectionId: string
+    uploaderId?: string | null
     bibNumber?: string | null
     storageKey: string
     filename: string
@@ -14505,6 +17522,7 @@ export namespace Prisma {
   export type PhotoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     collectionId?: StringFieldUpdateOperationsInput | string
+    uploaderId?: NullableStringFieldUpdateOperationsInput | string | null
     bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
@@ -15045,6 +18063,13 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type EnumUserRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserRole | EnumUserRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.UserRole[] | ListEnumUserRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserRole[] | ListEnumUserRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserRoleFilter<$PrismaModel> | $Enums.UserRole
+  }
+
   export type AccountListRelationFilter = {
     every?: AccountWhereInput
     some?: AccountWhereInput
@@ -15057,11 +18082,41 @@ export namespace Prisma {
     none?: SessionWhereInput
   }
 
+  export type PhotoListRelationFilter = {
+    every?: PhotoWhereInput
+    some?: PhotoWhereInput
+    none?: PhotoWhereInput
+  }
+
+  export type CollectionMemberListRelationFilter = {
+    every?: CollectionMemberWhereInput
+    some?: CollectionMemberWhereInput
+    none?: CollectionMemberWhereInput
+  }
+
+  export type InvitationListRelationFilter = {
+    every?: InvitationWhereInput
+    some?: InvitationWhereInput
+    none?: InvitationWhereInput
+  }
+
   export type AccountOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type SessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PhotoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CollectionMemberOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InvitationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -15072,6 +18127,7 @@ export namespace Prisma {
     emailVerified?: SortOrder
     image?: SortOrder
     passwordHash?: SortOrder
+    role?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -15081,6 +18137,7 @@ export namespace Prisma {
     emailVerified?: SortOrder
     image?: SortOrder
     passwordHash?: SortOrder
+    role?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -15090,6 +18147,7 @@ export namespace Prisma {
     emailVerified?: SortOrder
     image?: SortOrder
     passwordHash?: SortOrder
+    role?: SortOrder
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -15104,6 +18162,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type EnumUserRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserRole | EnumUserRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.UserRole[] | ListEnumUserRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserRole[] | ListEnumUserRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserRoleWithAggregatesFilter<$PrismaModel> | $Enums.UserRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUserRoleFilter<$PrismaModel>
+    _max?: NestedEnumUserRoleFilter<$PrismaModel>
   }
 
   export type VerificationTokenIdentifierTokenCompoundUniqueInput = {
@@ -15156,12 +18224,6 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type PhotoListRelationFilter = {
-    every?: PhotoWhereInput
-    some?: PhotoWhereInput
-    none?: PhotoWhereInput
-  }
-
   export type PurchaseListRelationFilter = {
     every?: PurchaseWhereInput
     some?: PurchaseWhereInput
@@ -15172,10 +18234,6 @@ export namespace Prisma {
     every?: FaceRecordWhereInput
     some?: FaceRecordWhereInput
     none?: FaceRecordWhereInput
-  }
-
-  export type PhotoOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type PurchaseOrderByRelationAggregateInput = {
@@ -15287,6 +18345,93 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type EnumCollectionMemberRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.CollectionMemberRole | EnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.CollectionMemberRole[] | ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CollectionMemberRole[] | ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCollectionMemberRoleFilter<$PrismaModel> | $Enums.CollectionMemberRole
+  }
+
+  export type CollectionScalarRelationFilter = {
+    is?: CollectionWhereInput
+    isNot?: CollectionWhereInput
+  }
+
+  export type CollectionMemberUserIdCollectionIdCompoundUniqueInput = {
+    userId: string
+    collectionId: string
+  }
+
+  export type CollectionMemberCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    collectionId?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CollectionMemberMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    collectionId?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CollectionMemberMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    collectionId?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumCollectionMemberRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CollectionMemberRole | EnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.CollectionMemberRole[] | ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CollectionMemberRole[] | ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCollectionMemberRoleWithAggregatesFilter<$PrismaModel> | $Enums.CollectionMemberRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCollectionMemberRoleFilter<$PrismaModel>
+    _max?: NestedEnumCollectionMemberRoleFilter<$PrismaModel>
+  }
+
+  export type InvitationCountOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    token?: SortOrder
+    collectionId?: SortOrder
+    invitedById?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    acceptedByUserId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type InvitationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    token?: SortOrder
+    collectionId?: SortOrder
+    invitedById?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    acceptedByUserId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type InvitationMinOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    token?: SortOrder
+    collectionId?: SortOrder
+    invitedById?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    acceptedByUserId?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -15298,14 +18443,15 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type CollectionScalarRelationFilter = {
-    is?: CollectionWhereInput
-    isNot?: CollectionWhereInput
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
   }
 
   export type PhotoCountOrderByAggregateInput = {
     id?: SortOrder
     collectionId?: SortOrder
+    uploaderId?: SortOrder
     bibNumber?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
@@ -15328,6 +18474,7 @@ export namespace Prisma {
   export type PhotoMaxOrderByAggregateInput = {
     id?: SortOrder
     collectionId?: SortOrder
+    uploaderId?: SortOrder
     bibNumber?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
@@ -15343,6 +18490,7 @@ export namespace Prisma {
   export type PhotoMinOrderByAggregateInput = {
     id?: SortOrder
     collectionId?: SortOrder
+    uploaderId?: SortOrder
     bibNumber?: SortOrder
     storageKey?: SortOrder
     filename?: SortOrder
@@ -15610,6 +18758,27 @@ export namespace Prisma {
     connect?: SessionWhereUniqueInput | SessionWhereUniqueInput[]
   }
 
+  export type PhotoCreateNestedManyWithoutUploaderInput = {
+    create?: XOR<PhotoCreateWithoutUploaderInput, PhotoUncheckedCreateWithoutUploaderInput> | PhotoCreateWithoutUploaderInput[] | PhotoUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: PhotoCreateOrConnectWithoutUploaderInput | PhotoCreateOrConnectWithoutUploaderInput[]
+    createMany?: PhotoCreateManyUploaderInputEnvelope
+    connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+  }
+
+  export type CollectionMemberCreateNestedManyWithoutUserInput = {
+    create?: XOR<CollectionMemberCreateWithoutUserInput, CollectionMemberUncheckedCreateWithoutUserInput> | CollectionMemberCreateWithoutUserInput[] | CollectionMemberUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CollectionMemberCreateOrConnectWithoutUserInput | CollectionMemberCreateOrConnectWithoutUserInput[]
+    createMany?: CollectionMemberCreateManyUserInputEnvelope
+    connect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+  }
+
+  export type InvitationCreateNestedManyWithoutInvitedByInput = {
+    create?: XOR<InvitationCreateWithoutInvitedByInput, InvitationUncheckedCreateWithoutInvitedByInput> | InvitationCreateWithoutInvitedByInput[] | InvitationUncheckedCreateWithoutInvitedByInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutInvitedByInput | InvitationCreateOrConnectWithoutInvitedByInput[]
+    createMany?: InvitationCreateManyInvitedByInputEnvelope
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -15624,8 +18793,33 @@ export namespace Prisma {
     connect?: SessionWhereUniqueInput | SessionWhereUniqueInput[]
   }
 
+  export type PhotoUncheckedCreateNestedManyWithoutUploaderInput = {
+    create?: XOR<PhotoCreateWithoutUploaderInput, PhotoUncheckedCreateWithoutUploaderInput> | PhotoCreateWithoutUploaderInput[] | PhotoUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: PhotoCreateOrConnectWithoutUploaderInput | PhotoCreateOrConnectWithoutUploaderInput[]
+    createMany?: PhotoCreateManyUploaderInputEnvelope
+    connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+  }
+
+  export type CollectionMemberUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<CollectionMemberCreateWithoutUserInput, CollectionMemberUncheckedCreateWithoutUserInput> | CollectionMemberCreateWithoutUserInput[] | CollectionMemberUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CollectionMemberCreateOrConnectWithoutUserInput | CollectionMemberCreateOrConnectWithoutUserInput[]
+    createMany?: CollectionMemberCreateManyUserInputEnvelope
+    connect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+  }
+
+  export type InvitationUncheckedCreateNestedManyWithoutInvitedByInput = {
+    create?: XOR<InvitationCreateWithoutInvitedByInput, InvitationUncheckedCreateWithoutInvitedByInput> | InvitationCreateWithoutInvitedByInput[] | InvitationUncheckedCreateWithoutInvitedByInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutInvitedByInput | InvitationCreateOrConnectWithoutInvitedByInput[]
+    createMany?: InvitationCreateManyInvitedByInputEnvelope
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+  }
+
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
+  }
+
+  export type EnumUserRoleFieldUpdateOperationsInput = {
+    set?: $Enums.UserRole
   }
 
   export type AccountUpdateManyWithoutUserNestedInput = {
@@ -15656,6 +18850,48 @@ export namespace Prisma {
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
   }
 
+  export type PhotoUpdateManyWithoutUploaderNestedInput = {
+    create?: XOR<PhotoCreateWithoutUploaderInput, PhotoUncheckedCreateWithoutUploaderInput> | PhotoCreateWithoutUploaderInput[] | PhotoUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: PhotoCreateOrConnectWithoutUploaderInput | PhotoCreateOrConnectWithoutUploaderInput[]
+    upsert?: PhotoUpsertWithWhereUniqueWithoutUploaderInput | PhotoUpsertWithWhereUniqueWithoutUploaderInput[]
+    createMany?: PhotoCreateManyUploaderInputEnvelope
+    set?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    disconnect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    delete?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    update?: PhotoUpdateWithWhereUniqueWithoutUploaderInput | PhotoUpdateWithWhereUniqueWithoutUploaderInput[]
+    updateMany?: PhotoUpdateManyWithWhereWithoutUploaderInput | PhotoUpdateManyWithWhereWithoutUploaderInput[]
+    deleteMany?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
+  }
+
+  export type CollectionMemberUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CollectionMemberCreateWithoutUserInput, CollectionMemberUncheckedCreateWithoutUserInput> | CollectionMemberCreateWithoutUserInput[] | CollectionMemberUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CollectionMemberCreateOrConnectWithoutUserInput | CollectionMemberCreateOrConnectWithoutUserInput[]
+    upsert?: CollectionMemberUpsertWithWhereUniqueWithoutUserInput | CollectionMemberUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CollectionMemberCreateManyUserInputEnvelope
+    set?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    disconnect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    delete?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    connect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    update?: CollectionMemberUpdateWithWhereUniqueWithoutUserInput | CollectionMemberUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CollectionMemberUpdateManyWithWhereWithoutUserInput | CollectionMemberUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CollectionMemberScalarWhereInput | CollectionMemberScalarWhereInput[]
+  }
+
+  export type InvitationUpdateManyWithoutInvitedByNestedInput = {
+    create?: XOR<InvitationCreateWithoutInvitedByInput, InvitationUncheckedCreateWithoutInvitedByInput> | InvitationCreateWithoutInvitedByInput[] | InvitationUncheckedCreateWithoutInvitedByInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutInvitedByInput | InvitationCreateOrConnectWithoutInvitedByInput[]
+    upsert?: InvitationUpsertWithWhereUniqueWithoutInvitedByInput | InvitationUpsertWithWhereUniqueWithoutInvitedByInput[]
+    createMany?: InvitationCreateManyInvitedByInputEnvelope
+    set?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    disconnect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    delete?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    update?: InvitationUpdateWithWhereUniqueWithoutInvitedByInput | InvitationUpdateWithWhereUniqueWithoutInvitedByInput[]
+    updateMany?: InvitationUpdateManyWithWhereWithoutInvitedByInput | InvitationUpdateManyWithWhereWithoutInvitedByInput[]
+    deleteMany?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -15684,6 +18920,48 @@ export namespace Prisma {
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
   }
 
+  export type PhotoUncheckedUpdateManyWithoutUploaderNestedInput = {
+    create?: XOR<PhotoCreateWithoutUploaderInput, PhotoUncheckedCreateWithoutUploaderInput> | PhotoCreateWithoutUploaderInput[] | PhotoUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: PhotoCreateOrConnectWithoutUploaderInput | PhotoCreateOrConnectWithoutUploaderInput[]
+    upsert?: PhotoUpsertWithWhereUniqueWithoutUploaderInput | PhotoUpsertWithWhereUniqueWithoutUploaderInput[]
+    createMany?: PhotoCreateManyUploaderInputEnvelope
+    set?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    disconnect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    delete?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    connect?: PhotoWhereUniqueInput | PhotoWhereUniqueInput[]
+    update?: PhotoUpdateWithWhereUniqueWithoutUploaderInput | PhotoUpdateWithWhereUniqueWithoutUploaderInput[]
+    updateMany?: PhotoUpdateManyWithWhereWithoutUploaderInput | PhotoUpdateManyWithWhereWithoutUploaderInput[]
+    deleteMany?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
+  }
+
+  export type CollectionMemberUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CollectionMemberCreateWithoutUserInput, CollectionMemberUncheckedCreateWithoutUserInput> | CollectionMemberCreateWithoutUserInput[] | CollectionMemberUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CollectionMemberCreateOrConnectWithoutUserInput | CollectionMemberCreateOrConnectWithoutUserInput[]
+    upsert?: CollectionMemberUpsertWithWhereUniqueWithoutUserInput | CollectionMemberUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CollectionMemberCreateManyUserInputEnvelope
+    set?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    disconnect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    delete?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    connect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    update?: CollectionMemberUpdateWithWhereUniqueWithoutUserInput | CollectionMemberUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CollectionMemberUpdateManyWithWhereWithoutUserInput | CollectionMemberUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CollectionMemberScalarWhereInput | CollectionMemberScalarWhereInput[]
+  }
+
+  export type InvitationUncheckedUpdateManyWithoutInvitedByNestedInput = {
+    create?: XOR<InvitationCreateWithoutInvitedByInput, InvitationUncheckedCreateWithoutInvitedByInput> | InvitationCreateWithoutInvitedByInput[] | InvitationUncheckedCreateWithoutInvitedByInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutInvitedByInput | InvitationCreateOrConnectWithoutInvitedByInput[]
+    upsert?: InvitationUpsertWithWhereUniqueWithoutInvitedByInput | InvitationUpsertWithWhereUniqueWithoutInvitedByInput[]
+    createMany?: InvitationCreateManyInvitedByInputEnvelope
+    set?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    disconnect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    delete?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    update?: InvitationUpdateWithWhereUniqueWithoutInvitedByInput | InvitationUpdateWithWhereUniqueWithoutInvitedByInput[]
+    updateMany?: InvitationUpdateManyWithWhereWithoutInvitedByInput | InvitationUpdateManyWithWhereWithoutInvitedByInput[]
+    deleteMany?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+  }
+
   export type PhotoCreateNestedManyWithoutCollectionInput = {
     create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
     connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
@@ -15705,6 +18983,20 @@ export namespace Prisma {
     connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
   }
 
+  export type CollectionMemberCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<CollectionMemberCreateWithoutCollectionInput, CollectionMemberUncheckedCreateWithoutCollectionInput> | CollectionMemberCreateWithoutCollectionInput[] | CollectionMemberUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: CollectionMemberCreateOrConnectWithoutCollectionInput | CollectionMemberCreateOrConnectWithoutCollectionInput[]
+    createMany?: CollectionMemberCreateManyCollectionInputEnvelope
+    connect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+  }
+
+  export type InvitationCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<InvitationCreateWithoutCollectionInput, InvitationUncheckedCreateWithoutCollectionInput> | InvitationCreateWithoutCollectionInput[] | InvitationUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutCollectionInput | InvitationCreateOrConnectWithoutCollectionInput[]
+    createMany?: InvitationCreateManyCollectionInputEnvelope
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+  }
+
   export type PhotoUncheckedCreateNestedManyWithoutCollectionInput = {
     create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
     connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
@@ -15724,6 +19016,20 @@ export namespace Prisma {
     connectOrCreate?: FaceRecordCreateOrConnectWithoutCollectionInput | FaceRecordCreateOrConnectWithoutCollectionInput[]
     createMany?: FaceRecordCreateManyCollectionInputEnvelope
     connect?: FaceRecordWhereUniqueInput | FaceRecordWhereUniqueInput[]
+  }
+
+  export type CollectionMemberUncheckedCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<CollectionMemberCreateWithoutCollectionInput, CollectionMemberUncheckedCreateWithoutCollectionInput> | CollectionMemberCreateWithoutCollectionInput[] | CollectionMemberUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: CollectionMemberCreateOrConnectWithoutCollectionInput | CollectionMemberCreateOrConnectWithoutCollectionInput[]
+    createMany?: CollectionMemberCreateManyCollectionInputEnvelope
+    connect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+  }
+
+  export type InvitationUncheckedCreateNestedManyWithoutCollectionInput = {
+    create?: XOR<InvitationCreateWithoutCollectionInput, InvitationUncheckedCreateWithoutCollectionInput> | InvitationCreateWithoutCollectionInput[] | InvitationUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutCollectionInput | InvitationCreateOrConnectWithoutCollectionInput[]
+    createMany?: InvitationCreateManyCollectionInputEnvelope
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -15788,6 +19094,34 @@ export namespace Prisma {
     deleteMany?: FaceRecordScalarWhereInput | FaceRecordScalarWhereInput[]
   }
 
+  export type CollectionMemberUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<CollectionMemberCreateWithoutCollectionInput, CollectionMemberUncheckedCreateWithoutCollectionInput> | CollectionMemberCreateWithoutCollectionInput[] | CollectionMemberUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: CollectionMemberCreateOrConnectWithoutCollectionInput | CollectionMemberCreateOrConnectWithoutCollectionInput[]
+    upsert?: CollectionMemberUpsertWithWhereUniqueWithoutCollectionInput | CollectionMemberUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: CollectionMemberCreateManyCollectionInputEnvelope
+    set?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    disconnect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    delete?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    connect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    update?: CollectionMemberUpdateWithWhereUniqueWithoutCollectionInput | CollectionMemberUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: CollectionMemberUpdateManyWithWhereWithoutCollectionInput | CollectionMemberUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: CollectionMemberScalarWhereInput | CollectionMemberScalarWhereInput[]
+  }
+
+  export type InvitationUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<InvitationCreateWithoutCollectionInput, InvitationUncheckedCreateWithoutCollectionInput> | InvitationCreateWithoutCollectionInput[] | InvitationUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutCollectionInput | InvitationCreateOrConnectWithoutCollectionInput[]
+    upsert?: InvitationUpsertWithWhereUniqueWithoutCollectionInput | InvitationUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: InvitationCreateManyCollectionInputEnvelope
+    set?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    disconnect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    delete?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    update?: InvitationUpdateWithWhereUniqueWithoutCollectionInput | InvitationUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: InvitationUpdateManyWithWhereWithoutCollectionInput | InvitationUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+  }
+
   export type PhotoUncheckedUpdateManyWithoutCollectionNestedInput = {
     create?: XOR<PhotoCreateWithoutCollectionInput, PhotoUncheckedCreateWithoutCollectionInput> | PhotoCreateWithoutCollectionInput[] | PhotoUncheckedCreateWithoutCollectionInput[]
     connectOrCreate?: PhotoCreateOrConnectWithoutCollectionInput | PhotoCreateOrConnectWithoutCollectionInput[]
@@ -15830,10 +19164,104 @@ export namespace Prisma {
     deleteMany?: FaceRecordScalarWhereInput | FaceRecordScalarWhereInput[]
   }
 
+  export type CollectionMemberUncheckedUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<CollectionMemberCreateWithoutCollectionInput, CollectionMemberUncheckedCreateWithoutCollectionInput> | CollectionMemberCreateWithoutCollectionInput[] | CollectionMemberUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: CollectionMemberCreateOrConnectWithoutCollectionInput | CollectionMemberCreateOrConnectWithoutCollectionInput[]
+    upsert?: CollectionMemberUpsertWithWhereUniqueWithoutCollectionInput | CollectionMemberUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: CollectionMemberCreateManyCollectionInputEnvelope
+    set?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    disconnect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    delete?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    connect?: CollectionMemberWhereUniqueInput | CollectionMemberWhereUniqueInput[]
+    update?: CollectionMemberUpdateWithWhereUniqueWithoutCollectionInput | CollectionMemberUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: CollectionMemberUpdateManyWithWhereWithoutCollectionInput | CollectionMemberUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: CollectionMemberScalarWhereInput | CollectionMemberScalarWhereInput[]
+  }
+
+  export type InvitationUncheckedUpdateManyWithoutCollectionNestedInput = {
+    create?: XOR<InvitationCreateWithoutCollectionInput, InvitationUncheckedCreateWithoutCollectionInput> | InvitationCreateWithoutCollectionInput[] | InvitationUncheckedCreateWithoutCollectionInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutCollectionInput | InvitationCreateOrConnectWithoutCollectionInput[]
+    upsert?: InvitationUpsertWithWhereUniqueWithoutCollectionInput | InvitationUpsertWithWhereUniqueWithoutCollectionInput[]
+    createMany?: InvitationCreateManyCollectionInputEnvelope
+    set?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    disconnect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    delete?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    update?: InvitationUpdateWithWhereUniqueWithoutCollectionInput | InvitationUpdateWithWhereUniqueWithoutCollectionInput[]
+    updateMany?: InvitationUpdateManyWithWhereWithoutCollectionInput | InvitationUpdateManyWithWhereWithoutCollectionInput[]
+    deleteMany?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutMembershipsInput = {
+    create?: XOR<UserCreateWithoutMembershipsInput, UserUncheckedCreateWithoutMembershipsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMembershipsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CollectionCreateNestedOneWithoutMembersInput = {
+    create?: XOR<CollectionCreateWithoutMembersInput, CollectionUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutMembersInput
+    connect?: CollectionWhereUniqueInput
+  }
+
+  export type EnumCollectionMemberRoleFieldUpdateOperationsInput = {
+    set?: $Enums.CollectionMemberRole
+  }
+
+  export type UserUpdateOneRequiredWithoutMembershipsNestedInput = {
+    create?: XOR<UserCreateWithoutMembershipsInput, UserUncheckedCreateWithoutMembershipsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMembershipsInput
+    upsert?: UserUpsertWithoutMembershipsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutMembershipsInput, UserUpdateWithoutMembershipsInput>, UserUncheckedUpdateWithoutMembershipsInput>
+  }
+
+  export type CollectionUpdateOneRequiredWithoutMembersNestedInput = {
+    create?: XOR<CollectionCreateWithoutMembersInput, CollectionUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutMembersInput
+    upsert?: CollectionUpsertWithoutMembersInput
+    connect?: CollectionWhereUniqueInput
+    update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutMembersInput, CollectionUpdateWithoutMembersInput>, CollectionUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type CollectionCreateNestedOneWithoutInvitationsInput = {
+    create?: XOR<CollectionCreateWithoutInvitationsInput, CollectionUncheckedCreateWithoutInvitationsInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutInvitationsInput
+    connect?: CollectionWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutInvitesSentInput = {
+    create?: XOR<UserCreateWithoutInvitesSentInput, UserUncheckedCreateWithoutInvitesSentInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInvitesSentInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CollectionUpdateOneRequiredWithoutInvitationsNestedInput = {
+    create?: XOR<CollectionCreateWithoutInvitationsInput, CollectionUncheckedCreateWithoutInvitationsInput>
+    connectOrCreate?: CollectionCreateOrConnectWithoutInvitationsInput
+    upsert?: CollectionUpsertWithoutInvitationsInput
+    connect?: CollectionWhereUniqueInput
+    update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutInvitationsInput, CollectionUpdateWithoutInvitationsInput>, CollectionUncheckedUpdateWithoutInvitationsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutInvitesSentNestedInput = {
+    create?: XOR<UserCreateWithoutInvitesSentInput, UserUncheckedCreateWithoutInvitesSentInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInvitesSentInput
+    upsert?: UserUpsertWithoutInvitesSentInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInvitesSentInput, UserUpdateWithoutInvitesSentInput>, UserUncheckedUpdateWithoutInvitesSentInput>
+  }
+
   export type CollectionCreateNestedOneWithoutPhotosInput = {
     create?: XOR<CollectionCreateWithoutPhotosInput, CollectionUncheckedCreateWithoutPhotosInput>
     connectOrCreate?: CollectionCreateOrConnectWithoutPhotosInput
     connect?: CollectionWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutUploadsInput = {
+    create?: XOR<UserCreateWithoutUploadsInput, UserUncheckedCreateWithoutUploadsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUploadsInput
+    connect?: UserWhereUniqueInput
   }
 
   export type FaceRecordCreateNestedManyWithoutPhotoInput = {
@@ -15864,6 +19292,16 @@ export namespace Prisma {
     upsert?: CollectionUpsertWithoutPhotosInput
     connect?: CollectionWhereUniqueInput
     update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutPhotosInput, CollectionUpdateWithoutPhotosInput>, CollectionUncheckedUpdateWithoutPhotosInput>
+  }
+
+  export type UserUpdateOneWithoutUploadsNestedInput = {
+    create?: XOR<UserCreateWithoutUploadsInput, UserUncheckedCreateWithoutUploadsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUploadsInput
+    upsert?: UserUpsertWithoutUploadsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUploadsInput, UserUpdateWithoutUploadsInput>, UserUncheckedUpdateWithoutUploadsInput>
   }
 
   export type FaceRecordUpdateManyWithoutPhotoNestedInput = {
@@ -16087,6 +19525,13 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type NestedEnumUserRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserRole | EnumUserRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.UserRole[] | ListEnumUserRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserRole[] | ListEnumUserRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserRoleFilter<$PrismaModel> | $Enums.UserRole
+  }
+
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -16099,6 +19544,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumUserRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserRole | EnumUserRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.UserRole[] | ListEnumUserRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserRole[] | ListEnumUserRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserRoleWithAggregatesFilter<$PrismaModel> | $Enums.UserRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUserRoleFilter<$PrismaModel>
+    _max?: NestedEnumUserRoleFilter<$PrismaModel>
   }
 
   export type NestedDecimalFilter<$PrismaModel = never> = {
@@ -16157,6 +19612,23 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedEnumCollectionMemberRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.CollectionMemberRole | EnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.CollectionMemberRole[] | ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CollectionMemberRole[] | ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCollectionMemberRoleFilter<$PrismaModel> | $Enums.CollectionMemberRole
+  }
+
+  export type NestedEnumCollectionMemberRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CollectionMemberRole | EnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.CollectionMemberRole[] | ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CollectionMemberRole[] | ListEnumCollectionMemberRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCollectionMemberRoleWithAggregatesFilter<$PrismaModel> | $Enums.CollectionMemberRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCollectionMemberRoleFilter<$PrismaModel>
+    _max?: NestedEnumCollectionMemberRoleFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -16208,7 +19680,11 @@ export namespace Prisma {
     emailVerified?: Date | string | null
     image?: string | null
     passwordHash?: string | null
+    role?: $Enums.UserRole
     sessions?: SessionCreateNestedManyWithoutUserInput
+    uploads?: PhotoCreateNestedManyWithoutUploaderInput
+    memberships?: CollectionMemberCreateNestedManyWithoutUserInput
+    invitesSent?: InvitationCreateNestedManyWithoutInvitedByInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -16218,7 +19694,11 @@ export namespace Prisma {
     emailVerified?: Date | string | null
     image?: string | null
     passwordHash?: string | null
+    role?: $Enums.UserRole
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    uploads?: PhotoUncheckedCreateNestedManyWithoutUploaderInput
+    memberships?: CollectionMemberUncheckedCreateNestedManyWithoutUserInput
+    invitesSent?: InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -16244,7 +19724,11 @@ export namespace Prisma {
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUpdateManyWithoutUploaderNestedInput
+    memberships?: CollectionMemberUpdateManyWithoutUserNestedInput
+    invitesSent?: InvitationUpdateManyWithoutInvitedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -16254,7 +19738,11 @@ export namespace Prisma {
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUncheckedUpdateManyWithoutUploaderNestedInput
+    memberships?: CollectionMemberUncheckedUpdateManyWithoutUserNestedInput
+    invitesSent?: InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -16264,7 +19752,11 @@ export namespace Prisma {
     emailVerified?: Date | string | null
     image?: string | null
     passwordHash?: string | null
+    role?: $Enums.UserRole
     accounts?: AccountCreateNestedManyWithoutUserInput
+    uploads?: PhotoCreateNestedManyWithoutUploaderInput
+    memberships?: CollectionMemberCreateNestedManyWithoutUserInput
+    invitesSent?: InvitationCreateNestedManyWithoutInvitedByInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -16274,7 +19766,11 @@ export namespace Prisma {
     emailVerified?: Date | string | null
     image?: string | null
     passwordHash?: string | null
+    role?: $Enums.UserRole
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    uploads?: PhotoUncheckedCreateNestedManyWithoutUploaderInput
+    memberships?: CollectionMemberUncheckedCreateNestedManyWithoutUserInput
+    invitesSent?: InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -16300,7 +19796,11 @@ export namespace Prisma {
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     accounts?: AccountUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUpdateManyWithoutUploaderNestedInput
+    memberships?: CollectionMemberUpdateManyWithoutUserNestedInput
+    invitesSent?: InvitationUpdateManyWithoutInvitedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -16310,7 +19810,11 @@ export namespace Prisma {
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUncheckedUpdateManyWithoutUploaderNestedInput
+    memberships?: CollectionMemberUncheckedUpdateManyWithoutUserNestedInput
+    invitesSent?: InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   }
 
   export type AccountCreateWithoutUserInput = {
@@ -16375,6 +19879,104 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PhotoCreateWithoutUploaderInput = {
+    id?: string
+    bibNumber?: string | null
+    storageKey: string
+    filename: string
+    fileSize?: number | null
+    width?: number | null
+    height?: number | null
+    order?: number
+    previewKey?: string | null
+    contentHash?: string | null
+    createdAt?: Date | string
+    collection: CollectionCreateNestedOneWithoutPhotosInput
+    faceRecords?: FaceRecordCreateNestedManyWithoutPhotoInput
+  }
+
+  export type PhotoUncheckedCreateWithoutUploaderInput = {
+    id?: string
+    collectionId: string
+    bibNumber?: string | null
+    storageKey: string
+    filename: string
+    fileSize?: number | null
+    width?: number | null
+    height?: number | null
+    order?: number
+    previewKey?: string | null
+    contentHash?: string | null
+    createdAt?: Date | string
+    faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutPhotoInput
+  }
+
+  export type PhotoCreateOrConnectWithoutUploaderInput = {
+    where: PhotoWhereUniqueInput
+    create: XOR<PhotoCreateWithoutUploaderInput, PhotoUncheckedCreateWithoutUploaderInput>
+  }
+
+  export type PhotoCreateManyUploaderInputEnvelope = {
+    data: PhotoCreateManyUploaderInput | PhotoCreateManyUploaderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CollectionMemberCreateWithoutUserInput = {
+    id?: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+    collection: CollectionCreateNestedOneWithoutMembersInput
+  }
+
+  export type CollectionMemberUncheckedCreateWithoutUserInput = {
+    id?: string
+    collectionId: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+  }
+
+  export type CollectionMemberCreateOrConnectWithoutUserInput = {
+    where: CollectionMemberWhereUniqueInput
+    create: XOR<CollectionMemberCreateWithoutUserInput, CollectionMemberUncheckedCreateWithoutUserInput>
+  }
+
+  export type CollectionMemberCreateManyUserInputEnvelope = {
+    data: CollectionMemberCreateManyUserInput | CollectionMemberCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InvitationCreateWithoutInvitedByInput = {
+    id?: string
+    email: string
+    token: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
+    collection: CollectionCreateNestedOneWithoutInvitationsInput
+  }
+
+  export type InvitationUncheckedCreateWithoutInvitedByInput = {
+    id?: string
+    email: string
+    token: string
+    collectionId: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type InvitationCreateOrConnectWithoutInvitedByInput = {
+    where: InvitationWhereUniqueInput
+    create: XOR<InvitationCreateWithoutInvitedByInput, InvitationUncheckedCreateWithoutInvitedByInput>
+  }
+
+  export type InvitationCreateManyInvitedByInputEnvelope = {
+    data: InvitationCreateManyInvitedByInput | InvitationCreateManyInvitedByInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
     where: AccountWhereUniqueInput
     update: XOR<AccountUpdateWithoutUserInput, AccountUncheckedUpdateWithoutUserInput>
@@ -16436,6 +20038,99 @@ export namespace Prisma {
     expires?: DateTimeFilter<"Session"> | Date | string
   }
 
+  export type PhotoUpsertWithWhereUniqueWithoutUploaderInput = {
+    where: PhotoWhereUniqueInput
+    update: XOR<PhotoUpdateWithoutUploaderInput, PhotoUncheckedUpdateWithoutUploaderInput>
+    create: XOR<PhotoCreateWithoutUploaderInput, PhotoUncheckedCreateWithoutUploaderInput>
+  }
+
+  export type PhotoUpdateWithWhereUniqueWithoutUploaderInput = {
+    where: PhotoWhereUniqueInput
+    data: XOR<PhotoUpdateWithoutUploaderInput, PhotoUncheckedUpdateWithoutUploaderInput>
+  }
+
+  export type PhotoUpdateManyWithWhereWithoutUploaderInput = {
+    where: PhotoScalarWhereInput
+    data: XOR<PhotoUpdateManyMutationInput, PhotoUncheckedUpdateManyWithoutUploaderInput>
+  }
+
+  export type PhotoScalarWhereInput = {
+    AND?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
+    OR?: PhotoScalarWhereInput[]
+    NOT?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
+    id?: StringFilter<"Photo"> | string
+    collectionId?: StringFilter<"Photo"> | string
+    uploaderId?: StringNullableFilter<"Photo"> | string | null
+    bibNumber?: StringNullableFilter<"Photo"> | string | null
+    storageKey?: StringFilter<"Photo"> | string
+    filename?: StringFilter<"Photo"> | string
+    fileSize?: IntNullableFilter<"Photo"> | number | null
+    width?: IntNullableFilter<"Photo"> | number | null
+    height?: IntNullableFilter<"Photo"> | number | null
+    order?: IntFilter<"Photo"> | number
+    previewKey?: StringNullableFilter<"Photo"> | string | null
+    contentHash?: StringNullableFilter<"Photo"> | string | null
+    createdAt?: DateTimeFilter<"Photo"> | Date | string
+  }
+
+  export type CollectionMemberUpsertWithWhereUniqueWithoutUserInput = {
+    where: CollectionMemberWhereUniqueInput
+    update: XOR<CollectionMemberUpdateWithoutUserInput, CollectionMemberUncheckedUpdateWithoutUserInput>
+    create: XOR<CollectionMemberCreateWithoutUserInput, CollectionMemberUncheckedCreateWithoutUserInput>
+  }
+
+  export type CollectionMemberUpdateWithWhereUniqueWithoutUserInput = {
+    where: CollectionMemberWhereUniqueInput
+    data: XOR<CollectionMemberUpdateWithoutUserInput, CollectionMemberUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CollectionMemberUpdateManyWithWhereWithoutUserInput = {
+    where: CollectionMemberScalarWhereInput
+    data: XOR<CollectionMemberUpdateManyMutationInput, CollectionMemberUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type CollectionMemberScalarWhereInput = {
+    AND?: CollectionMemberScalarWhereInput | CollectionMemberScalarWhereInput[]
+    OR?: CollectionMemberScalarWhereInput[]
+    NOT?: CollectionMemberScalarWhereInput | CollectionMemberScalarWhereInput[]
+    id?: StringFilter<"CollectionMember"> | string
+    userId?: StringFilter<"CollectionMember"> | string
+    collectionId?: StringFilter<"CollectionMember"> | string
+    role?: EnumCollectionMemberRoleFilter<"CollectionMember"> | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFilter<"CollectionMember"> | Date | string
+  }
+
+  export type InvitationUpsertWithWhereUniqueWithoutInvitedByInput = {
+    where: InvitationWhereUniqueInput
+    update: XOR<InvitationUpdateWithoutInvitedByInput, InvitationUncheckedUpdateWithoutInvitedByInput>
+    create: XOR<InvitationCreateWithoutInvitedByInput, InvitationUncheckedCreateWithoutInvitedByInput>
+  }
+
+  export type InvitationUpdateWithWhereUniqueWithoutInvitedByInput = {
+    where: InvitationWhereUniqueInput
+    data: XOR<InvitationUpdateWithoutInvitedByInput, InvitationUncheckedUpdateWithoutInvitedByInput>
+  }
+
+  export type InvitationUpdateManyWithWhereWithoutInvitedByInput = {
+    where: InvitationScalarWhereInput
+    data: XOR<InvitationUpdateManyMutationInput, InvitationUncheckedUpdateManyWithoutInvitedByInput>
+  }
+
+  export type InvitationScalarWhereInput = {
+    AND?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+    OR?: InvitationScalarWhereInput[]
+    NOT?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+    id?: StringFilter<"Invitation"> | string
+    email?: StringFilter<"Invitation"> | string
+    token?: StringFilter<"Invitation"> | string
+    collectionId?: StringFilter<"Invitation"> | string
+    invitedById?: StringFilter<"Invitation"> | string
+    expiresAt?: DateTimeFilter<"Invitation"> | Date | string
+    acceptedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    acceptedByUserId?: StringNullableFilter<"Invitation"> | string | null
+    createdAt?: DateTimeFilter<"Invitation"> | Date | string
+  }
+
   export type PhotoCreateWithoutCollectionInput = {
     id?: string
     bibNumber?: string | null
@@ -16448,11 +20143,13 @@ export namespace Prisma {
     previewKey?: string | null
     contentHash?: string | null
     createdAt?: Date | string
+    uploader?: UserCreateNestedOneWithoutUploadsInput
     faceRecords?: FaceRecordCreateNestedManyWithoutPhotoInput
   }
 
   export type PhotoUncheckedCreateWithoutCollectionInput = {
     id?: string
+    uploaderId?: string | null
     bibNumber?: string | null
     storageKey: string
     filename: string
@@ -16554,6 +20251,62 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CollectionMemberCreateWithoutCollectionInput = {
+    id?: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutMembershipsInput
+  }
+
+  export type CollectionMemberUncheckedCreateWithoutCollectionInput = {
+    id?: string
+    userId: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+  }
+
+  export type CollectionMemberCreateOrConnectWithoutCollectionInput = {
+    where: CollectionMemberWhereUniqueInput
+    create: XOR<CollectionMemberCreateWithoutCollectionInput, CollectionMemberUncheckedCreateWithoutCollectionInput>
+  }
+
+  export type CollectionMemberCreateManyCollectionInputEnvelope = {
+    data: CollectionMemberCreateManyCollectionInput | CollectionMemberCreateManyCollectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InvitationCreateWithoutCollectionInput = {
+    id?: string
+    email: string
+    token: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
+    invitedBy: UserCreateNestedOneWithoutInvitesSentInput
+  }
+
+  export type InvitationUncheckedCreateWithoutCollectionInput = {
+    id?: string
+    email: string
+    token: string
+    invitedById: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type InvitationCreateOrConnectWithoutCollectionInput = {
+    where: InvitationWhereUniqueInput
+    create: XOR<InvitationCreateWithoutCollectionInput, InvitationUncheckedCreateWithoutCollectionInput>
+  }
+
+  export type InvitationCreateManyCollectionInputEnvelope = {
+    data: InvitationCreateManyCollectionInput | InvitationCreateManyCollectionInput[]
+    skipDuplicates?: boolean
+  }
+
   export type PhotoUpsertWithWhereUniqueWithoutCollectionInput = {
     where: PhotoWhereUniqueInput
     update: XOR<PhotoUpdateWithoutCollectionInput, PhotoUncheckedUpdateWithoutCollectionInput>
@@ -16568,24 +20321,6 @@ export namespace Prisma {
   export type PhotoUpdateManyWithWhereWithoutCollectionInput = {
     where: PhotoScalarWhereInput
     data: XOR<PhotoUpdateManyMutationInput, PhotoUncheckedUpdateManyWithoutCollectionInput>
-  }
-
-  export type PhotoScalarWhereInput = {
-    AND?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
-    OR?: PhotoScalarWhereInput[]
-    NOT?: PhotoScalarWhereInput | PhotoScalarWhereInput[]
-    id?: StringFilter<"Photo"> | string
-    collectionId?: StringFilter<"Photo"> | string
-    bibNumber?: StringNullableFilter<"Photo"> | string | null
-    storageKey?: StringFilter<"Photo"> | string
-    filename?: StringFilter<"Photo"> | string
-    fileSize?: IntNullableFilter<"Photo"> | number | null
-    width?: IntNullableFilter<"Photo"> | number | null
-    height?: IntNullableFilter<"Photo"> | number | null
-    order?: IntFilter<"Photo"> | number
-    previewKey?: StringNullableFilter<"Photo"> | string | null
-    contentHash?: StringNullableFilter<"Photo"> | string | null
-    createdAt?: DateTimeFilter<"Photo"> | Date | string
   }
 
   export type PurchaseUpsertWithWhereUniqueWithoutCollectionInput = {
@@ -16657,6 +20392,382 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"FaceRecord"> | Date | string
   }
 
+  export type CollectionMemberUpsertWithWhereUniqueWithoutCollectionInput = {
+    where: CollectionMemberWhereUniqueInput
+    update: XOR<CollectionMemberUpdateWithoutCollectionInput, CollectionMemberUncheckedUpdateWithoutCollectionInput>
+    create: XOR<CollectionMemberCreateWithoutCollectionInput, CollectionMemberUncheckedCreateWithoutCollectionInput>
+  }
+
+  export type CollectionMemberUpdateWithWhereUniqueWithoutCollectionInput = {
+    where: CollectionMemberWhereUniqueInput
+    data: XOR<CollectionMemberUpdateWithoutCollectionInput, CollectionMemberUncheckedUpdateWithoutCollectionInput>
+  }
+
+  export type CollectionMemberUpdateManyWithWhereWithoutCollectionInput = {
+    where: CollectionMemberScalarWhereInput
+    data: XOR<CollectionMemberUpdateManyMutationInput, CollectionMemberUncheckedUpdateManyWithoutCollectionInput>
+  }
+
+  export type InvitationUpsertWithWhereUniqueWithoutCollectionInput = {
+    where: InvitationWhereUniqueInput
+    update: XOR<InvitationUpdateWithoutCollectionInput, InvitationUncheckedUpdateWithoutCollectionInput>
+    create: XOR<InvitationCreateWithoutCollectionInput, InvitationUncheckedCreateWithoutCollectionInput>
+  }
+
+  export type InvitationUpdateWithWhereUniqueWithoutCollectionInput = {
+    where: InvitationWhereUniqueInput
+    data: XOR<InvitationUpdateWithoutCollectionInput, InvitationUncheckedUpdateWithoutCollectionInput>
+  }
+
+  export type InvitationUpdateManyWithWhereWithoutCollectionInput = {
+    where: InvitationScalarWhereInput
+    data: XOR<InvitationUpdateManyMutationInput, InvitationUncheckedUpdateManyWithoutCollectionInput>
+  }
+
+  export type UserCreateWithoutMembershipsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    passwordHash?: string | null
+    role?: $Enums.UserRole
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    uploads?: PhotoCreateNestedManyWithoutUploaderInput
+    invitesSent?: InvitationCreateNestedManyWithoutInvitedByInput
+  }
+
+  export type UserUncheckedCreateWithoutMembershipsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    passwordHash?: string | null
+    role?: $Enums.UserRole
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    uploads?: PhotoUncheckedCreateNestedManyWithoutUploaderInput
+    invitesSent?: InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  }
+
+  export type UserCreateOrConnectWithoutMembershipsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutMembershipsInput, UserUncheckedCreateWithoutMembershipsInput>
+  }
+
+  export type CollectionCreateWithoutMembersInput = {
+    id?: string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    bannerFocalY?: number | null
+    slug: string
+    eventDate?: Date | string | null
+    pricePerBib?: Decimal | DecimalJsLike | number | string
+    isPublished?: boolean
+    isHidden?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: PhotoCreateNestedManyWithoutCollectionInput
+    purchases?: PurchaseCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationCreateNestedManyWithoutCollectionInput
+  }
+
+  export type CollectionUncheckedCreateWithoutMembersInput = {
+    id?: string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    bannerFocalY?: number | null
+    slug: string
+    eventDate?: Date | string | null
+    pricePerBib?: Decimal | DecimalJsLike | number | string
+    isPublished?: boolean
+    isHidden?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
+    purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCollectionInput
+  }
+
+  export type CollectionCreateOrConnectWithoutMembersInput = {
+    where: CollectionWhereUniqueInput
+    create: XOR<CollectionCreateWithoutMembersInput, CollectionUncheckedCreateWithoutMembersInput>
+  }
+
+  export type UserUpsertWithoutMembershipsInput = {
+    update: XOR<UserUpdateWithoutMembershipsInput, UserUncheckedUpdateWithoutMembershipsInput>
+    create: XOR<UserCreateWithoutMembershipsInput, UserUncheckedCreateWithoutMembershipsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutMembershipsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutMembershipsInput, UserUncheckedUpdateWithoutMembershipsInput>
+  }
+
+  export type UserUpdateWithoutMembershipsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUpdateManyWithoutUploaderNestedInput
+    invitesSent?: InvitationUpdateManyWithoutInvitedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutMembershipsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUncheckedUpdateManyWithoutUploaderNestedInput
+    invitesSent?: InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  }
+
+  export type CollectionUpsertWithoutMembersInput = {
+    update: XOR<CollectionUpdateWithoutMembersInput, CollectionUncheckedUpdateWithoutMembersInput>
+    create: XOR<CollectionCreateWithoutMembersInput, CollectionUncheckedCreateWithoutMembersInput>
+    where?: CollectionWhereInput
+  }
+
+  export type CollectionUpdateToOneWithWhereWithoutMembersInput = {
+    where?: CollectionWhereInput
+    data: XOR<CollectionUpdateWithoutMembersInput, CollectionUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type CollectionUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
+    slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: PhotoUpdateManyWithoutCollectionNestedInput
+    purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUpdateManyWithoutCollectionNestedInput
+  }
+
+  export type CollectionUncheckedUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
+    slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
+    purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCollectionNestedInput
+  }
+
+  export type CollectionCreateWithoutInvitationsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    bannerFocalY?: number | null
+    slug: string
+    eventDate?: Date | string | null
+    pricePerBib?: Decimal | DecimalJsLike | number | string
+    isPublished?: boolean
+    isHidden?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: PhotoCreateNestedManyWithoutCollectionInput
+    purchases?: PurchaseCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberCreateNestedManyWithoutCollectionInput
+  }
+
+  export type CollectionUncheckedCreateWithoutInvitationsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    coverUrl?: string | null
+    logoUrl?: string | null
+    bannerUrl?: string | null
+    bannerFocalY?: number | null
+    slug: string
+    eventDate?: Date | string | null
+    pricePerBib?: Decimal | DecimalJsLike | number | string
+    isPublished?: boolean
+    isHidden?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
+    purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
+    faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberUncheckedCreateNestedManyWithoutCollectionInput
+  }
+
+  export type CollectionCreateOrConnectWithoutInvitationsInput = {
+    where: CollectionWhereUniqueInput
+    create: XOR<CollectionCreateWithoutInvitationsInput, CollectionUncheckedCreateWithoutInvitationsInput>
+  }
+
+  export type UserCreateWithoutInvitesSentInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    passwordHash?: string | null
+    role?: $Enums.UserRole
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    uploads?: PhotoCreateNestedManyWithoutUploaderInput
+    memberships?: CollectionMemberCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutInvitesSentInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    passwordHash?: string | null
+    role?: $Enums.UserRole
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    uploads?: PhotoUncheckedCreateNestedManyWithoutUploaderInput
+    memberships?: CollectionMemberUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutInvitesSentInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutInvitesSentInput, UserUncheckedCreateWithoutInvitesSentInput>
+  }
+
+  export type CollectionUpsertWithoutInvitationsInput = {
+    update: XOR<CollectionUpdateWithoutInvitationsInput, CollectionUncheckedUpdateWithoutInvitationsInput>
+    create: XOR<CollectionCreateWithoutInvitationsInput, CollectionUncheckedCreateWithoutInvitationsInput>
+    where?: CollectionWhereInput
+  }
+
+  export type CollectionUpdateToOneWithWhereWithoutInvitationsInput = {
+    where?: CollectionWhereInput
+    data: XOR<CollectionUpdateWithoutInvitationsInput, CollectionUncheckedUpdateWithoutInvitationsInput>
+  }
+
+  export type CollectionUpdateWithoutInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
+    slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: PhotoUpdateManyWithoutCollectionNestedInput
+    purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUpdateManyWithoutCollectionNestedInput
+  }
+
+  export type CollectionUncheckedUpdateWithoutInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerFocalY?: NullableFloatFieldUpdateOperationsInput | number | null
+    slug?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    isHidden?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
+    purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
+    faceRecords?: FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUncheckedUpdateManyWithoutCollectionNestedInput
+  }
+
+  export type UserUpsertWithoutInvitesSentInput = {
+    update: XOR<UserUpdateWithoutInvitesSentInput, UserUncheckedUpdateWithoutInvitesSentInput>
+    create: XOR<UserCreateWithoutInvitesSentInput, UserUncheckedCreateWithoutInvitesSentInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutInvitesSentInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutInvitesSentInput, UserUncheckedUpdateWithoutInvitesSentInput>
+  }
+
+  export type UserUpdateWithoutInvitesSentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUpdateManyWithoutUploaderNestedInput
+    memberships?: CollectionMemberUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutInvitesSentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    uploads?: PhotoUncheckedUpdateManyWithoutUploaderNestedInput
+    memberships?: CollectionMemberUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type CollectionCreateWithoutPhotosInput = {
     id?: string
     title: string
@@ -16674,6 +20785,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     purchases?: PurchaseCreateNestedManyWithoutCollectionInput
     faceRecords?: FaceRecordCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUncheckedCreateWithoutPhotosInput = {
@@ -16693,11 +20806,46 @@ export namespace Prisma {
     updatedAt?: Date | string
     purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
     faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberUncheckedCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionCreateOrConnectWithoutPhotosInput = {
     where: CollectionWhereUniqueInput
     create: XOR<CollectionCreateWithoutPhotosInput, CollectionUncheckedCreateWithoutPhotosInput>
+  }
+
+  export type UserCreateWithoutUploadsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    passwordHash?: string | null
+    role?: $Enums.UserRole
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    memberships?: CollectionMemberCreateNestedManyWithoutUserInput
+    invitesSent?: InvitationCreateNestedManyWithoutInvitedByInput
+  }
+
+  export type UserUncheckedCreateWithoutUploadsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    passwordHash?: string | null
+    role?: $Enums.UserRole
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    memberships?: CollectionMemberUncheckedCreateNestedManyWithoutUserInput
+    invitesSent?: InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  }
+
+  export type UserCreateOrConnectWithoutUploadsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUploadsInput, UserUncheckedCreateWithoutUploadsInput>
   }
 
   export type FaceRecordCreateWithoutPhotoInput = {
@@ -16754,6 +20902,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
     faceRecords?: FaceRecordUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionUncheckedUpdateWithoutPhotosInput = {
@@ -16773,6 +20923,47 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
     faceRecords?: FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUncheckedUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCollectionNestedInput
+  }
+
+  export type UserUpsertWithoutUploadsInput = {
+    update: XOR<UserUpdateWithoutUploadsInput, UserUncheckedUpdateWithoutUploadsInput>
+    create: XOR<UserCreateWithoutUploadsInput, UserUncheckedCreateWithoutUploadsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUploadsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUploadsInput, UserUncheckedUpdateWithoutUploadsInput>
+  }
+
+  export type UserUpdateWithoutUploadsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    memberships?: CollectionMemberUpdateManyWithoutUserNestedInput
+    invitesSent?: InvitationUpdateManyWithoutInvitedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUploadsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    memberships?: CollectionMemberUncheckedUpdateManyWithoutUserNestedInput
+    invitesSent?: InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   }
 
   export type FaceRecordUpsertWithWhereUniqueWithoutPhotoInput = {
@@ -16808,6 +20999,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     photos?: PhotoCreateNestedManyWithoutCollectionInput
     faceRecords?: FaceRecordCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUncheckedCreateWithoutPurchasesInput = {
@@ -16827,6 +21020,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
     faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberUncheckedCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionCreateOrConnectWithoutPurchasesInput = {
@@ -16862,6 +21057,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUpdateManyWithoutCollectionNestedInput
     faceRecords?: FaceRecordUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionUncheckedUpdateWithoutPurchasesInput = {
@@ -16881,6 +21078,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
     faceRecords?: FaceRecordUncheckedUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUncheckedUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
   export type PhotoCreateWithoutFaceRecordsInput = {
@@ -16896,11 +21095,13 @@ export namespace Prisma {
     contentHash?: string | null
     createdAt?: Date | string
     collection: CollectionCreateNestedOneWithoutPhotosInput
+    uploader?: UserCreateNestedOneWithoutUploadsInput
   }
 
   export type PhotoUncheckedCreateWithoutFaceRecordsInput = {
     id?: string
     collectionId: string
+    uploaderId?: string | null
     bibNumber?: string | null
     storageKey: string
     filename: string
@@ -16935,6 +21136,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     photos?: PhotoCreateNestedManyWithoutCollectionInput
     purchases?: PurchaseCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionUncheckedCreateWithoutFaceRecordsInput = {
@@ -16954,6 +21157,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     photos?: PhotoUncheckedCreateNestedManyWithoutCollectionInput
     purchases?: PurchaseUncheckedCreateNestedManyWithoutCollectionInput
+    members?: CollectionMemberUncheckedCreateNestedManyWithoutCollectionInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCollectionInput
   }
 
   export type CollectionCreateOrConnectWithoutFaceRecordsInput = {
@@ -16985,11 +21190,13 @@ export namespace Prisma {
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
+    uploader?: UserUpdateOneWithoutUploadsNestedInput
   }
 
   export type PhotoUncheckedUpdateWithoutFaceRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string
     collectionId?: StringFieldUpdateOperationsInput | string
+    uploaderId?: NullableStringFieldUpdateOperationsInput | string | null
     bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
@@ -17030,6 +21237,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUpdateManyWithoutCollectionNestedInput
     purchases?: PurchaseUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUpdateManyWithoutCollectionNestedInput
   }
 
   export type CollectionUncheckedUpdateWithoutFaceRecordsInput = {
@@ -17049,6 +21258,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: PhotoUncheckedUpdateManyWithoutCollectionNestedInput
     purchases?: PurchaseUncheckedUpdateManyWithoutCollectionNestedInput
+    members?: CollectionMemberUncheckedUpdateManyWithoutCollectionNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -17070,6 +21281,39 @@ export namespace Prisma {
     id?: string
     sessionToken: string
     expires: Date | string
+  }
+
+  export type PhotoCreateManyUploaderInput = {
+    id?: string
+    collectionId: string
+    bibNumber?: string | null
+    storageKey: string
+    filename: string
+    fileSize?: number | null
+    width?: number | null
+    height?: number | null
+    order?: number
+    previewKey?: string | null
+    contentHash?: string | null
+    createdAt?: Date | string
+  }
+
+  export type CollectionMemberCreateManyUserInput = {
+    id?: string
+    collectionId: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+  }
+
+  export type InvitationCreateManyInvitedByInput = {
+    id?: string
+    email: string
+    token: string
+    collectionId: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
   }
 
   export type AccountUpdateWithoutUserInput = {
@@ -17135,8 +21379,110 @@ export namespace Prisma {
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PhotoUpdateWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    order?: IntFieldUpdateOperationsInput | number
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
+    faceRecords?: FaceRecordUpdateManyWithoutPhotoNestedInput
+  }
+
+  export type PhotoUncheckedUpdateWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    order?: IntFieldUpdateOperationsInput | number
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    faceRecords?: FaceRecordUncheckedUpdateManyWithoutPhotoNestedInput
+  }
+
+  export type PhotoUncheckedUpdateManyWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    order?: IntFieldUpdateOperationsInput | number
+    previewKey?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CollectionMemberUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collection?: CollectionUpdateOneRequiredWithoutMembersNestedInput
+  }
+
+  export type CollectionMemberUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CollectionMemberUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUpdateWithoutInvitedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collection?: CollectionUpdateOneRequiredWithoutInvitationsNestedInput
+  }
+
+  export type InvitationUncheckedUpdateWithoutInvitedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUncheckedUpdateManyWithoutInvitedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    collectionId?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type PhotoCreateManyCollectionInput = {
     id?: string
+    uploaderId?: string | null
     bibNumber?: string | null
     storageKey: string
     filename: string
@@ -17178,6 +21524,24 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type CollectionMemberCreateManyCollectionInput = {
+    id?: string
+    userId: string
+    role?: $Enums.CollectionMemberRole
+    createdAt?: Date | string
+  }
+
+  export type InvitationCreateManyCollectionInput = {
+    id?: string
+    email: string
+    token: string
+    invitedById: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    acceptedByUserId?: string | null
+    createdAt?: Date | string
+  }
+
   export type PhotoUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17190,11 +21554,13 @@ export namespace Prisma {
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploader?: UserUpdateOneWithoutUploadsNestedInput
     faceRecords?: FaceRecordUpdateManyWithoutPhotoNestedInput
   }
 
   export type PhotoUncheckedUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    uploaderId?: NullableStringFieldUpdateOperationsInput | string | null
     bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
@@ -17210,6 +21576,7 @@ export namespace Prisma {
 
   export type PhotoUncheckedUpdateManyWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    uploaderId?: NullableStringFieldUpdateOperationsInput | string | null
     bibNumber?: NullableStringFieldUpdateOperationsInput | string | null
     storageKey?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
@@ -17306,6 +21673,60 @@ export namespace Prisma {
     rekFaceId?: StringFieldUpdateOperationsInput | string
     photoId?: StringFieldUpdateOperationsInput | string
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CollectionMemberUpdateWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutMembershipsNestedInput
+  }
+
+  export type CollectionMemberUncheckedUpdateWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CollectionMemberUncheckedUpdateManyWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumCollectionMemberRoleFieldUpdateOperationsInput | $Enums.CollectionMemberRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUpdateWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: UserUpdateOneRequiredWithoutInvitesSentNestedInput
+  }
+
+  export type InvitationUncheckedUpdateWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    invitedById?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUncheckedUpdateManyWithoutCollectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    invitedById?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
