@@ -128,7 +128,11 @@ export default async function CollectionPage({
       </div>
 
       {/* ── Gallery + Search ──────────────────────────────────── */}
-      <FolderBrowser collectionId={collection.id} pricePerBib={Number(collection.pricePerBib)} />
+      <FolderBrowser
+        collectionId={collection.id}
+        pricePerBib={Number(collection.pricePerBib)}
+        hasAlphanumericBibs={collection.hasAlphanumericBibs}
+      />
 
       {/* ── MercadoPago strip ─────────────────────────────────── */}
       <section style={{ background: "#ffffff" }} className="py-14 px-5">

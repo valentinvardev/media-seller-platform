@@ -231,7 +231,15 @@ const PAGE_SIZE = 48;
 
 type GalleryPhoto = { id: string; bibNumber: string | null; url: string };
 
-export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: string; pricePerBib: number }) {
+export function FolderBrowser({
+  collectionId,
+  pricePerBib,
+  hasAlphanumericBibs = false,
+}: {
+  collectionId: string;
+  pricePerBib: number;
+  hasAlphanumericBibs?: boolean;
+}) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [faceActive, setFaceActive] = useState(false);
@@ -422,10 +430,13 @@ export function FolderBrowser({ collectionId, pricePerBib }: { collectionId: str
           </svg>
           <input
             type="text"
-            inputMode="numeric"
+            // Numeric keyboard on mobile when the event uses purely numeric bibs;
+            // text keyboard when it also has alphanumeric ones like "C1722".
+            inputMode={hasAlphanumericBibs ? "text" : "numeric"}
+            autoCapitalize={hasAlphanumericBibs ? "characters" : "off"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscá tu número"
+            placeholder={hasAlphanumericBibs ? "Buscá tu dorsal" : "Buscá tu número"}
             className="w-full pl-11 pr-10 py-3.5 rounded-xl bg-white text-sm font-bold outline-none transition-all placeholder:text-gray-600 placeholder:font-bold"
             style={{
               color: "#111827",
