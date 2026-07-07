@@ -8,6 +8,7 @@ import { BannerUploader } from "~/app/_components/admin/BannerUploader";
 import { FaceReindexButton } from "~/app/_components/admin/FaceReindexButton";
 import { RewatermarkAllButton } from "~/app/_components/admin/RewatermarkAllButton";
 import { OcrRetryButton } from "~/app/_components/admin/OcrRetryButton";
+import { CollaboratorsPanel } from "~/app/_components/admin/CollaboratorsPanel";
 import { resolveMediaUrl } from "~/lib/media";
 
 const PAGE_SIZE = 48;
@@ -138,6 +139,11 @@ export default async function EditCollectionPage({
         {/* OCR retry */}
         <div className="mt-4 pt-4 border-t border-gray-100">
           <OcrRetryButton collectionId={collection.id} unidentifiedCount={unidentifiedCount} />
+        </div>
+
+        {/* Collaborators */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <CollaboratorsPanel collectionId={collection.id} />
         </div>
 
         {/* Stats */}

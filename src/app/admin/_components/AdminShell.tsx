@@ -115,6 +115,9 @@ export function AdminShell({
         <NavItem href="/admin/reconocimiento" label="Reconocimiento facial" svgIcon={faceIcon} onNavigate={close} />
         <NavItem href="/admin/qr" label="Códigos QR" svgIcon={qrIcon} onNavigate={close} />
         <NavItem href="/admin/configuracion" label="Configuración" svgIcon={settingsIcon} onNavigate={close} />
+        <div className="border-t border-gray-100 mt-2 pt-2">
+          <NavItem href="/colaborador" label="Panel colaborador" icon="◇" onNavigate={close} />
+        </div>
       </nav>
 
       {/* Bottom */}

@@ -1,11 +1,22 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+
+function LoginPageContent() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,8 +36,19 @@ export default function LoginPage() {
     if (result?.error) {
       setError("Email o contraseña incorrectos.");
       setLoading(false);
+    } else if (callbackUrl && callbackUrl.startsWith("/")) {
+      // Respect explicit callback (e.g. from middleware bounce or invitation link)
+      window.location.href = callbackUrl;
     } else {
-      window.location.href = "/admin";
+      // Ask the server where to land — /admin/whoami returns "/admin" for ADMIN
+      // and "/colaborador" for COLLABORATOR. Fallback to /admin, middleware will
+      // redirect if unauthorized.
+      try {
+        const res = await fetch("/api/whoami").then((r) => r.json()) as { role?: string };
+        window.location.href = res.role === "ADMIN" ? "/admin" : "/colaborador";
+      } catch {
+        window.location.href = "/admin";
+      }
     }
   };
 

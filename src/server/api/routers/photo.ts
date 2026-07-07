@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createSignedUrl, deleteObjects } from "~/lib/s3";
 import { resolveMediaUrl } from "~/lib/media";
 import {
@@ -6,8 +7,24 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { db as dbInstance } from "~/server/db";
 
 const STORAGE_LIMIT_BYTES = 100 * 1024 * 1024 * 1024; // 100 GB
+
+/**
+ * Authorize a user to upload / mutate photos in a given collection.
+ * Admins pass through. Collaborators must be a CollectionMember of the event.
+ */
+async function requireUploadAccess(
+  ctx: { db: typeof dbInstance; session: { user: { id: string; role: string } } },
+  collectionId: string,
+): Promise<void> {
+  if (ctx.session.user.role === "ADMIN") return;
+  const member = await ctx.db.collectionMember.findUnique({
+    where: { userId_collectionId: { userId: ctx.session.user.id, collectionId } },
+  });
+  if (!member) throw new TRPCError({ code: "FORBIDDEN", message: "No sos parte de este evento" });
+}
 
 export const photoRouter = createTRPCRouter({
   // ─── Public ────────────────────────────────────────────────────────────────
@@ -185,7 +202,10 @@ export const photoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      await requireUploadAccess(ctx, input.collectionId);
+
       const count = await ctx.db.photo.count({ where: { collectionId: input.collectionId } });
+      const uploaderId = ctx.session.user.id;
       // createMany doesn't return IDs in all DBs; create individually so we can return IDs for OCR
       const created = await Promise.all(
         input.photos.map((p, i) =>
@@ -199,6 +219,7 @@ export const photoRouter = createTRPCRouter({
               width: p.width,
               height: p.height,
               contentHash: p.contentHash,
+              uploaderId,
               order: count + i,
             },
             select: { id: true },
@@ -242,17 +263,23 @@ export const photoRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       if (input.items.length === 0) return { results: [] };
 
+      await requireUploadAccess(ctx, input.collectionId);
+      const isAdmin = ctx.session.user.role === "ADMIN";
+      // Collaborators only dedupe against their own uploads — so their upload
+      // won't be "duplicate" of a different photographer's photo.
+      const scopeFilter = isAdmin ? {} : { uploaderId: ctx.session.user.id };
+
       const hashes = Array.from(new Set(input.items.map((i) => i.contentHash)));
       const filenames = Array.from(new Set(input.items.map((i) => i.filename)));
 
       // One query per index — Prisma will pick the composite index.
       const [byHash, byFilename] = await Promise.all([
         ctx.db.photo.findMany({
-          where: { collectionId: input.collectionId, contentHash: { in: hashes } },
+          where: { collectionId: input.collectionId, contentHash: { in: hashes }, ...scopeFilter },
           select: { id: true, contentHash: true, filename: true },
         }),
         ctx.db.photo.findMany({
-          where: { collectionId: input.collectionId, filename: { in: filenames } },
+          where: { collectionId: input.collectionId, filename: { in: filenames }, ...scopeFilter },
           select: { id: true, contentHash: true, filename: true },
         }),
       ]);
@@ -301,14 +328,19 @@ export const photoRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       if (input.replacements.length === 0) return { count: 0 };
 
+      await requireUploadAccess(ctx, input.collectionId);
+      const isAdmin = ctx.session.user.role === "ADMIN";
+
       const { deleteObjects } = await import("~/lib/s3");
 
       for (const r of input.replacements) {
         const existing = await ctx.db.photo.findUnique({
           where: { id: r.photoId },
-          select: { storageKey: true, previewKey: true, collectionId: true },
+          select: { storageKey: true, previewKey: true, collectionId: true, uploaderId: true },
         });
         if (!existing || existing.collectionId !== input.collectionId) continue;
+        // Collaborators can only replace their own uploads.
+        if (!isAdmin && existing.uploaderId !== ctx.session.user.id) continue;
 
         const toDelete: string[] = [];
         if (existing.storageKey !== r.storageKey && !existing.storageKey.startsWith("http")) toDelete.push(existing.storageKey);

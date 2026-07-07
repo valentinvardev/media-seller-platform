@@ -4,26 +4,38 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    const isSecure = request.url.startsWith("https");
-    const cookieName = isSecure
-      ? "__Secure-authjs.session-token"
-      : "authjs.session-token";
+  const isAdminPath = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
+  const isCollaboratorPath = pathname.startsWith("/colaborador");
 
-    const token = await getToken({
-      req: request,
-      secret: process.env.AUTH_SECRET,
-      cookieName,
-    });
+  if (!isAdminPath && !isCollaboratorPath) return NextResponse.next();
 
-    if (!token) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
-    }
+  const isSecure = request.url.startsWith("https");
+  const cookieName = isSecure ? "__Secure-authjs.session-token" : "authjs.session-token";
+
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+    cookieName,
+  });
+
+  if (!token) {
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(loginUrl);
   }
+
+  const role = (token as { role?: string }).role;
+
+  // /admin/* is admin-only. A collaborator hitting it gets bounced to their dashboard.
+  if (isAdminPath && role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/colaborador", request.url));
+  }
+
+  // /colaborador/* is fine for any authenticated user (admin or collaborator).
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/colaborador/:path*"],
 };
