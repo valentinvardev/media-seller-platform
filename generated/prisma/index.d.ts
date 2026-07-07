@@ -6524,6 +6524,7 @@ export namespace Prisma {
     slug: string | null
     eventDate: Date | null
     pricePerBib: Decimal | null
+    hasAlphanumericBibs: boolean | null
     isPublished: boolean | null
     isHidden: boolean | null
     createdAt: Date | null
@@ -6541,6 +6542,7 @@ export namespace Prisma {
     slug: string | null
     eventDate: Date | null
     pricePerBib: Decimal | null
+    hasAlphanumericBibs: boolean | null
     isPublished: boolean | null
     isHidden: boolean | null
     createdAt: Date | null
@@ -6558,6 +6560,7 @@ export namespace Prisma {
     slug: number
     eventDate: number
     pricePerBib: number
+    hasAlphanumericBibs: number
     isPublished: number
     isHidden: number
     createdAt: number
@@ -6587,6 +6590,7 @@ export namespace Prisma {
     slug?: true
     eventDate?: true
     pricePerBib?: true
+    hasAlphanumericBibs?: true
     isPublished?: true
     isHidden?: true
     createdAt?: true
@@ -6604,6 +6608,7 @@ export namespace Prisma {
     slug?: true
     eventDate?: true
     pricePerBib?: true
+    hasAlphanumericBibs?: true
     isPublished?: true
     isHidden?: true
     createdAt?: true
@@ -6621,6 +6626,7 @@ export namespace Prisma {
     slug?: true
     eventDate?: true
     pricePerBib?: true
+    hasAlphanumericBibs?: true
     isPublished?: true
     isHidden?: true
     createdAt?: true
@@ -6725,6 +6731,7 @@ export namespace Prisma {
     slug: string
     eventDate: Date | null
     pricePerBib: Decimal
+    hasAlphanumericBibs: boolean
     isPublished: boolean
     isHidden: boolean
     createdAt: Date
@@ -6761,6 +6768,7 @@ export namespace Prisma {
     slug?: boolean
     eventDate?: boolean
     pricePerBib?: boolean
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: boolean
@@ -6784,6 +6792,7 @@ export namespace Prisma {
     slug?: boolean
     eventDate?: boolean
     pricePerBib?: boolean
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: boolean
@@ -6801,6 +6810,7 @@ export namespace Prisma {
     slug?: boolean
     eventDate?: boolean
     pricePerBib?: boolean
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: boolean
@@ -6818,13 +6828,14 @@ export namespace Prisma {
     slug?: boolean
     eventDate?: boolean
     pricePerBib?: boolean
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "bannerFocalY" | "slug" | "eventDate" | "pricePerBib" | "isPublished" | "isHidden" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "coverUrl" | "logoUrl" | "bannerUrl" | "bannerFocalY" | "slug" | "eventDate" | "pricePerBib" | "hasAlphanumericBibs" | "isPublished" | "isHidden" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
   export type CollectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     photos?: boolean | Collection$photosArgs<ExtArgs>
     purchases?: boolean | Collection$purchasesArgs<ExtArgs>
@@ -6856,6 +6867,7 @@ export namespace Prisma {
       slug: string
       eventDate: Date | null
       pricePerBib: Prisma.Decimal
+      hasAlphanumericBibs: boolean
       isPublished: boolean
       isHidden: boolean
       createdAt: Date
@@ -7298,6 +7310,7 @@ export namespace Prisma {
     readonly slug: FieldRef<"Collection", 'String'>
     readonly eventDate: FieldRef<"Collection", 'DateTime'>
     readonly pricePerBib: FieldRef<"Collection", 'Decimal'>
+    readonly hasAlphanumericBibs: FieldRef<"Collection", 'Boolean'>
     readonly isPublished: FieldRef<"Collection", 'Boolean'>
     readonly isHidden: FieldRef<"Collection", 'Boolean'>
     readonly createdAt: FieldRef<"Collection", 'DateTime'>
@@ -15691,6 +15704,7 @@ export namespace Prisma {
     slug: 'slug',
     eventDate: 'eventDate',
     pricePerBib: 'pricePerBib',
+    hasAlphanumericBibs: 'hasAlphanumericBibs',
     isPublished: 'isPublished',
     isHidden: 'isHidden',
     createdAt: 'createdAt',
@@ -16234,6 +16248,7 @@ export namespace Prisma {
     slug?: StringFilter<"Collection"> | string
     eventDate?: DateTimeNullableFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFilter<"Collection"> | boolean
     isPublished?: BoolFilter<"Collection"> | boolean
     isHidden?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
@@ -16256,6 +16271,7 @@ export namespace Prisma {
     slug?: SortOrder
     eventDate?: SortOrderInput | SortOrder
     pricePerBib?: SortOrder
+    hasAlphanumericBibs?: SortOrder
     isPublished?: SortOrder
     isHidden?: SortOrder
     createdAt?: SortOrder
@@ -16281,6 +16297,7 @@ export namespace Prisma {
     bannerFocalY?: FloatNullableFilter<"Collection"> | number | null
     eventDate?: DateTimeNullableFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalFilter<"Collection"> | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFilter<"Collection"> | boolean
     isPublished?: BoolFilter<"Collection"> | boolean
     isHidden?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
@@ -16303,6 +16320,7 @@ export namespace Prisma {
     slug?: SortOrder
     eventDate?: SortOrderInput | SortOrder
     pricePerBib?: SortOrder
+    hasAlphanumericBibs?: SortOrder
     isPublished?: SortOrder
     isHidden?: SortOrder
     createdAt?: SortOrder
@@ -16328,6 +16346,7 @@ export namespace Prisma {
     slug?: StringWithAggregatesFilter<"Collection"> | string
     eventDate?: DateTimeNullableWithAggregatesFilter<"Collection"> | Date | string | null
     pricePerBib?: DecimalWithAggregatesFilter<"Collection"> | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolWithAggregatesFilter<"Collection"> | boolean
     isPublished?: BoolWithAggregatesFilter<"Collection"> | boolean
     isHidden?: BoolWithAggregatesFilter<"Collection"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
@@ -17157,6 +17176,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -17179,6 +17199,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -17201,6 +17222,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17223,6 +17245,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17245,6 +17268,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -17262,6 +17286,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17279,6 +17304,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18255,6 +18281,7 @@ export namespace Prisma {
     slug?: SortOrder
     eventDate?: SortOrder
     pricePerBib?: SortOrder
+    hasAlphanumericBibs?: SortOrder
     isPublished?: SortOrder
     isHidden?: SortOrder
     createdAt?: SortOrder
@@ -18277,6 +18304,7 @@ export namespace Prisma {
     slug?: SortOrder
     eventDate?: SortOrder
     pricePerBib?: SortOrder
+    hasAlphanumericBibs?: SortOrder
     isPublished?: SortOrder
     isHidden?: SortOrder
     createdAt?: SortOrder
@@ -18294,6 +18322,7 @@ export namespace Prisma {
     slug?: SortOrder
     eventDate?: SortOrder
     pricePerBib?: SortOrder
+    hasAlphanumericBibs?: SortOrder
     isPublished?: SortOrder
     isHidden?: SortOrder
     createdAt?: SortOrder
@@ -20468,6 +20497,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -20489,6 +20519,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -20565,6 +20596,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20586,6 +20618,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20607,6 +20640,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -20628,6 +20662,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -20698,6 +20733,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20719,6 +20755,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20779,6 +20816,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -20800,6 +20838,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -20896,6 +20935,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20917,6 +20957,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20993,6 +21034,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -21014,6 +21056,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -21051,6 +21094,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21072,6 +21116,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21130,6 +21175,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -21151,6 +21197,7 @@ export namespace Prisma {
     slug: string
     eventDate?: Date | string | null
     pricePerBib?: Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: boolean
     isPublished?: boolean
     isHidden?: boolean
     createdAt?: Date | string
@@ -21231,6 +21278,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21252,6 +21300,7 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pricePerBib?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hasAlphanumericBibs?: BoolFieldUpdateOperationsInput | boolean
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     isHidden?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

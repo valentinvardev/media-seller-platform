@@ -171,6 +171,7 @@ exports.Prisma.CollectionScalarFieldEnum = {
   slug: 'slug',
   eventDate: 'eventDate',
   pricePerBib: 'pricePerBib',
+  hasAlphanumericBibs: 'hasAlphanumericBibs',
   isPublished: 'isPublished',
   isHidden: 'isHidden',
   createdAt: 'createdAt',

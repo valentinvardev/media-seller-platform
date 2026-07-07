@@ -9,6 +9,7 @@ import { FaceReindexButton } from "~/app/_components/admin/FaceReindexButton";
 import { RewatermarkAllButton } from "~/app/_components/admin/RewatermarkAllButton";
 import { OcrRetryButton } from "~/app/_components/admin/OcrRetryButton";
 import { CollaboratorsPanel } from "~/app/_components/admin/CollaboratorsPanel";
+import { AlphanumericToggle } from "~/app/_components/admin/AlphanumericToggle";
 import { resolveMediaUrl } from "~/lib/media";
 
 const PAGE_SIZE = 48;
@@ -139,6 +140,14 @@ export default async function EditCollectionPage({
         {/* OCR retry */}
         <div className="mt-4 pt-4 border-t border-gray-100">
           <OcrRetryButton collectionId={collection.id} unidentifiedCount={unidentifiedCount} />
+        </div>
+
+        {/* Alphanumeric bibs toggle */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <AlphanumericToggle
+            collectionId={collection.id}
+            initialValue={collection.hasAlphanumericBibs}
+          />
         </div>
 
         {/* Collaborators */}

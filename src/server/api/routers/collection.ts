@@ -44,26 +44,11 @@ export const collectionRouter = createTRPCRouter({
         include: { _count: { select: { photos: true } } },
       });
       if (!col) return null;
-
-      // Detect whether any bib in this event contains a letter (e.g. C1722).
-      // Used by the FolderBrowser to switch the search input from numeric
-      // keyboard to text keyboard on mobile.
-      const alphaProbe = await ctx.db.$queryRaw<Array<{ has: boolean }>>`
-        SELECT EXISTS (
-          SELECT 1 FROM "Photo"
-          WHERE "collectionId" = ${col.id}
-          AND "bibNumber" ~ '[A-Za-z]'
-          LIMIT 1
-        ) as has
-      `;
-      const hasAlphanumericBibs = alphaProbe[0]?.has ?? false;
-
       return {
         ...col,
         coverUrl: await resolveCover(col.coverUrl),
         logoUrl: await resolveUrl(col.logoUrl),
         bannerUrl: await resolveUrl(col.bannerUrl),
-        hasAlphanumericBibs,
       };
     }),
 
@@ -127,6 +112,7 @@ export const collectionRouter = createTRPCRouter({
         pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
         isHidden: z.boolean().optional(),
+        hasAlphanumericBibs: z.boolean().optional(),
         eventDate: z.string().optional(),
       }),
     )
@@ -151,6 +137,7 @@ export const collectionRouter = createTRPCRouter({
         pricePerBib: z.number().min(0).optional(),
         isPublished: z.boolean().optional(),
         isHidden: z.boolean().optional(),
+        hasAlphanumericBibs: z.boolean().optional(),
         eventDate: z.string().optional().nullable(),
       }),
     )

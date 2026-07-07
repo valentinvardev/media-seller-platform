@@ -69,20 +69,21 @@ model VerificationToken {
 // ─── Photography Domain ──────────────────────────────────────────────────────
 
 model Collection {
-  id           String    @id @default(cuid())
-  title        String
-  description  String?
-  coverUrl     String?
-  logoUrl      String?
-  bannerUrl    String?
-  bannerFocalY Float?    @default(0.5)
-  slug         String    @unique
-  eventDate    DateTime?
-  pricePerBib  Decimal   @default(0) @db.Decimal(10, 2)
-  isPublished  Boolean   @default(false)
-  isHidden     Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  title               String
+  description         String?
+  coverUrl            String?
+  logoUrl             String?
+  bannerUrl           String?
+  bannerFocalY        Float?    @default(0.5)
+  slug                String    @unique
+  eventDate           DateTime?
+  pricePerBib         Decimal   @default(0) @db.Decimal(10, 2)
+  hasAlphanumericBibs Boolean   @default(false) // Event uses letter+digit bibs like C1722
+  isPublished         Boolean   @default(false)
+  isHidden            Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   photos      Photo[]
   purchases   Purchase[]

@@ -254,6 +254,7 @@ export default function NewCollectionPage() {
     eventDate: "",
     pricePerBib: "",
     isPublished: false,
+    hasAlphanumericBibs: false,
     bannerUrl: "",
     logoUrl: "",
     bannerFocalY: 0.5,
@@ -318,6 +319,7 @@ export default function NewCollectionPage() {
       eventDate: form.eventDate || undefined,
       pricePerBib: isNaN(price) ? undefined : price,
       isPublished: form.isPublished,
+      hasAlphanumericBibs: form.hasAlphanumericBibs,
       bannerUrl: keys.bannerKey || undefined,
       logoUrl: keys.logoKey || undefined,
       bannerFocalY: form.bannerFocalY,
@@ -366,6 +368,23 @@ export default function NewCollectionPage() {
               onChange={(e) => setForm((f) => ({ ...f, pricePerBib: e.target.value }))}
               placeholder="ej. 5000" className={inputClass} />
           </Field>
+
+          <label className="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-blue-50 transition-colors">
+            <div className="relative">
+              <input type="checkbox" checked={form.hasAlphanumericBibs}
+                onChange={(e) => setForm((f) => ({ ...f, hasAlphanumericBibs: e.target.checked }))}
+                className="sr-only" />
+              <div className="w-10 h-5 rounded-full transition-colors"
+                style={{ background: form.hasAlphanumericBibs ? "#F97316" : "#e2e8f0" }}>
+                <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                  style={{ left: form.hasAlphanumericBibs ? "22px" : "2px" }} />
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-700">Dorsales alfanuméricos</p>
+              <p className="text-xs text-gray-400">Activá si los dorsales incluyen letras (ej. A1234, C1722)</p>
+            </div>
+          </label>
 
           <Field label="Descripción">
             <textarea value={form.description}
