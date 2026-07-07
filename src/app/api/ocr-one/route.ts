@@ -8,6 +8,9 @@ import { runOcr } from "~/lib/photo-processing";
  * Re-runs OCR on one photo. Used by the OcrRetryButton in a client-side
  * worker pool so we can process many photos in parallel with visible
  * progress and no HTTP proxy timeout risk.
+ *
+ * Response also carries a `reason` string that the client aggregates into a
+ * breakdown so the admin can tell "found nothing" apart from real errors.
  */
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -17,5 +20,9 @@ export async function POST(req: NextRequest) {
   if (!photoId) return NextResponse.json({ error: "photoId required" }, { status: 400 });
 
   const result = await runOcr(photoId);
-  return NextResponse.json({ bib: result.bib });
+  return NextResponse.json({
+    bib: result.bib,
+    reason: result.reason,
+    errorMessage: "errorMessage" in result ? result.errorMessage : undefined,
+  });
 }

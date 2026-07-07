@@ -109,35 +109,60 @@ function extractAllBibs(
     .map(([v]) => v);
 }
 
-export async function runOcr(photoId: string): Promise<{ bib: string | null }> {
+/**
+ * `reason` explains why we didn't return a bib (or that we did). Callers can
+ * bucket photos into: found / already-had / no-text / no-bib-in-text /
+ * download-failed / empty-image / rekognition-error / photo-not-found.
+ */
+export type OcrResult =
+  | { bib: string; reason: "found" | "existing" }
+  | { bib: null; reason: "photo-not-found" | "download-failed" | "empty-image" | "no-text-detected" | "no-bib-in-text" | "rekognition-error"; errorMessage?: string };
+
+export async function runOcr(photoId: string): Promise<OcrResult> {
   const photo = await db.photo.findUnique({
     where: { id: photoId },
     select: { id: true, storageKey: true, bibNumber: true },
   });
-  if (!photo) return { bib: null };
-  if (photo.bibNumber !== null) return { bib: photo.bibNumber };
+  if (!photo) return { bib: null, reason: "photo-not-found" };
+  if (photo.bibNumber !== null) return { bib: photo.bibNumber, reason: "existing" };
 
   const rawBuffer = await downloadWithRetry(photo.storageKey);
-  if (!rawBuffer) { console.error(`[OCR] Download failed after retries — photoId=${photoId} key=${photo.storageKey}`); return { bib: null }; }
+  if (!rawBuffer || rawBuffer.length === 0) {
+    console.error(`[OCR] Download failed or empty — photoId=${photoId} key=${photo.storageKey} bytes=${rawBuffer?.length ?? 0}`);
+    return { bib: null, reason: "download-failed" };
+  }
 
-  const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
-  const imageBytes = new Uint8Array(resized);
+  let imageBytes: Uint8Array;
+  try {
+    const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+    imageBytes = new Uint8Array(resized);
+  } catch (err) {
+    console.error(`[OCR] Sharp resize failed for photoId=${photoId}:`, err);
+    return { bib: null, reason: "empty-image", errorMessage: err instanceof Error ? err.message : String(err) };
+  }
+
+  if (imageBytes.length === 0) {
+    console.error(`[OCR] Resized image is empty — photoId=${photoId} key=${photo.storageKey}`);
+    return { bib: null, reason: "empty-image" };
+  }
 
   try {
     const response = await rekognition.send(new DetectTextCommand({ Image: { Bytes: imageBytes } }));
-    const bibs = extractAllBibs(response.TextDetections ?? []);
+    const detections = response.TextDetections ?? [];
+    const bibs = extractAllBibs(detections);
 
-    console.log(`[OCR] photoId=${photoId} bibs=${bibs.join(",") || "none"}`);
+    console.log(`[OCR] photoId=${photoId} bibs=${bibs.join(",") || "none"} texts=${detections.length}`);
 
     if (bibs.length > 0) {
       const bibString = bibs.join(",");
       await db.photo.update({ where: { id: photoId }, data: { bibNumber: bibString } });
-      return { bib: bibString };
+      return { bib: bibString, reason: "found" };
     }
-    return { bib: null };
+    // Distinguish "Rekognition saw NO text at all" from "Rekognition saw text but nothing looked like a bib".
+    return { bib: null, reason: detections.length === 0 ? "no-text-detected" : "no-bib-in-text" };
   } catch (err) {
     console.error(`[OCR] Rekognition error for photoId=${photoId}:`, err);
-    return { bib: null };
+    return { bib: null, reason: "rekognition-error", errorMessage: err instanceof Error ? err.message : String(err) };
   }
 }
 
