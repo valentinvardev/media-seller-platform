@@ -151,6 +151,45 @@ export const purchaseRouter = createTRPCRouter({
       return { downloadToken: token };
     }),
 
+  /**
+   * Pre-checkout guard: given a buyer email and the photoIds about to be
+   * purchased, returns which of them this email ALREADY bought (APPROVED).
+   * Lets the checkout warn "ya compraste esta foto" before charging again.
+   */
+  checkAlreadyPurchased: publicProcedure
+    .input(z.object({
+      collectionId: z.string(),
+      photoIds: z.array(z.string()).min(1),
+      email: z.string().email(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const purchases = await ctx.db.purchase.findMany({
+        where: {
+          collectionId: input.collectionId,
+          buyerEmail: { equals: input.email, mode: "insensitive" },
+          status: "APPROVED",
+          photoIds: { not: null },
+        },
+        select: { photoIds: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      });
+
+      const owned = new Map<string, Date>();
+      for (const p of purchases) {
+        try {
+          for (const id of JSON.parse(p.photoIds!) as string[]) {
+            if (!owned.has(id)) owned.set(id, p.createdAt);
+          }
+        } catch { /* ignore malformed json */ }
+      }
+
+      const duplicates = input.photoIds
+        .filter((id) => owned.has(id))
+        .map((id) => ({ photoId: id, purchasedAt: owned.get(id)! }));
+
+      return { duplicates };
+    }),
+
   accessByEmail: publicProcedure
     .input(z.object({ email: z.string().email(), collectionId: z.string(), bibNumber: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {

@@ -160,9 +160,14 @@ export function BibCheckoutModal({
   const [emailError, setEmailError] = useState("");
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [photoIds, setPhotoIds] = useState(allPhotoIds);
+  // Photos this email already bought (APPROVED) — set after the pre-checkout
+  // check; the buyer can remove them or knowingly buy them again.
+  const [dupWarning, setDupWarning] = useState<string[] | null>(null);
+  const [checkingDup, setCheckingDup] = useState(false);
 
-  const { items: cartItems, toggle: toggleCart } = useCart();
+  const { items: cartItems, toggle: toggleCart, clear: clearCart } = useCart();
   const router = useRouter();
+  const utils = api.useUtils();
 
   useEffect(() => { injectStyles(); }, []);
   useEffect(() => {
@@ -177,11 +182,19 @@ export function BibCheckoutModal({
   const total = price * photoIds.length;
 
   const createPreference = api.purchase.createPreference.useMutation({
-    onSuccess: (data) => { if (data.initPoint) window.location.href = data.initPoint; },
+    onSuccess: (data) => {
+      if (data.initPoint) {
+        // Empty the cart BEFORE leaving for MercadoPago. iOS Safari can restore
+        // this page from bfcache on back-navigation with the old cart intact,
+        // which led to buyers accidentally re-purchasing the same photo.
+        clearCart();
+        window.location.href = data.initPoint;
+      }
+    },
   });
 
   const createFree = api.purchase.createFree.useMutation({
-    onSuccess: (data) => { router.push(`/descarga/${data.downloadToken}`); },
+    onSuccess: (data) => { clearCart(); router.push(`/descarga/${data.downloadToken}`); },
   });
 
   const accessByEmail = api.purchase.accessByEmail.useMutation({
@@ -193,15 +206,68 @@ export function BibCheckoutModal({
 
   const handleRemove = (photoId: string) => {
     setPhotoIds((prev) => prev.filter((id) => id !== photoId));
+    setDupWarning(null); // selection changed — re-check on next buy attempt
     const item = cartItems.find((i) => i.photoId === photoId);
     if (item) toggleCart(item);
   };
 
-  const handleBuy = () => {
-    if (!email || !name || photoIds.length === 0) return;
+  const startPayment = () => {
     const payload = {
       collectionId,
       photoIds,
+      buyerEmail: email,
+      buyerName: name,
+      buyerLastName: lastName || undefined,
+      buyerPhone: phone || undefined,
+    };
+    if (price === 0) createFree.mutate(payload);
+    else createPreference.mutate(payload);
+  };
+
+  const handleBuy = async () => {
+    if (!email || !name || photoIds.length === 0 || checkingDup) return;
+
+    // Pre-checkout guard: warn if this email already owns any of these photos.
+    // Check failures never block the sale — worst case the warning is skipped.
+    setCheckingDup(true);
+    try {
+      const res = await utils.purchase.checkAlreadyPurchased.fetch({
+        collectionId,
+        photoIds,
+        email,
+      });
+      if (res.duplicates.length > 0) {
+        setDupWarning(res.duplicates.map((d) => d.photoId));
+        setCheckingDup(false);
+        return;
+      }
+    } catch {
+      // ignore — proceed without the warning
+    }
+    setCheckingDup(false);
+    startPayment();
+  };
+
+  const removeDuplicatesAndBuy = () => {
+    if (!dupWarning) return;
+    const remaining = photoIds.filter((id) => !dupWarning.includes(id));
+    setDupWarning(null);
+    if (remaining.length === 0) {
+      // Nothing left to buy — the effect that watches photoIds will close the modal.
+      setPhotoIds([]);
+      return;
+    }
+    setPhotoIds(remaining);
+    // Also drop them from the cart so they don't linger for the next checkout.
+    for (const id of photoIds) {
+      if (dupWarning.includes(id)) {
+        const item = cartItems.find((i) => i.photoId === id);
+        if (item) toggleCart(item);
+      }
+    }
+    const payload = {
+      collectionId,
+      photoIds: remaining,
       buyerEmail: email,
       buyerName: name,
       buyerLastName: lastName || undefined,
@@ -325,19 +391,55 @@ export function BibCheckoutModal({
               </div>
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
                 placeholder="Teléfono" className={inp} />
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              <input type="email" value={email}
+                onChange={(e) => { setEmail(e.target.value); setDupWarning(null); }}
                 placeholder="Email *" required className={inp}
-                onKeyDown={(e) => { if (e.key === "Enter" && email && name) handleBuy(); }} />
-              <button
-                onClick={handleBuy}
-                disabled={!email || !name || photoIds.length === 0 || createPreference.isPending || createFree.isPending}
-                className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all disabled:opacity-40 mt-1"
-                style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
-              >
-                {price === 0
-                  ? (createFree.isPending ? "Generando acceso..." : "Obtener fotos gratis")
-                  : (createPreference.isPending ? "Redirigiendo a MercadoPago..." : `Pagar $${total.toLocaleString("es-AR")}`)}
-              </button>
+                onKeyDown={(e) => { if (e.key === "Enter" && email && name) void handleBuy(); }} />
+
+              {dupWarning && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                  <p className="text-sm font-semibold text-amber-800 mb-1">
+                    ⚠ Ya compraste {dupWarning.length === photoIds.length
+                      ? (dupWarning.length === 1 ? "esta foto" : "estas fotos")
+                      : `${dupWarning.length} de estas fotos`} con este email
+                  </p>
+                  <p className="text-xs text-amber-700 mb-3">
+                    Revisá tu correo — el link de descarga ya te llegó. Si comprás de nuevo, se te cobra otra vez la misma foto.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={removeDuplicatesAndBuy}
+                      disabled={createPreference.isPending || createFree.isPending}
+                      className="flex-1 py-2 rounded-lg text-xs font-bold text-white transition-all disabled:opacity-40"
+                      style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
+                    >
+                      {dupWarning.length === photoIds.length ? "Cancelar compra" : "Quitarlas y pagar el resto"}
+                    </button>
+                    <button
+                      onClick={() => { setDupWarning(null); startPayment(); }}
+                      disabled={createPreference.isPending || createFree.isPending}
+                      className="flex-1 py-2 rounded-lg text-xs font-semibold border border-amber-300 text-amber-800 hover:bg-amber-100 transition-colors disabled:opacity-40"
+                    >
+                      Comprar igual
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!dupWarning && (
+                <button
+                  onClick={() => void handleBuy()}
+                  disabled={!email || !name || photoIds.length === 0 || checkingDup || createPreference.isPending || createFree.isPending}
+                  className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all disabled:opacity-40 mt-1"
+                  style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
+                >
+                  {checkingDup
+                    ? "Verificando..."
+                    : price === 0
+                      ? (createFree.isPending ? "Generando acceso..." : "Obtener fotos gratis")
+                      : (createPreference.isPending ? "Redirigiendo a MercadoPago..." : `Pagar $${total.toLocaleString("es-AR")}`)}
+                </button>
+              )}
               {(createPreference.isError || createFree.isError) && (
                 <p className="text-red-500 text-xs text-center">Error: {(createPreference.error ?? createFree.error)?.message ?? "Intentá de nuevo."}</p>
               )}

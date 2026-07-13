@@ -397,11 +397,11 @@ export function FolderBrowser({
   };
 
   const makeTileHandlers = (p: { id: string; bibNumber: string | null }) => ({
+    // "Comprar" from the lightbox buys ONLY the photo being viewed. Buying the
+    // whole bib group (legacy per-bib pricing) caused accidental multi-photo
+    // checkouts; multi-photo purchases go through the cart instead.
     onOpenLightbox: (url: string) => {
-      const sameBibIds = p.bibNumber
-        ? allGalleryPhotos.filter((ph) => ph.bibNumber === p.bibNumber).map((ph) => ph.id)
-        : [p.id];
-      setLightbox({ url, bibNumber: p.bibNumber, photoIds: sameBibIds });
+      setLightbox({ url, bibNumber: p.bibNumber, photoIds: [p.id] });
     },
     onToggleCart: (url: string) => toggleCart({ photoId: p.id, bibNumber: p.bibNumber, url }),
   });
@@ -678,7 +678,7 @@ function FaceTiles({
           price={pricePerBib}
           inCart={isInCart(id)}
           url={urlMap[id]}
-          onOpenLightbox={(url) => setLightbox({ url, bibNumber: realBib, photoIds: faceBibs.photoIds })}
+          onOpenLightbox={(url) => setLightbox({ url, bibNumber: realBib, photoIds: [id] })}
           onToggleCart={(url) => toggleCart({ photoId: id, bibNumber: realBib, url })}
         />
       ))}
