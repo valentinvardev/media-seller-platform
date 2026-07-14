@@ -5,7 +5,7 @@ import { sendPurchaseApprovedEmail } from "~/lib/email";
 import { createSignedUrl } from "~/lib/s3";
 import {
   createTRPCRouter,
-  protectedProcedure,
+  adminProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 import { db as dbInstance } from "~/server/db";
@@ -37,11 +37,15 @@ export const purchaseRouter = createTRPCRouter({
         select: { title: true, slug: true, pricePerBib: true },
       });
 
-      // Validate all photos exist in this collection
-      const photoCount = await ctx.db.photo.count({
+      // Keep only photos that still exist in this collection — a photo can be
+      // deleted between "add to cart" and "pay". Charging for the requested
+      // count while delivering fewer would be silently overcharging the buyer.
+      const validPhotos = await ctx.db.photo.findMany({
         where: { collectionId: input.collectionId, id: { in: input.photoIds } },
+        select: { id: true },
       });
-      if (photoCount === 0) throw new Error("No se encontraron fotos válidas para comprar.");
+      if (validPhotos.length === 0) throw new Error("No se encontraron fotos válidas para comprar.");
+      const validIds = validPhotos.map((p) => p.id);
 
       const purchase = await ctx.db.purchase.create({
         data: {
@@ -51,8 +55,8 @@ export const purchaseRouter = createTRPCRouter({
           buyerName: input.buyerName,
           buyerLastName: input.buyerLastName,
           buyerPhone: input.buyerPhone,
-          amountPaid: collection.pricePerBib.mul(input.photoIds.length),
-          photoIds: JSON.stringify(input.photoIds),
+          amountPaid: collection.pricePerBib.mul(validIds.length),
+          photoIds: JSON.stringify(validIds),
         },
       });
 
@@ -60,8 +64,8 @@ export const purchaseRouter = createTRPCRouter({
         body: {
           items: [{
             id: input.collectionId,
-            title: `${input.photoIds.length} foto${input.photoIds.length !== 1 ? "s" : ""} — ${collection.title}`,
-            quantity: input.photoIds.length,
+            title: `${validIds.length} foto${validIds.length !== 1 ? "s" : ""} — ${collection.title}`,
+            quantity: validIds.length,
             unit_price: Number(collection.pricePerBib),
             currency_id: "ARS",
           }],
@@ -117,10 +121,12 @@ export const purchaseRouter = createTRPCRouter({
         throw new Error("Este evento no es gratuito.");
       }
 
-      const photoCount = await ctx.db.photo.count({
+      const validPhotos = await ctx.db.photo.findMany({
         where: { collectionId: input.collectionId, id: { in: input.photoIds } },
+        select: { id: true },
       });
-      if (photoCount === 0) throw new Error("No se encontraron fotos válidas.");
+      if (validPhotos.length === 0) throw new Error("No se encontraron fotos válidas.");
+      const validIds = validPhotos.map((p) => p.id);
 
       const token = crypto.randomUUID();
       await ctx.db.purchase.create({
@@ -135,7 +141,7 @@ export const purchaseRouter = createTRPCRouter({
           status: "APPROVED",
           downloadToken: token,
           downloadTokenExpires: null,
-          photoIds: JSON.stringify(input.photoIds),
+          photoIds: JSON.stringify(validIds),
         },
       });
 
@@ -145,7 +151,7 @@ export const purchaseRouter = createTRPCRouter({
         bibNumber: null,
         collectionTitle: collection.title,
         downloadToken: token,
-        photoCount,
+        photoCount: validIds.length,
       });
 
       return { downloadToken: token };
@@ -190,10 +196,15 @@ export const purchaseRouter = createTRPCRouter({
       return { duplicates };
     }),
 
+  /**
+   * "Ya compré" access: returns ALL approved purchases for this email in the
+   * collection (was: latest only — buyers with several purchases could never
+   * reach the older ones and thought the system delivered the wrong photos).
+   */
   accessByEmail: publicProcedure
     .input(z.object({ email: z.string().email(), collectionId: z.string(), bibNumber: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
-      const purchase = await ctx.db.purchase.findFirst({
+      const purchases = await ctx.db.purchase.findMany({
         where: {
           buyerEmail: { equals: input.email, mode: "insensitive" },
           collectionId: input.collectionId,
@@ -201,9 +212,19 @@ export const purchaseRouter = createTRPCRouter({
           downloadToken: { not: null },
         },
         orderBy: { createdAt: "desc" },
-        select: { downloadToken: true },
+        select: { downloadToken: true, createdAt: true, photoIds: true, bibNumber: true },
       });
-      return purchase?.downloadToken ?? null;
+
+      return purchases.map((p) => {
+        let photoCount: number | null = null;
+        try { if (p.photoIds) photoCount = (JSON.parse(p.photoIds) as string[]).length; } catch { /* ignore */ }
+        return {
+          token: p.downloadToken!,
+          createdAt: p.createdAt,
+          photoCount,
+          bibNumber: p.bibNumber,
+        };
+      });
     }),
 
   getDownloadInfo: publicProcedure
@@ -219,10 +240,16 @@ export const purchaseRouter = createTRPCRouter({
       if (!purchase) return null;
       if (purchase.status !== "APPROVED") return null;
 
-      // Fetch photos: by stored IDs if available, otherwise fall back to bib lookup
+      // Fetch photos: by stored IDs if available, otherwise fall back to bib lookup.
+      // A malformed photoIds JSON must degrade to the bib fallback, not crash the
+      // buyer's download page.
+      let storedIds: string[] | null = null;
+      if (purchase.photoIds) {
+        try { storedIds = JSON.parse(purchase.photoIds) as string[]; } catch { storedIds = null; }
+      }
       const photos = await ctx.db.photo.findMany({
-        where: purchase.photoIds
-          ? { id: { in: JSON.parse(purchase.photoIds) as string[] } }
+        where: storedIds
+          ? { id: { in: storedIds } }
           : {
               collectionId: purchase.collectionId,
               ...(purchase.bibNumber
@@ -319,7 +346,7 @@ export const purchaseRouter = createTRPCRouter({
 
   // ─── Admin ─────────────────────────────────────────────────────────────────
 
-  adminList: protectedProcedure
+  adminList: adminProcedure
     .input(
       z.object({
         page: z.number().default(1),
@@ -347,7 +374,7 @@ export const purchaseRouter = createTRPCRouter({
       return { items, total, pages: Math.ceil(total / input.limit) };
     }),
 
-  manualDeliver: protectedProcedure
+  manualDeliver: adminProcedure
     .input(z.object({
       collectionId: z.string(),
       bibNumber: z.string().min(1),
@@ -404,7 +431,7 @@ export const purchaseRouter = createTRPCRouter({
       return { downloadToken: token, photoCount };
     }),
 
-  searchStats: protectedProcedure
+  searchStats: adminProcedure
     .input(z.object({ collectionId: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
       const base = input?.collectionId ? { collectionId: input.collectionId } : {};
@@ -416,7 +443,7 @@ export const purchaseRouter = createTRPCRouter({
       return { total, bib, face };
     }),
 
-  eventsSummary: protectedProcedure.query(async ({ ctx }) => {
+  eventsSummary: adminProcedure.query(async ({ ctx }) => {
     const [collections, grouped] = await Promise.all([
       ctx.db.collection.findMany({
         orderBy: { createdAt: "desc" },
@@ -449,7 +476,7 @@ export const purchaseRouter = createTRPCRouter({
   }),
 
   /** Look up a single purchase by its download token — admin diagnostic tool. */
-  findByToken: protectedProcedure
+  findByToken: adminProcedure
     .input(z.object({ token: z.string() }))
     .query(async ({ ctx, input }) => {
       const purchase = await ctx.db.purchase.findUnique({
@@ -474,7 +501,7 @@ export const purchaseRouter = createTRPCRouter({
       };
     }),
 
-  adminStats: protectedProcedure
+  adminStats: adminProcedure
     .input(z.object({ collectionId: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
       const base = {
@@ -498,7 +525,7 @@ export const purchaseRouter = createTRPCRouter({
       };
     }),
 
-  manualApprove: protectedProcedure
+  manualApprove: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       // Atomic transition — only generate token + send email if not already approved.
@@ -515,9 +542,17 @@ export const purchaseRouter = createTRPCRouter({
       });
 
       if (result.count === 1) {
-        const photoCount = await ctx.db.photo.count({
-          where: { collectionId: updated.collectionId, bibNumber: updated.bibNumber ?? undefined },
-        });
+        // photoCount for the email: explicit photoIds beat the bib fallback.
+        // (bibNumber: undefined in a where-clause means "no filter" — that used
+        // to count EVERY photo in the collection for cart purchases.)
+        let photoCount: number | undefined;
+        if (updated.photoIds) {
+          try { photoCount = (JSON.parse(updated.photoIds) as string[]).length; } catch { /* leave undefined */ }
+        } else if (updated.bibNumber) {
+          photoCount = await ctx.db.photo.count({
+            where: { collectionId: updated.collectionId, bibNumber: { contains: updated.bibNumber, mode: "insensitive" } },
+          });
+        }
         void sendPurchaseApprovedEmail({
           to: updated.buyerEmail,
           buyerName: updated.buyerName,

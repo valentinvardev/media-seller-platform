@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { resolveMediaUrl } from "~/lib/media";
 import {
+  adminProcedure,
   createTRPCRouter,
-  protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 
@@ -65,7 +65,7 @@ export const collectionRouter = createTRPCRouter({
 
   // ─── Admin ─────────────────────────────────────────────────────────────────
 
-  adminList: protectedProcedure.query(async ({ ctx }) => {
+  adminList: adminProcedure.query(async ({ ctx }) => {
     const cols = await ctx.db.collection.findMany({
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { photos: true } } },
@@ -81,7 +81,7 @@ export const collectionRouter = createTRPCRouter({
     );
   }),
 
-  adminGetById: protectedProcedure
+  adminGetById: adminProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const col = await ctx.db.collection.findUnique({
@@ -99,7 +99,7 @@ export const collectionRouter = createTRPCRouter({
       };
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(
       z.object({
         title: z.string().min(1),
@@ -123,7 +123,7 @@ export const collectionRouter = createTRPCRouter({
       });
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(
       z.object({
         id: z.string(),
@@ -154,7 +154,7 @@ export const collectionRouter = createTRPCRouter({
       });
     }),
 
-  delete: protectedProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
@@ -163,7 +163,7 @@ export const collectionRouter = createTRPCRouter({
       return ctx.db.collection.delete({ where: { id } });
     }),
 
-  togglePublish: protectedProcedure
+  togglePublish: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const current = await ctx.db.collection.findUniqueOrThrow({
@@ -176,7 +176,7 @@ export const collectionRouter = createTRPCRouter({
       });
     }),
 
-  toggleHide: protectedProcedure
+  toggleHide: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const current = await ctx.db.collection.findUniqueOrThrow({

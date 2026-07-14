@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { createSignedUrl, deleteObjects } from "~/lib/s3";
 import { resolveMediaUrl } from "~/lib/media";
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
@@ -391,6 +392,10 @@ export const photoRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const photo = await ctx.db.photo.findUniqueOrThrow({ where: { id: input.id } });
+      // Admins delete anything; collaborators only their own uploads.
+      if (ctx.session.user.role !== "ADMIN" && photo.uploaderId !== ctx.session.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Solo podés borrar tus propias fotos" });
+      }
       const toRemove: string[] = [];
       if (!photo.storageKey.startsWith("http")) toRemove.push(photo.storageKey);
       if (photo.previewKey) toRemove.push(photo.previewKey);
@@ -402,7 +407,7 @@ export const photoRouter = createTRPCRouter({
    * Find duplicate photos in a collection (same filename).
    * Returns groups: keep the oldest, list the rest as duplicates to delete.
    */
-  listDuplicates: protectedProcedure
+  listDuplicates: adminProcedure
     .input(z.object({ collectionId: z.string() }))
     .query(async ({ ctx, input }) => {
       const rows = await ctx.db.photo.findMany({
@@ -439,7 +444,7 @@ export const photoRouter = createTRPCRouter({
       return { groups, totalDuplicates };
     }),
 
-  bulkDelete: protectedProcedure
+  bulkDelete: adminProcedure
     .input(z.object({ ids: z.array(z.string()) }))
     .mutation(async ({ ctx, input }) => {
       const photos = await ctx.db.photo.findMany({ where: { id: { in: input.ids } } });
@@ -453,7 +458,7 @@ export const photoRouter = createTRPCRouter({
     }),
 
   /** IDs of photos in a collection that don't yet have a detected bib — used by the OCR retry worker pool. */
-  listWithoutBib: protectedProcedure
+  listWithoutBib: adminProcedure
     .input(z.object({ collectionId: z.string() }))
     .query(async ({ ctx, input }) => {
       const photos = await ctx.db.photo.findMany({
@@ -465,7 +470,7 @@ export const photoRouter = createTRPCRouter({
     }),
 
   /** IDs of photos in a collection that have no watermark preview yet. */
-  listUnwatermarked: protectedProcedure
+  listUnwatermarked: adminProcedure
     .input(z.object({ collectionId: z.string() }))
     .query(async ({ ctx, input }) => {
       const photos = await ctx.db.photo.findMany({
@@ -477,7 +482,7 @@ export const photoRouter = createTRPCRouter({
     }),
 
   /** ALL photo IDs in a collection — used to force-regenerate every watermark preview. */
-  listAllIds: protectedProcedure
+  listAllIds: adminProcedure
     .input(z.object({ collectionId: z.string() }))
     .query(async ({ ctx, input }) => {
       const photos = await ctx.db.photo.findMany({
@@ -488,7 +493,7 @@ export const photoRouter = createTRPCRouter({
       return photos.map((p) => p.id);
     }),
 
-  setBibNumber: protectedProcedure
+  setBibNumber: adminProcedure
     .input(z.object({ id: z.string(), bibNumber: z.string().nullable() }))
     .mutation(({ ctx, input }) =>
       ctx.db.photo.update({ where: { id: input.id }, data: { bibNumber: input.bibNumber } }),

@@ -26,8 +26,12 @@ export async function middleware(request: NextRequest) {
 
   const role = (token as { role?: string }).role;
 
-  // /admin/* is admin-only. A collaborator hitting it gets bounced to their dashboard.
-  if (isAdminPath && role !== "ADMIN") {
+  // /admin/* is admin-only. A collaborator hitting it gets bounced to their
+  // dashboard. Tokens WITHOUT a role are legacy sessions issued before the
+  // roles migration — those belong to admins (all pre-existing users were
+  // promoted to ADMIN), so let them through; tRPC adminProcedure re-validates
+  // against the DB anyway.
+  if (isAdminPath && role !== undefined && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/colaborador", request.url));
   }
 

@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
 
 export const faceRouter = createTRPCRouter({
-  stats: protectedProcedure.query(async ({ ctx }) => {
+  stats: adminProcedure.query(async ({ ctx }) => {
     const [totalFaces, byCollection] = await Promise.all([
       ctx.db.faceRecord.count(),
       ctx.db.faceRecord.groupBy({ by: ["collectionId"], _count: { id: true } }),
@@ -10,7 +10,7 @@ export const faceRouter = createTRPCRouter({
     return { totalFaces, totalCollections: byCollection.length };
   }),
 
-  list: protectedProcedure
+  list: adminProcedure
     .input(z.object({
       collectionId: z.string().optional(),
       page: z.number().min(1).default(1),
@@ -73,7 +73,7 @@ export const faceRouter = createTRPCRouter({
       };
     }),
 
-  delete: protectedProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db.faceRecord.delete({ where: { id: input.id } });

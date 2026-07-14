@@ -14,6 +14,7 @@ import { invalidateWatermarkCache } from "~/lib/photo-processing";
 export async function GET() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   if (!isS3Configured()) return NextResponse.json({ url: null });
 
@@ -25,6 +26,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   if (!isS3Configured()) return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
 
@@ -52,6 +54,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   if (!isS3Configured()) return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
 

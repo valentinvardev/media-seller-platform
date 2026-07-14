@@ -64,6 +64,10 @@ export async function POST(request: NextRequest) {
       approved: "APPROVED",
       rejected: "REJECTED",
       refunded: "REFUNDED",
+      cancelled: "REJECTED",
+      // A chargeback must revoke access — mapping it to PENDING (the old
+      // default) left the download link alive after the buyer disputed.
+      charged_back: "REFUNDED",
     };
     const newStatus = statusMap[payment.status ?? ""] ?? "PENDING";
 
@@ -74,10 +78,18 @@ export async function POST(request: NextRequest) {
       };
 
       if (newStatus !== "APPROVED") {
-        await db.purchase.update({
-          where: { id: purchaseId },
-          data: { ...mpFields, status: newStatus as "REJECTED" | "REFUNDED" | "PENDING" },
-        });
+        if (newStatus === "PENDING") {
+          // Webhooks can arrive out of order — a late "in_process" notification
+          // must never downgrade an already-APPROVED purchase and kill its
+          // download access. Only sync the MP ids.
+          await db.purchase.update({ where: { id: purchaseId }, data: mpFields });
+        } else {
+          // REJECTED / REFUNDED do override APPROVED (refunds revoke access).
+          await db.purchase.update({
+            where: { id: purchaseId },
+            data: { ...mpFields, status: newStatus as "REJECTED" | "REFUNDED" },
+          });
+        }
         continue;
       }
 

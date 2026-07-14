@@ -197,10 +197,21 @@ export function BibCheckoutModal({
     onSuccess: (data) => { clearCart(); router.push(`/descarga/${data.downloadToken}`); },
   });
 
+  // Multiple purchases for the same email are all listed — jumping straight to
+  // the newest one made buyers with 2+ purchases think the older ones vanished.
+  const [emailPurchases, setEmailPurchases] = useState<
+    { token: string; createdAt: Date; photoCount: number | null; bibNumber: string | null }[] | null
+  >(null);
+
   const accessByEmail = api.purchase.accessByEmail.useMutation({
-    onSuccess: (token) => {
-      if (token) { router.push(`/descarga/${token}`); }
-      else { setEmailError("No encontramos una compra aprobada para este email."); }
+    onSuccess: (purchases) => {
+      if (purchases.length === 0) {
+        setEmailError("No encontramos una compra aprobada para este email.");
+      } else if (purchases.length === 1) {
+        router.push(`/descarga/${purchases[0]!.token}`);
+      } else {
+        setEmailPurchases(purchases);
+      }
     },
   });
 
@@ -252,19 +263,20 @@ export function BibCheckoutModal({
     if (!dupWarning) return;
     const remaining = photoIds.filter((id) => !dupWarning.includes(id));
     setDupWarning(null);
-    if (remaining.length === 0) {
-      // Nothing left to buy — the effect that watches photoIds will close the modal.
-      setPhotoIds([]);
-      return;
-    }
-    setPhotoIds(remaining);
-    // Also drop them from the cart so they don't linger for the next checkout.
+    // Drop the already-owned photos from the cart in every path — otherwise the
+    // floating cart bar keeps offering photos the buyer already owns.
     for (const id of photoIds) {
       if (dupWarning.includes(id)) {
         const item = cartItems.find((i) => i.photoId === id);
         if (item) toggleCart(item);
       }
     }
+    if (remaining.length === 0) {
+      // Nothing left to buy — the effect that watches photoIds will close the modal.
+      setPhotoIds([]);
+      return;
+    }
+    setPhotoIds(remaining);
     const payload = {
       collectionId,
       photoIds: remaining,
@@ -452,33 +464,73 @@ export function BibCheckoutModal({
           {/* ── Email access step ── */}
           {step === "email" && (
             <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-3 min-h-0">
-              <div className="text-center mb-2">
-                <p className="text-base font-bold text-gray-900">Acceder a tus fotos</p>
-                <p className="text-sm text-gray-400 mt-1">
-                  Ingresá el email con el que compraste estas fotos
-                </p>
-              </div>
-              <input
-                type="email"
-                value={emailInput}
-                onChange={(e) => { setEmailInput(e.target.value); setEmailError(""); }}
-                placeholder="tu@email.com"
-                className={`${inp} ${emailError ? "border-red-300 focus:border-red-400" : ""}`}
-                onKeyDown={(e) => { if (e.key === "Enter") handleEmailAccess(); }}
-                autoFocus
-              />
-              {emailError && <p className="text-red-500 text-xs text-center">{emailError}</p>}
-              <button
-                onClick={handleEmailAccess}
-                disabled={!emailInput || accessByEmail.isPending}
-                className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all disabled:opacity-40"
-                style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
-              >
-                {accessByEmail.isPending ? "Buscando..." : "Acceder a mis fotos"}
-              </button>
-              <button onClick={() => setStep("cart")} className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors">
-                ← Volver
-              </button>
+              {emailPurchases ? (
+                <>
+                  <div className="text-center mb-2">
+                    <p className="text-base font-bold text-gray-900">Tus compras</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Encontramos {emailPurchases.length} compras con este email — elegí cuál abrir
+                    </p>
+                  </div>
+                  {emailPurchases.map((p) => (
+                    <button
+                      key={p.token}
+                      onClick={() => router.push(`/descarga/${p.token}`)}
+                      className="w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {p.photoCount !== null
+                            ? `${p.photoCount} foto${p.photoCount !== 1 ? "s" : ""}`
+                            : p.bibNumber
+                              ? `Dorsal #${p.bibNumber}`
+                              : "Compra"}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {new Date(p.createdAt).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}
+                        </p>
+                      </div>
+                      <span className="text-blue-600 text-sm shrink-0">Ver →</span>
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setEmailPurchases(null)}
+                    className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors mt-1"
+                  >
+                    ← Buscar con otro email
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="text-center mb-2">
+                    <p className="text-base font-bold text-gray-900">Acceder a tus fotos</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Ingresá el email con el que compraste estas fotos
+                    </p>
+                  </div>
+                  <input
+                    type="email"
+                    value={emailInput}
+                    onChange={(e) => { setEmailInput(e.target.value); setEmailError(""); }}
+                    placeholder="tu@email.com"
+                    className={`${inp} ${emailError ? "border-red-300 focus:border-red-400" : ""}`}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleEmailAccess(); }}
+                    autoFocus
+                  />
+                  {emailError && <p className="text-red-500 text-xs text-center">{emailError}</p>}
+                  <button
+                    onClick={handleEmailAccess}
+                    disabled={!emailInput || accessByEmail.isPending}
+                    className="w-full py-3.5 rounded-xl font-bold text-white text-sm transition-all disabled:opacity-40"
+                    style={{ background: "linear-gradient(135deg, #0057A8, #003D7A)" }}
+                  >
+                    {accessByEmail.isPending ? "Buscando..." : "Acceder a mis fotos"}
+                  </button>
+                  <button onClick={() => setStep("cart")} className="text-gray-400 hover:text-gray-600 text-sm text-center transition-colors">
+                    ← Volver
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

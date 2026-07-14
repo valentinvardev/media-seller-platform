@@ -15,6 +15,7 @@ import { runOcr } from "~/lib/photo-processing";
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { photoId } = (await req.json()) as { photoId?: string };
   if (!photoId) return NextResponse.json({ error: "photoId required" }, { status: 400 });

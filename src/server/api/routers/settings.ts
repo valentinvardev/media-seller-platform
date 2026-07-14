@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
 import { sendPurchaseApprovedEmail } from "~/lib/email";
 
 export const settingsRouter = createTRPCRouter({
-  getMpStatus: protectedProcedure.query(async ({ ctx }) => {
+  getMpStatus: adminProcedure.query(async ({ ctx }) => {
     const setting = await ctx.db.setting.findUnique({
       where: { key: "mp_access_token" },
     });
@@ -16,14 +16,14 @@ export const settingsRouter = createTRPCRouter({
     };
   }),
 
-  disconnectMp: protectedProcedure.mutation(async ({ ctx }) => {
+  disconnectMp: adminProcedure.mutation(async ({ ctx }) => {
     await ctx.db.setting.deleteMany({
       where: { key: { in: ["mp_access_token", "mp_refresh_token", "mp_user_id"] } },
     });
     return { ok: true };
   }),
 
-  resendPurchaseEmail: protectedProcedure
+  resendPurchaseEmail: adminProcedure
     .input(z.object({ purchaseId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const purchase = await ctx.db.purchase.findUnique({
@@ -33,9 +33,16 @@ export const settingsRouter = createTRPCRouter({
       if (!purchase || purchase.status !== "APPROVED" || !purchase.downloadToken) {
         throw new Error("Compra no aprobada o sin token");
       }
-      const photoCount = await ctx.db.photo.count({
-        where: { collectionId: purchase.collectionId, bibNumber: purchase.bibNumber ?? undefined },
-      });
+      // Explicit photoIds beat the bib fallback; bibNumber: undefined would
+      // count every photo in the collection for cart purchases.
+      let photoCount: number | undefined;
+      if (purchase.photoIds) {
+        try { photoCount = (JSON.parse(purchase.photoIds) as string[]).length; } catch { /* leave undefined */ }
+      } else if (purchase.bibNumber) {
+        photoCount = await ctx.db.photo.count({
+          where: { collectionId: purchase.collectionId, bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } },
+        });
+      }
       await sendPurchaseApprovedEmail({
         to: purchase.buyerEmail,
         buyerName: purchase.buyerName,
