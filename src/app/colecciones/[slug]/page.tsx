@@ -142,9 +142,9 @@ export default async function CollectionPage({
           <div className="flex justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Mercado_Pago.svg/960px-Mercado_Pago.svg.png"
+              src="/mercadopago.svg"
               alt="MercadoPago"
-              className="h-20 w-auto"
+              className="h-16 w-auto"
             />
           </div>
         </div>
