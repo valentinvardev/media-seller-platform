@@ -8,12 +8,16 @@
 // Para borrarlos de verdad, después de revisar la salida:
 //   node scripts/s3-orphan-audit.mjs --delete
 import fs from "fs";
-for (const l of fs.readFileSync(".env", "utf8").split("\n")) {
+import path from "path";
+import { fileURLToPath, pathToFileURL } from "url";
+// Resolve everything from the repo root so the script works from any cwd.
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+for (const l of fs.readFileSync(path.join(ROOT, ".env"), "utf8").split("\n")) {
   const m = /^([A-Z_0-9]+)\s*=\s*"?([^"\r\n]*)"?/.exec(l.trim());
   if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
 }
 const { S3Client, ListObjectsV2Command, DeleteObjectsCommand } = await import("@aws-sdk/client-s3");
-const { PrismaClient } = await import("./generated/prisma/index.js");
+const { PrismaClient } = await import(pathToFileURL(path.join(ROOT, "generated/prisma/index.js")).href);
 
 const DELETE = process.argv.includes("--delete");
 const BUCKET = process.env.AWS_S3_BUCKET;
