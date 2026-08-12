@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Syne, Inter } from "next/font/google";
+import { Syne, Inter, Playfair_Display } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -26,11 +26,19 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+// Serif elegante para la sección de bodas.
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${syne.variable} ${inter.variable}`}>
+    <html lang="es" className={`${syne.variable} ${inter.variable} ${playfair.variable}`}>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
