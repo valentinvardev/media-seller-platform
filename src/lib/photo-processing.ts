@@ -11,6 +11,7 @@ import {
   DetectTextCommand,
   CreateCollectionCommand,
   IndexFacesCommand,
+  DeleteCollectionCommand,
 } from "@aws-sdk/client-rekognition";
 import { db } from "~/server/db";
 import { downloadObject, uploadObject, deleteObjects, createCFInvalidation } from "~/lib/s3";
@@ -293,24 +294,66 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
 
 // ── Face index ────────────────────────────────────────────────────────────────
 
-function rekognitionCollectionId(collectionId: string) {
+export function rekognitionCollectionId(collectionId: string) {
   return `foto-${collectionId.replace(/[^a-zA-Z0-9_.\-]/g, "-")}`;
 }
 
+/**
+ * Delete a collection's Rekognition collection (and thus all its stored faces).
+ * Best-effort: swallows "doesn't exist". Called when an event is deleted (so we
+ * stop paying face storage forever on orphans) and when forcing a full reindex.
+ */
+export async function deleteRekognitionCollection(collectionId: string): Promise<void> {
+  const rekId = rekognitionCollectionId(collectionId);
+  try {
+    await rekognition.send(new DeleteCollectionCommand({ CollectionId: rekId }));
+    ensuredCollections.delete(rekId);
+    console.log(`[FaceIndex] deleted Rekognition collection ${rekId}`);
+  } catch (err: unknown) {
+    if ((err as { name?: string }).name !== "ResourceNotFoundException") {
+      console.error(`[FaceIndex] failed deleting collection ${rekId}:`, err);
+    }
+  }
+}
+
+// In-process cache of collections we've already ensured exist this server run.
+// CreateCollection is free but calling it per-photo wastes a round-trip and
+// risks throttling; once ensured, skip it.
+const ensuredCollections = new Set<string>();
+
 async function ensureRekognitionCollection(collId: string) {
+  if (ensuredCollections.has(collId)) return;
   try {
     await rekognition.send(new CreateCollectionCommand({ CollectionId: collId }));
   } catch (err: unknown) {
     if ((err as { name?: string }).name !== "ResourceAlreadyExistsException") throw err;
   }
+  ensuredCollections.add(collId);
 }
 
-export async function runFaceIndex(photoId: string, collectionId: string): Promise<void> {
+/**
+ * Index a photo's faces into its Rekognition collection.
+ *
+ * IMPORTANT — cost control: IndexFaces is billed per image and does NOT
+ * deduplicate (calling it twice on the same image stores duplicate faces and
+ * charges again). We stamp `faceProcessedAt` after every attempt so callers can
+ * skip already-processed photos. Pass `force: true` only when you've already
+ * cleared the old faces and genuinely want to re-index from scratch.
+ */
+export async function runFaceIndex(
+  photoId: string,
+  collectionId: string,
+  opts: { force?: boolean } = {},
+): Promise<void> {
   const photo = await db.photo.findUnique({
     where: { id: photoId },
-    select: { id: true, storageKey: true },
+    select: { id: true, storageKey: true, faceProcessedAt: true },
   });
   if (!photo) return;
+
+  // Idempotency guard: if this photo was already indexed and we're not forcing
+  // a rebuild, do nothing — this is what makes the reindex button free to click.
+  if (photo.faceProcessedAt && !opts.force) return;
 
   const dl = await downloadWithRetry(photo.storageKey);
   if (!dl.buffer) { console.error(`[FaceIndex] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error}`); return; }
@@ -342,6 +385,10 @@ export async function runFaceIndex(photoId: string, collectionId: string): Promi
         create: { rekFaceId: faceId, photoId, collectionId, confidence: fr.Face?.Confidence ?? null },
       });
     }
+
+    // Stamp processed even when 0 faces were found — a bibless/faceless photo is
+    // still "done" and must not be re-charged on the next reindex click.
+    await db.photo.update({ where: { id: photoId }, data: { faceProcessedAt: new Date() } });
   } catch (err) {
     console.error(`[FaceIndex] Error for photoId=${photoId}:`, err);
   }
@@ -379,5 +426,5 @@ const faceLimit = makeLimiter(4);
 
 export const runOcrLimited = (photoId: string) => ocrLimit(() => runOcr(photoId));
 export const runWatermarkLimited = (photoId: string) => watermarkLimit(() => runWatermark(photoId));
-export const runFaceIndexLimited = (photoId: string, collectionId: string) =>
-  faceLimit(() => runFaceIndex(photoId, collectionId));
+export const runFaceIndexLimited = (photoId: string, collectionId: string, opts: { force?: boolean } = {}) =>
+  faceLimit(() => runFaceIndex(photoId, collectionId, opts));

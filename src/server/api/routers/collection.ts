@@ -158,6 +158,15 @@ export const collectionRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
+      // Drop the Rekognition collection too — otherwise its stored faces are
+      // billed forever as orphans (we found 79 such leaks in an audit). Best
+      // effort: never block the DB delete on an AWS hiccup.
+      try {
+        const { deleteRekognitionCollection } = await import("~/lib/photo-processing");
+        await deleteRekognitionCollection(id);
+      } catch (err) {
+        console.error("[collection.delete] Rekognition cleanup failed:", err);
+      }
       await ctx.db.purchase.deleteMany({ where: { collectionId: id } });
       await ctx.db.photo.deleteMany({ where: { collectionId: id } });
       return ctx.db.collection.delete({ where: { id } });

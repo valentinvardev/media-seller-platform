@@ -211,6 +211,7 @@ exports.Prisma.PhotoScalarFieldEnum = {
   order: 'order',
   previewKey: 'previewKey',
   contentHash: 'contentHash',
+  faceProcessedAt: 'faceProcessedAt',
   createdAt: 'createdAt'
 };
 

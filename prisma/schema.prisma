@@ -145,10 +145,11 @@ model Photo {
     fileSize     Int?
     width        Int?
     height       Int?
-    order        Int       @default(0)
-    previewKey   String?   // Watermarked version key
-    contentHash  String?   // SHA-256 of original bytes — used for dedup on resumed uploads
-    createdAt    DateTime  @default(now())
+    order          Int       @default(0)
+    previewKey     String?   // Watermarked version key
+    contentHash    String?   // SHA-256 of original bytes — used for dedup on resumed uploads
+    faceProcessedAt DateTime? // When IndexFaces last ran on this photo (null = never). Dedups reindex so a re-click is free.
+    createdAt      DateTime  @default(now())
 
     collection  Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
     uploader    User?        @relation("PhotoUploader", fields: [uploaderId], references: [id])
@@ -158,6 +159,7 @@ model Photo {
     @@index([collectionId, bibNumber])
     @@index([collectionId, contentHash])
     @@index([collectionId, filename])
+    @@index([collectionId, faceProcessedAt])
     @@index([uploaderId])
 }
 

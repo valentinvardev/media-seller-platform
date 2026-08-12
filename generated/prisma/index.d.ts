@@ -10064,6 +10064,7 @@ export namespace Prisma {
     order: number | null
     previewKey: string | null
     contentHash: string | null
+    faceProcessedAt: Date | null
     createdAt: Date | null
   }
 
@@ -10080,6 +10081,7 @@ export namespace Prisma {
     order: number | null
     previewKey: string | null
     contentHash: string | null
+    faceProcessedAt: Date | null
     createdAt: Date | null
   }
 
@@ -10096,6 +10098,7 @@ export namespace Prisma {
     order: number
     previewKey: number
     contentHash: number
+    faceProcessedAt: number
     createdAt: number
     _all: number
   }
@@ -10128,6 +10131,7 @@ export namespace Prisma {
     order?: true
     previewKey?: true
     contentHash?: true
+    faceProcessedAt?: true
     createdAt?: true
   }
 
@@ -10144,6 +10148,7 @@ export namespace Prisma {
     order?: true
     previewKey?: true
     contentHash?: true
+    faceProcessedAt?: true
     createdAt?: true
   }
 
@@ -10160,6 +10165,7 @@ export namespace Prisma {
     order?: true
     previewKey?: true
     contentHash?: true
+    faceProcessedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -10263,6 +10269,7 @@ export namespace Prisma {
     order: number
     previewKey: string | null
     contentHash: string | null
+    faceProcessedAt: Date | null
     createdAt: Date
     _count: PhotoCountAggregateOutputType | null
     _avg: PhotoAvgAggregateOutputType | null
@@ -10298,6 +10305,7 @@ export namespace Prisma {
     order?: boolean
     previewKey?: boolean
     contentHash?: boolean
+    faceProcessedAt?: boolean
     createdAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
     uploader?: boolean | Photo$uploaderArgs<ExtArgs>
@@ -10318,6 +10326,7 @@ export namespace Prisma {
     order?: boolean
     previewKey?: boolean
     contentHash?: boolean
+    faceProcessedAt?: boolean
     createdAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
     uploader?: boolean | Photo$uploaderArgs<ExtArgs>
@@ -10336,6 +10345,7 @@ export namespace Prisma {
     order?: boolean
     previewKey?: boolean
     contentHash?: boolean
+    faceProcessedAt?: boolean
     createdAt?: boolean
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
     uploader?: boolean | Photo$uploaderArgs<ExtArgs>
@@ -10354,10 +10364,11 @@ export namespace Prisma {
     order?: boolean
     previewKey?: boolean
     contentHash?: boolean
+    faceProcessedAt?: boolean
     createdAt?: boolean
   }
 
-  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "uploaderId" | "bibNumber" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "previewKey" | "contentHash" | "createdAt", ExtArgs["result"]["photo"]>
+  export type PhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "uploaderId" | "bibNumber" | "storageKey" | "filename" | "fileSize" | "width" | "height" | "order" | "previewKey" | "contentHash" | "faceProcessedAt" | "createdAt", ExtArgs["result"]["photo"]>
   export type PhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
     uploader?: boolean | Photo$uploaderArgs<ExtArgs>
@@ -10393,6 +10404,7 @@ export namespace Prisma {
       order: number
       previewKey: string | null
       contentHash: string | null
+      faceProcessedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["photo"]>
     composites: {}
@@ -10832,6 +10844,7 @@ export namespace Prisma {
     readonly order: FieldRef<"Photo", 'Int'>
     readonly previewKey: FieldRef<"Photo", 'String'>
     readonly contentHash: FieldRef<"Photo", 'String'>
+    readonly faceProcessedAt: FieldRef<"Photo", 'DateTime'>
     readonly createdAt: FieldRef<"Photo", 'DateTime'>
   }
     
@@ -15753,6 +15766,7 @@ export namespace Prisma {
     order: 'order',
     previewKey: 'previewKey',
     contentHash: 'contentHash',
+    faceProcessedAt: 'faceProcessedAt',
     createdAt: 'createdAt'
   };
 
@@ -16506,6 +16520,7 @@ export namespace Prisma {
     order?: IntFilter<"Photo"> | number
     previewKey?: StringNullableFilter<"Photo"> | string | null
     contentHash?: StringNullableFilter<"Photo"> | string | null
+    faceProcessedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
     uploader?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -16525,6 +16540,7 @@ export namespace Prisma {
     order?: SortOrder
     previewKey?: SortOrderInput | SortOrder
     contentHash?: SortOrderInput | SortOrder
+    faceProcessedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     collection?: CollectionOrderByWithRelationInput
     uploader?: UserOrderByWithRelationInput
@@ -16547,6 +16563,7 @@ export namespace Prisma {
     order?: IntFilter<"Photo"> | number
     previewKey?: StringNullableFilter<"Photo"> | string | null
     contentHash?: StringNullableFilter<"Photo"> | string | null
+    faceProcessedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
     collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
     uploader?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -16566,6 +16583,7 @@ export namespace Prisma {
     order?: SortOrder
     previewKey?: SortOrderInput | SortOrder
     contentHash?: SortOrderInput | SortOrder
+    faceProcessedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: PhotoCountOrderByAggregateInput
     _avg?: PhotoAvgOrderByAggregateInput
@@ -16590,6 +16608,7 @@ export namespace Prisma {
     order?: IntWithAggregatesFilter<"Photo"> | number
     previewKey?: StringNullableWithAggregatesFilter<"Photo"> | string | null
     contentHash?: StringNullableWithAggregatesFilter<"Photo"> | string | null
+    faceProcessedAt?: DateTimeNullableWithAggregatesFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Photo"> | Date | string
   }
 
@@ -17458,6 +17477,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
     collection: CollectionCreateNestedOneWithoutPhotosInput
     uploader?: UserCreateNestedOneWithoutUploadsInput
@@ -17477,6 +17497,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
     faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutPhotoInput
   }
@@ -17492,6 +17513,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
     uploader?: UserUpdateOneWithoutUploadsNestedInput
@@ -17511,6 +17533,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     faceRecords?: FaceRecordUncheckedUpdateManyWithoutPhotoNestedInput
   }
@@ -17528,6 +17551,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -17542,6 +17566,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17558,6 +17583,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18490,6 +18516,7 @@ export namespace Prisma {
     order?: SortOrder
     previewKey?: SortOrder
     contentHash?: SortOrder
+    faceProcessedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -18513,6 +18540,7 @@ export namespace Prisma {
     order?: SortOrder
     previewKey?: SortOrder
     contentHash?: SortOrder
+    faceProcessedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -18529,6 +18557,7 @@ export namespace Prisma {
     order?: SortOrder
     previewKey?: SortOrder
     contentHash?: SortOrder
+    faceProcessedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -19919,6 +19948,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
     collection: CollectionCreateNestedOneWithoutPhotosInput
     faceRecords?: FaceRecordCreateNestedManyWithoutPhotoInput
@@ -19936,6 +19966,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
     faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutPhotoInput
   }
@@ -20099,6 +20130,7 @@ export namespace Prisma {
     order?: IntFilter<"Photo"> | number
     previewKey?: StringNullableFilter<"Photo"> | string | null
     contentHash?: StringNullableFilter<"Photo"> | string | null
+    faceProcessedAt?: DateTimeNullableFilter<"Photo"> | Date | string | null
     createdAt?: DateTimeFilter<"Photo"> | Date | string
   }
 
@@ -20171,6 +20203,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
     uploader?: UserCreateNestedOneWithoutUploadsInput
     faceRecords?: FaceRecordCreateNestedManyWithoutPhotoInput
@@ -20188,6 +20221,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
     faceRecords?: FaceRecordUncheckedCreateNestedManyWithoutPhotoInput
   }
@@ -21138,6 +21172,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
     collection: CollectionCreateNestedOneWithoutPhotosInput
     uploader?: UserCreateNestedOneWithoutUploadsInput
@@ -21156,6 +21191,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -21235,6 +21271,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
     uploader?: UserUpdateOneWithoutUploadsNestedInput
@@ -21253,6 +21290,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -21344,6 +21382,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -21439,6 +21478,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collection?: CollectionUpdateOneRequiredWithoutPhotosNestedInput
     faceRecords?: FaceRecordUpdateManyWithoutPhotoNestedInput
@@ -21456,6 +21496,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     faceRecords?: FaceRecordUncheckedUpdateManyWithoutPhotoNestedInput
   }
@@ -21472,6 +21513,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -21541,6 +21583,7 @@ export namespace Prisma {
     order?: number
     previewKey?: string | null
     contentHash?: string | null
+    faceProcessedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -21602,6 +21645,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     uploader?: UserUpdateOneWithoutUploadsNestedInput
     faceRecords?: FaceRecordUpdateManyWithoutPhotoNestedInput
@@ -21619,6 +21663,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     faceRecords?: FaceRecordUncheckedUpdateManyWithoutPhotoNestedInput
   }
@@ -21635,6 +21680,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     previewKey?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    faceProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

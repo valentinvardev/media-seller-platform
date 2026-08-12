@@ -360,6 +360,8 @@ export const photoRouter = createTRPCRouter({
             contentHash: r.contentHash,
             bibNumber: null,
             previewKey: null,
+            // New bytes → must re-index; clearing this lets runFaceIndex run again.
+            faceProcessedAt: null,
           },
         });
       }

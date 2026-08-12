@@ -136,19 +136,20 @@ model Invitation {
 
 // Photos belong directly to a Collection; bibNumber is OCR-detected
 model Photo {
-  id           String   @id @default(cuid())
-  collectionId String
-  uploaderId   String? // Which user uploaded this photo (null for legacy photos before this field existed)
-  bibNumber    String? // OCR-detected bib (null = not yet read or unknown)
-  storageKey   String
-  filename     String
-  fileSize     Int?
-  width        Int?
-  height       Int?
-  order        Int      @default(0)
-  previewKey   String? // Watermarked version key
-  contentHash  String? // SHA-256 of original bytes — used for dedup on resumed uploads
-  createdAt    DateTime @default(now())
+  id              String    @id @default(cuid())
+  collectionId    String
+  uploaderId      String? // Which user uploaded this photo (null for legacy photos before this field existed)
+  bibNumber       String? // OCR-detected bib (null = not yet read or unknown)
+  storageKey      String
+  filename        String
+  fileSize        Int?
+  width           Int?
+  height          Int?
+  order           Int       @default(0)
+  previewKey      String? // Watermarked version key
+  contentHash     String? // SHA-256 of original bytes — used for dedup on resumed uploads
+  faceProcessedAt DateTime? // When IndexFaces last ran on this photo (null = never). Dedups reindex so a re-click is free.
+  createdAt       DateTime  @default(now())
 
   collection  Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   uploader    User?        @relation("PhotoUploader", fields: [uploaderId], references: [id])
@@ -158,6 +159,7 @@ model Photo {
   @@index([collectionId, bibNumber])
   @@index([collectionId, contentHash])
   @@index([collectionId, filename])
+  @@index([collectionId, faceProcessedAt])
   @@index([uploaderId])
 }
 
