@@ -36,8 +36,11 @@ for (const p of photos) {
 }
 const cols = await db.collection.findMany({ select: { coverUrl: true, logoUrl: true, bannerUrl: true } });
 for (const c of cols) for (const a of [c.coverUrl, c.logoUrl, c.bannerUrl]) if (a && !a.startsWith("http")) live.add(withPrefix(a));
-const wmKey = PREFIX + "watermark.png"; // por si existe
-live.add(wmKey);
+
+// PROTEGIDO: la marca de agua (WATERMARK_KEY = "watermarks/active.png") no vive
+// en ninguna tabla. Blindamos TODO el prefijo watermarks/ para no borrarla nunca.
+const PROTECTED_PREFIXES = [PREFIX + "watermarks/"];
+const isProtected = (key) => PROTECTED_PREFIXES.some((p) => key.startsWith(p));
 
 console.log(`DB: ${live.size} objetos vivos referenciados. Escaneando bucket ${BUCKET} (prefix "${PREFIX || "-"}", ${region})...`);
 
@@ -48,7 +51,7 @@ do {
   const r = await s3.send(new ListObjectsV2Command({ Bucket: BUCKET, Prefix: PREFIX || undefined, ContinuationToken: tok, MaxKeys: 1000 }));
   for (const o of (r.Contents || [])) {
     scanned++;
-    if (live.has(o.Key)) { liveBytes += o.Size || 0; }
+    if (live.has(o.Key) || isProtected(o.Key)) { liveBytes += o.Size || 0; }
     else { orphans.push(o.Key); orphanBytes += o.Size || 0; }
   }
   tok = r.IsTruncated ? r.NextContinuationToken : undefined;
