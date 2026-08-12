@@ -6,9 +6,13 @@ import { Syne, Inter } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
-  title: "ALTAFOTO — Tus fotos de carrera",
+  title: {
+    default: "AltaFoto",
+    template: "%s · AltaFoto",
+  },
   description: "Encontrá y descargá tus fotos deportivas en alta resolución",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  // Iconos y manifest se toman de las convenciones de Next.js:
+  // src/app/icon.png, src/app/apple-icon.png y src/app/manifest.ts
 };
 
 const syne = Syne({

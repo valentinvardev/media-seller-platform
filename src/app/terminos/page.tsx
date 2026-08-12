@@ -3,7 +3,7 @@ import Image from "next/image";
 import { MobileNav } from "~/app/_components/MobileNav";
 
 export const metadata = {
-  title: "Condiciones de Servicio — ALTAFOTO",
+  title: "Condiciones de Servicio",
   description: "Términos y condiciones de uso de la plataforma ALTAFOTO.",
 };
 

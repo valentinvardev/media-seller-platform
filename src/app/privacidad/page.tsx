@@ -3,7 +3,7 @@ import Image from "next/image";
 import { MobileNav } from "~/app/_components/MobileNav";
 
 export const metadata = {
-  title: "Política de Privacidad — ALTAFOTO",
+  title: "Política de Privacidad",
   description: "Política de privacidad y tratamiento de datos personales de ALTAFOTO, conforme a la Ley 25.326.",
 };
 
