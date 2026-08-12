@@ -158,6 +158,27 @@ export const collectionRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
+
+      // Collect every S3 object this event owns BEFORE dropping the rows —
+      // photo.deleteMany is a raw DB delete that (unlike photo.delete) never
+      // touched S3, so originals + watermarked previews leaked forever.
+      const photos = await ctx.db.photo.findMany({
+        where: { collectionId: id },
+        select: { storageKey: true, previewKey: true },
+      });
+      const collection = await ctx.db.collection.findUnique({
+        where: { id },
+        select: { coverUrl: true, logoUrl: true, bannerUrl: true },
+      });
+      const keys: string[] = [];
+      for (const p of photos) {
+        if (p.storageKey) keys.push(p.storageKey);
+        if (p.previewKey) keys.push(p.previewKey);
+      }
+      for (const asset of [collection?.coverUrl, collection?.logoUrl, collection?.bannerUrl]) {
+        if (asset) keys.push(asset);
+      }
+
       // Drop the Rekognition collection too — otherwise its stored faces are
       // billed forever as orphans (we found 79 such leaks in an audit). Best
       // effort: never block the DB delete on an AWS hiccup.
@@ -167,9 +188,19 @@ export const collectionRouter = createTRPCRouter({
       } catch (err) {
         console.error("[collection.delete] Rekognition cleanup failed:", err);
       }
+
       await ctx.db.purchase.deleteMany({ where: { collectionId: id } });
       await ctx.db.photo.deleteMany({ where: { collectionId: id } });
-      return ctx.db.collection.delete({ where: { id } });
+      const result = await ctx.db.collection.delete({ where: { id } });
+
+      // Clean the S3 objects in the background — for a multi-thousand-photo event
+      // this shouldn't block the admin response. Batched (1000/call) inside.
+      if (keys.length) {
+        const { deleteObjects } = await import("~/lib/s3");
+        void deleteObjects(keys).catch((e) => console.error("[collection.delete] S3 cleanup failed:", e));
+      }
+
+      return result;
     }),
 
   togglePublish: adminProcedure

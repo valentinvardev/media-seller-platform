@@ -16,7 +16,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
-  DeleteObjectCommand,
+  DeleteObjectsCommand,
   HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -172,15 +172,21 @@ export async function uploadObject(
   );
 }
 
-/** Bulk delete. Skips http(s) entries (those aren't S3 objects). */
+/**
+ * Bulk delete. Skips http(s) entries (those aren't S3 objects). Uses the batch
+ * DeleteObjects API (up to 1000 keys per call) so deleting an event with
+ * thousands of photos is a handful of requests, not thousands.
+ */
 export async function deleteObjects(keys: string[]): Promise<void> {
-  const targets = keys.filter((k) => k && !k.startsWith("http"));
+  const targets = keys.filter((k) => k && !k.startsWith("http")).map(withPrefix);
   if (targets.length === 0) return;
-  await Promise.all(
-    targets.map((k) =>
-      client().send(new DeleteObjectCommand({ Bucket: BUCKET(), Key: withPrefix(k) })),
-    ),
-  );
+  for (let i = 0; i < targets.length; i += 1000) {
+    const chunk = targets.slice(i, i + 1000);
+    await client().send(new DeleteObjectsCommand({
+      Bucket: BUCKET(),
+      Delete: { Objects: chunk.map((Key) => ({ Key })), Quiet: true },
+    }));
+  }
 }
 
 /** True if the object exists. False on any S3 error (including 404). */
