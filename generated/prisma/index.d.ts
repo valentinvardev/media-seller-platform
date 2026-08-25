@@ -73,6 +73,11 @@ export type SearchLog = $Result.DefaultSelection<Prisma.$SearchLogPayload>
  * 
  */
 export type Setting = $Result.DefaultSelection<Prisma.$SettingPayload>
+/**
+ * Model WatermarkPreset
+ * 
+ */
+export type WatermarkPreset = $Result.DefaultSelection<Prisma.$WatermarkPresetPayload>
 
 /**
  * Enums
@@ -354,6 +359,16 @@ export class PrismaClient<
     * ```
     */
   get setting(): Prisma.SettingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.watermarkPreset`: Exposes CRUD operations for the **WatermarkPreset** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WatermarkPresets
+    * const watermarkPresets = await prisma.watermarkPreset.findMany()
+    * ```
+    */
+  get watermarkPreset(): Prisma.WatermarkPresetDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -806,7 +821,8 @@ export namespace Prisma {
     Purchase: 'Purchase',
     FaceRecord: 'FaceRecord',
     SearchLog: 'SearchLog',
-    Setting: 'Setting'
+    Setting: 'Setting',
+    WatermarkPreset: 'WatermarkPreset'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -825,7 +841,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "account" | "session" | "user" | "verificationToken" | "collection" | "collectionMember" | "invitation" | "photo" | "purchase" | "faceRecord" | "searchLog" | "setting"
+      modelProps: "account" | "session" | "user" | "verificationToken" | "collection" | "collectionMember" | "invitation" | "photo" | "purchase" | "faceRecord" | "searchLog" | "setting" | "watermarkPreset"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1717,6 +1733,80 @@ export namespace Prisma {
           }
         }
       }
+      WatermarkPreset: {
+        payload: Prisma.$WatermarkPresetPayload<ExtArgs>
+        fields: Prisma.WatermarkPresetFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WatermarkPresetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WatermarkPresetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>
+          }
+          findFirst: {
+            args: Prisma.WatermarkPresetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WatermarkPresetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>
+          }
+          findMany: {
+            args: Prisma.WatermarkPresetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>[]
+          }
+          create: {
+            args: Prisma.WatermarkPresetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>
+          }
+          createMany: {
+            args: Prisma.WatermarkPresetCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WatermarkPresetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>[]
+          }
+          delete: {
+            args: Prisma.WatermarkPresetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>
+          }
+          update: {
+            args: Prisma.WatermarkPresetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>
+          }
+          deleteMany: {
+            args: Prisma.WatermarkPresetDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WatermarkPresetUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WatermarkPresetUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>[]
+          }
+          upsert: {
+            args: Prisma.WatermarkPresetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WatermarkPresetPayload>
+          }
+          aggregate: {
+            args: Prisma.WatermarkPresetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWatermarkPreset>
+          }
+          groupBy: {
+            args: Prisma.WatermarkPresetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WatermarkPresetGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WatermarkPresetCountArgs<ExtArgs>
+            result: $Utils.Optional<WatermarkPresetCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1825,6 +1915,7 @@ export namespace Prisma {
     faceRecord?: FaceRecordOmit
     searchLog?: SearchLogOmit
     setting?: SettingOmit
+    watermarkPreset?: WatermarkPresetOmit
   }
 
   /* Types for Logging */
@@ -15642,6 +15733,1001 @@ export namespace Prisma {
 
 
   /**
+   * Model WatermarkPreset
+   */
+
+  export type AggregateWatermarkPreset = {
+    _count: WatermarkPresetCountAggregateOutputType | null
+    _min: WatermarkPresetMinAggregateOutputType | null
+    _max: WatermarkPresetMaxAggregateOutputType | null
+  }
+
+  export type WatermarkPresetMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    storageKey: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+  }
+
+  export type WatermarkPresetMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    storageKey: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+  }
+
+  export type WatermarkPresetCountAggregateOutputType = {
+    id: number
+    name: number
+    storageKey: number
+    isActive: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type WatermarkPresetMinAggregateInputType = {
+    id?: true
+    name?: true
+    storageKey?: true
+    isActive?: true
+    createdAt?: true
+  }
+
+  export type WatermarkPresetMaxAggregateInputType = {
+    id?: true
+    name?: true
+    storageKey?: true
+    isActive?: true
+    createdAt?: true
+  }
+
+  export type WatermarkPresetCountAggregateInputType = {
+    id?: true
+    name?: true
+    storageKey?: true
+    isActive?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type WatermarkPresetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WatermarkPreset to aggregate.
+     */
+    where?: WatermarkPresetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WatermarkPresets to fetch.
+     */
+    orderBy?: WatermarkPresetOrderByWithRelationInput | WatermarkPresetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WatermarkPresetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WatermarkPresets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WatermarkPresets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WatermarkPresets
+    **/
+    _count?: true | WatermarkPresetCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WatermarkPresetMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WatermarkPresetMaxAggregateInputType
+  }
+
+  export type GetWatermarkPresetAggregateType<T extends WatermarkPresetAggregateArgs> = {
+        [P in keyof T & keyof AggregateWatermarkPreset]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWatermarkPreset[P]>
+      : GetScalarType<T[P], AggregateWatermarkPreset[P]>
+  }
+
+
+
+
+  export type WatermarkPresetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WatermarkPresetWhereInput
+    orderBy?: WatermarkPresetOrderByWithAggregationInput | WatermarkPresetOrderByWithAggregationInput[]
+    by: WatermarkPresetScalarFieldEnum[] | WatermarkPresetScalarFieldEnum
+    having?: WatermarkPresetScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WatermarkPresetCountAggregateInputType | true
+    _min?: WatermarkPresetMinAggregateInputType
+    _max?: WatermarkPresetMaxAggregateInputType
+  }
+
+  export type WatermarkPresetGroupByOutputType = {
+    id: string
+    name: string
+    storageKey: string
+    isActive: boolean
+    createdAt: Date
+    _count: WatermarkPresetCountAggregateOutputType | null
+    _min: WatermarkPresetMinAggregateOutputType | null
+    _max: WatermarkPresetMaxAggregateOutputType | null
+  }
+
+  type GetWatermarkPresetGroupByPayload<T extends WatermarkPresetGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WatermarkPresetGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WatermarkPresetGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WatermarkPresetGroupByOutputType[P]>
+            : GetScalarType<T[P], WatermarkPresetGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WatermarkPresetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    storageKey?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["watermarkPreset"]>
+
+  export type WatermarkPresetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    storageKey?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["watermarkPreset"]>
+
+  export type WatermarkPresetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    storageKey?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["watermarkPreset"]>
+
+  export type WatermarkPresetSelectScalar = {
+    id?: boolean
+    name?: boolean
+    storageKey?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+  }
+
+  export type WatermarkPresetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "storageKey" | "isActive" | "createdAt", ExtArgs["result"]["watermarkPreset"]>
+
+  export type $WatermarkPresetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WatermarkPreset"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      storageKey: string
+      isActive: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["watermarkPreset"]>
+    composites: {}
+  }
+
+  type WatermarkPresetGetPayload<S extends boolean | null | undefined | WatermarkPresetDefaultArgs> = $Result.GetResult<Prisma.$WatermarkPresetPayload, S>
+
+  type WatermarkPresetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WatermarkPresetFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WatermarkPresetCountAggregateInputType | true
+    }
+
+  export interface WatermarkPresetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WatermarkPreset'], meta: { name: 'WatermarkPreset' } }
+    /**
+     * Find zero or one WatermarkPreset that matches the filter.
+     * @param {WatermarkPresetFindUniqueArgs} args - Arguments to find a WatermarkPreset
+     * @example
+     * // Get one WatermarkPreset
+     * const watermarkPreset = await prisma.watermarkPreset.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WatermarkPresetFindUniqueArgs>(args: SelectSubset<T, WatermarkPresetFindUniqueArgs<ExtArgs>>): Prisma__WatermarkPresetClient<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WatermarkPreset that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WatermarkPresetFindUniqueOrThrowArgs} args - Arguments to find a WatermarkPreset
+     * @example
+     * // Get one WatermarkPreset
+     * const watermarkPreset = await prisma.watermarkPreset.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WatermarkPresetFindUniqueOrThrowArgs>(args: SelectSubset<T, WatermarkPresetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WatermarkPresetClient<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WatermarkPreset that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WatermarkPresetFindFirstArgs} args - Arguments to find a WatermarkPreset
+     * @example
+     * // Get one WatermarkPreset
+     * const watermarkPreset = await prisma.watermarkPreset.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WatermarkPresetFindFirstArgs>(args?: SelectSubset<T, WatermarkPresetFindFirstArgs<ExtArgs>>): Prisma__WatermarkPresetClient<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WatermarkPreset that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WatermarkPresetFindFirstOrThrowArgs} args - Arguments to find a WatermarkPreset
+     * @example
+     * // Get one WatermarkPreset
+     * const watermarkPreset = await prisma.watermarkPreset.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WatermarkPresetFindFirstOrThrowArgs>(args?: SelectSubset<T, WatermarkPresetFindFirstOrThrowArgs<ExtArgs>>): Prisma__WatermarkPresetClient<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WatermarkPresets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WatermarkPresetFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WatermarkPresets
+     * const watermarkPresets = await prisma.watermarkPreset.findMany()
+     * 
+     * // Get first 10 WatermarkPresets
+     * const watermarkPresets = await prisma.watermarkPreset.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const watermarkPresetWithIdOnly = await prisma.watermarkPreset.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WatermarkPresetFindManyArgs>(args?: SelectSubset<T, WatermarkPresetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WatermarkPreset.
+     * @param {WatermarkPresetCreateArgs} args - Arguments to create a WatermarkPreset.
+     * @example
+     * // Create one WatermarkPreset
+     * const WatermarkPreset = await prisma.watermarkPreset.create({
+     *   data: {
+     *     // ... data to create a WatermarkPreset
+     *   }
+     * })
+     * 
+     */
+    create<T extends WatermarkPresetCreateArgs>(args: SelectSubset<T, WatermarkPresetCreateArgs<ExtArgs>>): Prisma__WatermarkPresetClient<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WatermarkPresets.
+     * @param {WatermarkPresetCreateManyArgs} args - Arguments to create many WatermarkPresets.
+     * @example
+     * // Create many WatermarkPresets
+     * const watermarkPreset = await prisma.watermarkPreset.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WatermarkPresetCreateManyArgs>(args?: SelectSubset<T, WatermarkPresetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WatermarkPresets and returns the data saved in the database.
+     * @param {WatermarkPresetCreateManyAndReturnArgs} args - Arguments to create many WatermarkPresets.
+     * @example
+     * // Create many WatermarkPresets
+     * const watermarkPreset = await prisma.watermarkPreset.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WatermarkPresets and only return the `id`
+     * const watermarkPresetWithIdOnly = await prisma.watermarkPreset.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WatermarkPresetCreateManyAndReturnArgs>(args?: SelectSubset<T, WatermarkPresetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WatermarkPreset.
+     * @param {WatermarkPresetDeleteArgs} args - Arguments to delete one WatermarkPreset.
+     * @example
+     * // Delete one WatermarkPreset
+     * const WatermarkPreset = await prisma.watermarkPreset.delete({
+     *   where: {
+     *     // ... filter to delete one WatermarkPreset
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WatermarkPresetDeleteArgs>(args: SelectSubset<T, WatermarkPresetDeleteArgs<ExtArgs>>): Prisma__WatermarkPresetClient<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WatermarkPreset.
+     * @param {WatermarkPresetUpdateArgs} args - Arguments to update one WatermarkPreset.
+     * @example
+     * // Update one WatermarkPreset
+     * const watermarkPreset = await prisma.watermarkPreset.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WatermarkPresetUpdateArgs>(args: SelectSubset<T, WatermarkPresetUpdateArgs<ExtArgs>>): Prisma__WatermarkPresetClient<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WatermarkPresets.
+     * @param {WatermarkPresetDeleteManyArgs} args - Arguments to filter WatermarkPresets to delete.
+     * @example
+     * // Delete a few WatermarkPresets
+     * const { count } = await prisma.watermarkPreset.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WatermarkPresetDeleteManyArgs>(args?: SelectSubset<T, WatermarkPresetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WatermarkPresets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WatermarkPresetUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WatermarkPresets
+     * const watermarkPreset = await prisma.watermarkPreset.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WatermarkPresetUpdateManyArgs>(args: SelectSubset<T, WatermarkPresetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WatermarkPresets and returns the data updated in the database.
+     * @param {WatermarkPresetUpdateManyAndReturnArgs} args - Arguments to update many WatermarkPresets.
+     * @example
+     * // Update many WatermarkPresets
+     * const watermarkPreset = await prisma.watermarkPreset.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WatermarkPresets and only return the `id`
+     * const watermarkPresetWithIdOnly = await prisma.watermarkPreset.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WatermarkPresetUpdateManyAndReturnArgs>(args: SelectSubset<T, WatermarkPresetUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WatermarkPreset.
+     * @param {WatermarkPresetUpsertArgs} args - Arguments to update or create a WatermarkPreset.
+     * @example
+     * // Update or create a WatermarkPreset
+     * const watermarkPreset = await prisma.watermarkPreset.upsert({
+     *   create: {
+     *     // ... data to create a WatermarkPreset
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WatermarkPreset we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WatermarkPresetUpsertArgs>(args: SelectSubset<T, WatermarkPresetUpsertArgs<ExtArgs>>): Prisma__WatermarkPresetClient<$Result.GetResult<Prisma.$WatermarkPresetPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WatermarkPresets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WatermarkPresetCountArgs} args - Arguments to filter WatermarkPresets to count.
+     * @example
+     * // Count the number of WatermarkPresets
+     * const count = await prisma.watermarkPreset.count({
+     *   where: {
+     *     // ... the filter for the WatermarkPresets we want to count
+     *   }
+     * })
+    **/
+    count<T extends WatermarkPresetCountArgs>(
+      args?: Subset<T, WatermarkPresetCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WatermarkPresetCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WatermarkPreset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WatermarkPresetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WatermarkPresetAggregateArgs>(args: Subset<T, WatermarkPresetAggregateArgs>): Prisma.PrismaPromise<GetWatermarkPresetAggregateType<T>>
+
+    /**
+     * Group by WatermarkPreset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WatermarkPresetGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WatermarkPresetGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WatermarkPresetGroupByArgs['orderBy'] }
+        : { orderBy?: WatermarkPresetGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WatermarkPresetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWatermarkPresetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WatermarkPreset model
+   */
+  readonly fields: WatermarkPresetFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WatermarkPreset.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WatermarkPresetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WatermarkPreset model
+   */
+  interface WatermarkPresetFieldRefs {
+    readonly id: FieldRef<"WatermarkPreset", 'String'>
+    readonly name: FieldRef<"WatermarkPreset", 'String'>
+    readonly storageKey: FieldRef<"WatermarkPreset", 'String'>
+    readonly isActive: FieldRef<"WatermarkPreset", 'Boolean'>
+    readonly createdAt: FieldRef<"WatermarkPreset", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WatermarkPreset findUnique
+   */
+  export type WatermarkPresetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * Filter, which WatermarkPreset to fetch.
+     */
+    where: WatermarkPresetWhereUniqueInput
+  }
+
+  /**
+   * WatermarkPreset findUniqueOrThrow
+   */
+  export type WatermarkPresetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * Filter, which WatermarkPreset to fetch.
+     */
+    where: WatermarkPresetWhereUniqueInput
+  }
+
+  /**
+   * WatermarkPreset findFirst
+   */
+  export type WatermarkPresetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * Filter, which WatermarkPreset to fetch.
+     */
+    where?: WatermarkPresetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WatermarkPresets to fetch.
+     */
+    orderBy?: WatermarkPresetOrderByWithRelationInput | WatermarkPresetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WatermarkPresets.
+     */
+    cursor?: WatermarkPresetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WatermarkPresets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WatermarkPresets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WatermarkPresets.
+     */
+    distinct?: WatermarkPresetScalarFieldEnum | WatermarkPresetScalarFieldEnum[]
+  }
+
+  /**
+   * WatermarkPreset findFirstOrThrow
+   */
+  export type WatermarkPresetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * Filter, which WatermarkPreset to fetch.
+     */
+    where?: WatermarkPresetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WatermarkPresets to fetch.
+     */
+    orderBy?: WatermarkPresetOrderByWithRelationInput | WatermarkPresetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WatermarkPresets.
+     */
+    cursor?: WatermarkPresetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WatermarkPresets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WatermarkPresets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WatermarkPresets.
+     */
+    distinct?: WatermarkPresetScalarFieldEnum | WatermarkPresetScalarFieldEnum[]
+  }
+
+  /**
+   * WatermarkPreset findMany
+   */
+  export type WatermarkPresetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * Filter, which WatermarkPresets to fetch.
+     */
+    where?: WatermarkPresetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WatermarkPresets to fetch.
+     */
+    orderBy?: WatermarkPresetOrderByWithRelationInput | WatermarkPresetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WatermarkPresets.
+     */
+    cursor?: WatermarkPresetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WatermarkPresets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WatermarkPresets.
+     */
+    skip?: number
+    distinct?: WatermarkPresetScalarFieldEnum | WatermarkPresetScalarFieldEnum[]
+  }
+
+  /**
+   * WatermarkPreset create
+   */
+  export type WatermarkPresetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * The data needed to create a WatermarkPreset.
+     */
+    data: XOR<WatermarkPresetCreateInput, WatermarkPresetUncheckedCreateInput>
+  }
+
+  /**
+   * WatermarkPreset createMany
+   */
+  export type WatermarkPresetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WatermarkPresets.
+     */
+    data: WatermarkPresetCreateManyInput | WatermarkPresetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WatermarkPreset createManyAndReturn
+   */
+  export type WatermarkPresetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * The data used to create many WatermarkPresets.
+     */
+    data: WatermarkPresetCreateManyInput | WatermarkPresetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WatermarkPreset update
+   */
+  export type WatermarkPresetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * The data needed to update a WatermarkPreset.
+     */
+    data: XOR<WatermarkPresetUpdateInput, WatermarkPresetUncheckedUpdateInput>
+    /**
+     * Choose, which WatermarkPreset to update.
+     */
+    where: WatermarkPresetWhereUniqueInput
+  }
+
+  /**
+   * WatermarkPreset updateMany
+   */
+  export type WatermarkPresetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WatermarkPresets.
+     */
+    data: XOR<WatermarkPresetUpdateManyMutationInput, WatermarkPresetUncheckedUpdateManyInput>
+    /**
+     * Filter which WatermarkPresets to update
+     */
+    where?: WatermarkPresetWhereInput
+    /**
+     * Limit how many WatermarkPresets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WatermarkPreset updateManyAndReturn
+   */
+  export type WatermarkPresetUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * The data used to update WatermarkPresets.
+     */
+    data: XOR<WatermarkPresetUpdateManyMutationInput, WatermarkPresetUncheckedUpdateManyInput>
+    /**
+     * Filter which WatermarkPresets to update
+     */
+    where?: WatermarkPresetWhereInput
+    /**
+     * Limit how many WatermarkPresets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WatermarkPreset upsert
+   */
+  export type WatermarkPresetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * The filter to search for the WatermarkPreset to update in case it exists.
+     */
+    where: WatermarkPresetWhereUniqueInput
+    /**
+     * In case the WatermarkPreset found by the `where` argument doesn't exist, create a new WatermarkPreset with this data.
+     */
+    create: XOR<WatermarkPresetCreateInput, WatermarkPresetUncheckedCreateInput>
+    /**
+     * In case the WatermarkPreset was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WatermarkPresetUpdateInput, WatermarkPresetUncheckedUpdateInput>
+  }
+
+  /**
+   * WatermarkPreset delete
+   */
+  export type WatermarkPresetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+    /**
+     * Filter which WatermarkPreset to delete.
+     */
+    where: WatermarkPresetWhereUniqueInput
+  }
+
+  /**
+   * WatermarkPreset deleteMany
+   */
+  export type WatermarkPresetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WatermarkPresets to delete
+     */
+    where?: WatermarkPresetWhereInput
+    /**
+     * Limit how many WatermarkPresets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WatermarkPreset without action
+   */
+  export type WatermarkPresetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WatermarkPreset
+     */
+    select?: WatermarkPresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WatermarkPreset
+     */
+    omit?: WatermarkPresetOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -15827,6 +16913,17 @@ export namespace Prisma {
   };
 
   export type SettingScalarFieldEnum = (typeof SettingScalarFieldEnum)[keyof typeof SettingScalarFieldEnum]
+
+
+  export const WatermarkPresetScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    storageKey: 'storageKey',
+    isActive: 'isActive',
+    createdAt: 'createdAt'
+  };
+
+  export type WatermarkPresetScalarFieldEnum = (typeof WatermarkPresetScalarFieldEnum)[keyof typeof WatermarkPresetScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -16893,6 +17990,58 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Setting"> | Date | string
   }
 
+  export type WatermarkPresetWhereInput = {
+    AND?: WatermarkPresetWhereInput | WatermarkPresetWhereInput[]
+    OR?: WatermarkPresetWhereInput[]
+    NOT?: WatermarkPresetWhereInput | WatermarkPresetWhereInput[]
+    id?: StringFilter<"WatermarkPreset"> | string
+    name?: StringFilter<"WatermarkPreset"> | string
+    storageKey?: StringFilter<"WatermarkPreset"> | string
+    isActive?: BoolFilter<"WatermarkPreset"> | boolean
+    createdAt?: DateTimeFilter<"WatermarkPreset"> | Date | string
+  }
+
+  export type WatermarkPresetOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    storageKey?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type WatermarkPresetWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    storageKey?: string
+    AND?: WatermarkPresetWhereInput | WatermarkPresetWhereInput[]
+    OR?: WatermarkPresetWhereInput[]
+    NOT?: WatermarkPresetWhereInput | WatermarkPresetWhereInput[]
+    name?: StringFilter<"WatermarkPreset"> | string
+    isActive?: BoolFilter<"WatermarkPreset"> | boolean
+    createdAt?: DateTimeFilter<"WatermarkPreset"> | Date | string
+  }, "id" | "storageKey">
+
+  export type WatermarkPresetOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    storageKey?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    _count?: WatermarkPresetCountOrderByAggregateInput
+    _max?: WatermarkPresetMaxOrderByAggregateInput
+    _min?: WatermarkPresetMinOrderByAggregateInput
+  }
+
+  export type WatermarkPresetScalarWhereWithAggregatesInput = {
+    AND?: WatermarkPresetScalarWhereWithAggregatesInput | WatermarkPresetScalarWhereWithAggregatesInput[]
+    OR?: WatermarkPresetScalarWhereWithAggregatesInput[]
+    NOT?: WatermarkPresetScalarWhereWithAggregatesInput | WatermarkPresetScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WatermarkPreset"> | string
+    name?: StringWithAggregatesFilter<"WatermarkPreset"> | string
+    storageKey?: StringWithAggregatesFilter<"WatermarkPreset"> | string
+    isActive?: BoolWithAggregatesFilter<"WatermarkPreset"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"WatermarkPreset"> | Date | string
+  }
+
   export type AccountCreateInput = {
     id?: string
     type: string
@@ -17892,6 +19041,62 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WatermarkPresetCreateInput = {
+    id?: string
+    name: string
+    storageKey: string
+    isActive?: boolean
+    createdAt?: Date | string
+  }
+
+  export type WatermarkPresetUncheckedCreateInput = {
+    id?: string
+    name: string
+    storageKey: string
+    isActive?: boolean
+    createdAt?: Date | string
+  }
+
+  export type WatermarkPresetUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WatermarkPresetUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WatermarkPresetCreateManyInput = {
+    id?: string
+    name: string
+    storageKey: string
+    isActive?: boolean
+    createdAt?: Date | string
+  }
+
+  export type WatermarkPresetUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WatermarkPresetUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -18752,6 +19957,30 @@ export namespace Prisma {
     key?: SortOrder
     value?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type WatermarkPresetCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    storageKey?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type WatermarkPresetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    storageKey?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type WatermarkPresetMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    storageKey?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {

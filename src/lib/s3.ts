@@ -18,6 +18,7 @@ import {
   GetObjectCommand,
   DeleteObjectsCommand,
   HeadObjectCommand,
+  CopyObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
@@ -143,6 +144,15 @@ export async function createUploadUrl(
   });
   const signedUrl = await getSignedUrl(client(), cmd, { expiresIn });
   return { signedUrl, path };
+}
+
+/** Server-side copy within the bucket (src → dest). Both are relative keys. */
+export async function copyObject(srcKey: string, destKey: string): Promise<void> {
+  await client().send(new CopyObjectCommand({
+    Bucket: BUCKET(),
+    CopySource: `${BUCKET()}/${withPrefix(srcKey)}`,
+    Key: withPrefix(destKey),
+  }));
 }
 
 /** Server-side download. Returns the object body as a Buffer. */

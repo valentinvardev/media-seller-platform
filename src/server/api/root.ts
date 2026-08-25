@@ -7,6 +7,7 @@ import { faceRouter } from "~/server/api/routers/face";
 import { invitationRouter } from "~/server/api/routers/invitation";
 import { collaboratorRouter } from "~/server/api/routers/collaborator";
 import { memberRouter } from "~/server/api/routers/member";
+import { watermarkRouter } from "~/server/api/routers/watermark";
 
 export const appRouter = createTRPCRouter({
   collection: collectionRouter,
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   invitation: invitationRouter,
   collaborator: collaboratorRouter,
   member: memberRouter,
+  watermark: watermarkRouter,
 });
 
 export type AppRouter = typeof appRouter;

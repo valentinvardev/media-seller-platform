@@ -233,3 +233,16 @@ model Setting {
     value     String   @db.Text
     updatedAt DateTime @updatedAt
 }
+
+// Saved watermark presets. Each is an immutable object at its own S3 key, so
+// switching back to a previous one never requires re-uploading. The active one
+// is also mirrored to WATERMARK_KEY (watermarks/active.png) for the compositor.
+model WatermarkPreset {
+    id         String   @id @default(cuid())
+    name       String
+    storageKey String   @unique // watermark-presets/<id>.png (never overwritten)
+    isActive   Boolean  @default(false)
+    createdAt  DateTime @default(now())
+
+    @@index([isActive])
+}

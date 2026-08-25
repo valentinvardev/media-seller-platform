@@ -259,6 +259,14 @@ exports.Prisma.SettingScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.WatermarkPresetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  storageKey: 'storageKey',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -302,7 +310,8 @@ exports.Prisma.ModelName = {
   Purchase: 'Purchase',
   FaceRecord: 'FaceRecord',
   SearchLog: 'SearchLog',
-  Setting: 'Setting'
+  Setting: 'Setting',
+  WatermarkPreset: 'WatermarkPreset'
 };
 
 /**
