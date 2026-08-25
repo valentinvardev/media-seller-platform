@@ -122,6 +122,39 @@ export type OcrResult =
   | { bib: string; reason: "found" | "existing" }
   | { bib: null; reason: "photo-not-found" | "download-failed" | "empty-image" | "no-text-detected" | "no-bib-in-text" | "rekognition-error"; errorMessage?: string };
 
+/**
+ * Resize an original to the 1920px JPEG that BOTH DetectText and IndexFaces use.
+ * Shared so the upload path computes it once instead of twice.
+ */
+async function resizeForRekognition(rawBuffer: Buffer): Promise<Uint8Array> {
+  const resized = await sharp(rawBuffer)
+    .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
+    .jpeg({ quality: 85 })
+    .toBuffer();
+  return new Uint8Array(resized);
+}
+
+/** OCR core: DetectText on an already-resized 1920 buffer + persist the bib. */
+async function ocrDetectAndSave(photoId: string, imageBytes: Uint8Array): Promise<OcrResult> {
+  try {
+    const response = await rekognition.send(new DetectTextCommand({ Image: { Bytes: imageBytes } }));
+    const detections = response.TextDetections ?? [];
+    const bibs = extractAllBibs(detections);
+
+    console.log(`[OCR] photoId=${photoId} bibs=${bibs.join(",") || "none"} texts=${detections.length}`);
+
+    if (bibs.length > 0) {
+      const bibString = bibs.join(",");
+      await db.photo.update({ where: { id: photoId }, data: { bibNumber: bibString } });
+      return { bib: bibString, reason: "found" };
+    }
+    return { bib: null, reason: detections.length === 0 ? "no-text-detected" : "no-bib-in-text" };
+  } catch (err) {
+    console.error(`[OCR] Rekognition error for photoId=${photoId}:`, err);
+    return { bib: null, reason: "rekognition-error", errorMessage: err instanceof Error ? err.message : String(err) };
+  }
+}
+
 export async function runOcr(photoId: string): Promise<OcrResult> {
   const photo = await db.photo.findUnique({
     where: { id: photoId },
@@ -135,40 +168,19 @@ export async function runOcr(photoId: string): Promise<OcrResult> {
     console.error(`[OCR] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error ?? "empty-buffer"}`);
     return { bib: null, reason: "download-failed", errorMessage: dl.error ?? `Empty response (0 bytes) for key ${photo.storageKey}` };
   }
-  const rawBuffer = dl.buffer;
 
   let imageBytes: Uint8Array;
   try {
-    const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
-    imageBytes = new Uint8Array(resized);
+    imageBytes = await resizeForRekognition(dl.buffer);
   } catch (err) {
     console.error(`[OCR] Sharp resize failed for photoId=${photoId}:`, err);
     return { bib: null, reason: "empty-image", errorMessage: err instanceof Error ? err.message : String(err) };
   }
-
   if (imageBytes.length === 0) {
-    console.error(`[OCR] Resized image is empty — photoId=${photoId} key=${photo.storageKey}`);
     return { bib: null, reason: "empty-image" };
   }
 
-  try {
-    const response = await rekognition.send(new DetectTextCommand({ Image: { Bytes: imageBytes } }));
-    const detections = response.TextDetections ?? [];
-    const bibs = extractAllBibs(detections);
-
-    console.log(`[OCR] photoId=${photoId} bibs=${bibs.join(",") || "none"} texts=${detections.length}`);
-
-    if (bibs.length > 0) {
-      const bibString = bibs.join(",");
-      await db.photo.update({ where: { id: photoId }, data: { bibNumber: bibString } });
-      return { bib: bibString, reason: "found" };
-    }
-    // Distinguish "Rekognition saw NO text at all" from "Rekognition saw text but nothing looked like a bib".
-    return { bib: null, reason: detections.length === 0 ? "no-text-detected" : "no-bib-in-text" };
-  } catch (err) {
-    console.error(`[OCR] Rekognition error for photoId=${photoId}:`, err);
-    return { bib: null, reason: "rekognition-error", errorMessage: err instanceof Error ? err.message : String(err) };
-  }
+  return ocrDetectAndSave(photoId, imageBytes);
 }
 
 // ── Watermark ─────────────────────────────────────────────────────────────────
@@ -228,14 +240,11 @@ async function buildWatermarkComposite(
   return { input: fallback, tile: true, blend: "over" };
 }
 
-export async function runWatermark(photoId: string): Promise<{ previewKey: string | null }> {
-  const photo = await db.photo.findUnique({ where: { id: photoId } });
-  if (!photo) return { previewKey: null };
-
-  const dl = await downloadWithRetry(photo.storageKey);
-  if (!dl.buffer) { console.error(`[Watermark] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error}`); return { previewKey: null }; }
-  const rawBuffer = dl.buffer;
-
+/** Watermark core: composite + upload the preview from an already-downloaded original. */
+async function watermarkFromBuffer(
+  photo: { id: string; previewKey: string | null },
+  rawBuffer: Buffer,
+): Promise<{ previewKey: string | null }> {
   // Resize first to a max preview dimension so watermark composite + final
   // upload are both lighter. 1200px @ quality 62 looks good in a gallery on
   // any device and roughly halves egress vs. the previous 1920/q78.
@@ -282,14 +291,24 @@ export async function runWatermark(photoId: string): Promise<{ previewKey: strin
     }
     if (uploadErr) { console.error("[Watermark] Upload failed after retries:", uploadErr); return { previewKey: null }; }
 
-    await db.photo.update({ where: { id: photoId }, data: { previewKey } });
+    await db.photo.update({ where: { id: photo.id }, data: { previewKey } });
     void createCFInvalidation([`/${previewKey}`]);
-    console.log(`[Watermark] photoId=${photoId} done`);
+    console.log(`[Watermark] photoId=${photo.id} done`);
     return { previewKey };
   } catch (err) {
-    console.error(`[Watermark] Error for photoId=${photoId}:`, err);
+    console.error(`[Watermark] Error for photoId=${photo.id}:`, err);
     return { previewKey: null };
   }
+}
+
+export async function runWatermark(photoId: string): Promise<{ previewKey: string | null }> {
+  const photo = await db.photo.findUnique({ where: { id: photoId }, select: { id: true, storageKey: true, previewKey: true } });
+  if (!photo) return { previewKey: null };
+
+  const dl = await downloadWithRetry(photo.storageKey);
+  if (!dl.buffer) { console.error(`[Watermark] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error}`); return { previewKey: null }; }
+
+  return watermarkFromBuffer(photo, dl.buffer);
 }
 
 // ── Face index ────────────────────────────────────────────────────────────────
@@ -340,29 +359,9 @@ async function ensureRekognitionCollection(collId: string) {
  * skip already-processed photos. Pass `force: true` only when you've already
  * cleared the old faces and genuinely want to re-index from scratch.
  */
-export async function runFaceIndex(
-  photoId: string,
-  collectionId: string,
-  opts: { force?: boolean } = {},
-): Promise<void> {
-  const photo = await db.photo.findUnique({
-    where: { id: photoId },
-    select: { id: true, storageKey: true, faceProcessedAt: true },
-  });
-  if (!photo) return;
-
-  // Idempotency guard: if this photo was already indexed and we're not forcing
-  // a rebuild, do nothing — this is what makes the reindex button free to click.
-  if (photo.faceProcessedAt && !opts.force) return;
-
-  const dl = await downloadWithRetry(photo.storageKey);
-  if (!dl.buffer) { console.error(`[FaceIndex] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error}`); return; }
-  const rawBuffer = dl.buffer;
-
-  const resized = await sharp(rawBuffer).resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
-  const imageBytes = new Uint8Array(resized);
+/** Face-index core: IndexFaces on an already-resized 1920 buffer + persist records. */
+async function faceIndexAndSave(photoId: string, collectionId: string, imageBytes: Uint8Array): Promise<void> {
   const rekCollectionId = rekognitionCollectionId(collectionId);
-
   try {
     await ensureRekognitionCollection(rekCollectionId);
     const result = await rekognition.send(new IndexFacesCommand({
@@ -394,6 +393,66 @@ export async function runFaceIndex(
   }
 }
 
+export async function runFaceIndex(
+  photoId: string,
+  collectionId: string,
+  opts: { force?: boolean } = {},
+): Promise<void> {
+  const photo = await db.photo.findUnique({
+    where: { id: photoId },
+    select: { id: true, storageKey: true, faceProcessedAt: true },
+  });
+  if (!photo) return;
+
+  // Idempotency guard: if this photo was already indexed and we're not forcing
+  // a rebuild, do nothing — this is what makes the reindex button free to click.
+  if (photo.faceProcessedAt && !opts.force) return;
+
+  const dl = await downloadWithRetry(photo.storageKey);
+  if (!dl.buffer) { console.error(`[FaceIndex] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error}`); return; }
+
+  const imageBytes = await resizeForRekognition(dl.buffer);
+  await faceIndexAndSave(photoId, collectionId, imageBytes);
+}
+
+/**
+ * Upload/replace path: download + resize the original ONCE and run OCR,
+ * face-index and watermark from the shared buffers. Replaces the previous
+ * approach where each of the three ops downloaded the ~5 MB original
+ * separately (3× egress + 3× latency per photo). Each core has its own
+ * try/catch, so one failing doesn't block the others.
+ */
+export async function runAllForUpload(photoId: string, collectionId: string): Promise<void> {
+  const photo = await db.photo.findUnique({
+    where: { id: photoId },
+    select: { id: true, storageKey: true, bibNumber: true, previewKey: true, faceProcessedAt: true },
+  });
+  if (!photo) return;
+
+  const dl = await downloadWithRetry(photo.storageKey);
+  if (!dl.buffer || dl.buffer.length === 0) {
+    console.error(`[Process] Download failed — photoId=${photoId} key=${photo.storageKey} error=${dl.error ?? "empty-buffer"}`);
+    return;
+  }
+  const rawBuffer = dl.buffer;
+
+  // Shared 1920 JPEG for OCR + face-index (identical inputs) — resized once.
+  let rekBytes: Uint8Array | null = null;
+  try {
+    rekBytes = await resizeForRekognition(rawBuffer);
+  } catch (err) {
+    console.error(`[Process] resize failed for photoId=${photoId}:`, err);
+  }
+
+  const tasks: Promise<unknown>[] = [];
+  if (rekBytes && rekBytes.length > 0) {
+    if (photo.bibNumber === null) tasks.push(ocrDetectAndSave(photoId, rekBytes));
+    if (!photo.faceProcessedAt) tasks.push(faceIndexAndSave(photoId, collectionId, rekBytes));
+  }
+  tasks.push(watermarkFromBuffer(photo, rawBuffer));
+  await Promise.all(tasks);
+}
+
 // ── Concurrency limiter (semaphore) ──────────────────────────────────────────
 // Caps how many background photo-processing ops can be in flight against
 // S3/Prisma at once. Without this, a 100-photo upload could fan out
@@ -419,7 +478,8 @@ function makeLimiter(max: number) {
   };
 }
 
-// 4 concurrent ops of each type = 12 total max. Tuned for connection_limit=15.
+// Individual limiters (concurrency 4) for the retry/rebuild buttons that run
+// one op at a time. Tuned for connection_limit=15.
 const ocrLimit = makeLimiter(4);
 const watermarkLimit = makeLimiter(4);
 const faceLimit = makeLimiter(4);
@@ -428,3 +488,10 @@ export const runOcrLimited = (photoId: string) => ocrLimit(() => runOcr(photoId)
 export const runWatermarkLimited = (photoId: string) => watermarkLimit(() => runWatermark(photoId));
 export const runFaceIndexLimited = (photoId: string, collectionId: string, opts: { force?: boolean } = {}) =>
   faceLimit(() => runFaceIndex(photoId, collectionId, opts));
+
+// Upload path: one combined op per photo (1 download, 1 resize, all 3 ops).
+// 6 photos in flight — each does ~2 Rekognition calls + sharp + a few DB writes,
+// comfortably under connection_limit=15 and Rekognition TPS.
+const processLimit = makeLimiter(6);
+export const runAllForUploadLimited = (photoId: string, collectionId: string) =>
+  processLimit(() => runAllForUpload(photoId, collectionId));

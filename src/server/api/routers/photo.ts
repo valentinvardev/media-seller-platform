@@ -229,18 +229,14 @@ export const photoRouter = createTRPCRouter({
       );
       const ids = created.map((c) => c.id);
 
-      // Kick off OCR + watermark + face-index in background.
-      // Uses a global semaphore (see photo-processing.ts) to cap how many
-      // concurrent ops can hit Supabase/Prisma at once.
+      // Kick off OCR + watermark + face-index in background — one combined op
+      // per photo (single S3 download + single resize shared across the three).
+      // The semaphore in photo-processing.ts caps concurrency, so we just enqueue
+      // them all; no artificial per-photo delay needed.
       void (async () => {
-        const { runOcrLimited, runWatermarkLimited, runFaceIndexLimited } = await import("~/lib/photo-processing");
-        for (let i = 0; i < ids.length; i++) {
-          const photoId = ids[i]!;
-          // Slower stagger (800ms) gives more breathing room while batches finish
-          await new Promise((r) => setTimeout(r, i * 800));
-          void runOcrLimited(photoId);
-          void runWatermarkLimited(photoId);
-          void runFaceIndexLimited(photoId, input.collectionId);
+        const { runAllForUploadLimited } = await import("~/lib/photo-processing");
+        for (const photoId of ids) {
+          void runAllForUploadLimited(photoId, input.collectionId);
         }
       })();
 
@@ -366,16 +362,13 @@ export const photoRouter = createTRPCRouter({
         });
       }
 
-      // Fire re-processing for the replaced photos.
+      // Fire re-processing for the replaced photos (bib + preview + faces were
+      // reset above, so the combined op re-runs all three).
       const ids = input.replacements.map((r) => r.photoId);
       void (async () => {
-        const { runOcrLimited, runWatermarkLimited, runFaceIndexLimited } = await import("~/lib/photo-processing");
-        for (let i = 0; i < ids.length; i++) {
-          const photoId = ids[i]!;
-          await new Promise((r) => setTimeout(r, i * 800));
-          void runOcrLimited(photoId);
-          void runWatermarkLimited(photoId);
-          void runFaceIndexLimited(photoId, input.collectionId);
+        const { runAllForUploadLimited } = await import("~/lib/photo-processing");
+        for (const photoId of ids) {
+          void runAllForUploadLimited(photoId, input.collectionId);
         }
       })();
 
