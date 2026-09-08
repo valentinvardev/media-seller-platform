@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createSignedUrl, deleteObjects } from "~/lib/s3";
 import { resolveMediaUrl } from "~/lib/media";
-import { bibSearchWhere, normalizeBibNumber } from "~/lib/bib-match";
+import { bibSearchWhere, compareBibMatches, normalizeBibNumber } from "~/lib/bib-match";
 import {
   adminProcedure,
   createTRPCRouter,
@@ -166,7 +166,10 @@ export const photoRouter = createTRPCRouter({
       void ctx.db.searchLog.create({ data: { collectionId: input.collectionId, type: "bib" } });
 
       return {
-        exact: groupByBibWithUrls(exactResolved),
+        // Ordenado por cercanía al query: primero el dorsal exacto, después los
+        // más largos que empiezan igual (102, luego 1029, luego 10295). Sin
+        // esto los grupos salían en el orden de carga de las fotos.
+        exact: groupByBibWithUrls(exactResolved).sort((a, b) => compareBibMatches(a.bib, b.bib, q)),
         fuzzy: groupByBibWithUrls(fuzzyResolved),
       };
     }),
