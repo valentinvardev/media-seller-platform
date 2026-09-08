@@ -3,6 +3,7 @@ import { z } from "zod";
 import { env } from "~/env";
 import { sendPurchaseApprovedEmail } from "~/lib/email";
 import { createSignedUrl } from "~/lib/s3";
+import { bibEqualsWhere } from "~/lib/bib-match";
 import {
   createTRPCRouter,
   adminProcedure,
@@ -252,9 +253,9 @@ export const purchaseRouter = createTRPCRouter({
           ? { id: { in: storedIds } }
           : {
               collectionId: purchase.collectionId,
-              ...(purchase.bibNumber
-                ? { bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } }
-                : {}),
+              // Exact bib only. `contains` delivered 13, 103 and 1042 to
+              // whoever bought bib 1 — other runners' photos.
+              ...(purchase.bibNumber ? bibEqualsWhere(purchase.bibNumber) : {}),
             },
         orderBy: { order: "asc" },
       });
@@ -400,7 +401,7 @@ export const purchaseRouter = createTRPCRouter({
         photoIdsJson = JSON.stringify(input.photoIds);
       } else {
         photoCount = await ctx.db.photo.count({
-          where: { collectionId: input.collectionId, bibNumber: { contains: input.bibNumber, mode: "insensitive" } },
+          where: { collectionId: input.collectionId, ...bibEqualsWhere(input.bibNumber) },
         });
       }
 
@@ -550,7 +551,7 @@ export const purchaseRouter = createTRPCRouter({
           try { photoCount = (JSON.parse(updated.photoIds) as string[]).length; } catch { /* leave undefined */ }
         } else if (updated.bibNumber) {
           photoCount = await ctx.db.photo.count({
-            where: { collectionId: updated.collectionId, bibNumber: { contains: updated.bibNumber, mode: "insensitive" } },
+            where: { collectionId: updated.collectionId, ...bibEqualsWhere(updated.bibNumber) },
           });
         }
         void sendPurchaseApprovedEmail({

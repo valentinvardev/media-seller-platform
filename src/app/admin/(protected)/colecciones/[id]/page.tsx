@@ -11,6 +11,7 @@ import { OcrRetryButton } from "~/app/_components/admin/OcrRetryButton";
 import { CollaboratorsPanel } from "~/app/_components/admin/CollaboratorsPanel";
 import { AlphanumericToggle } from "~/app/_components/admin/AlphanumericToggle";
 import { resolveMediaUrl } from "~/lib/media";
+import { bibSearchWhere } from "~/lib/bib-match";
 
 const PAGE_SIZE = 48;
 
@@ -32,7 +33,9 @@ export default async function EditCollectionPage({
 
   const where = {
     collectionId: id,
-    ...(q ? { bibNumber: { contains: q, mode: "insensitive" as const } } : {}),
+    // q?.trim() — un query de solo espacios no debe filtrar nada (bibSearchWhere
+    // asume input no vacío).
+    ...(q?.trim() ? bibSearchWhere(q) : {}),
   };
 
   const [totalCount, unidentifiedCount, rawPhotos] = await Promise.all([

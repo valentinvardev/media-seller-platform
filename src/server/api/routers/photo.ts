@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createSignedUrl, deleteObjects } from "~/lib/s3";
 import { resolveMediaUrl } from "~/lib/media";
+import { bibSearchWhere, normalizeBibNumber } from "~/lib/bib-match";
 import {
   adminProcedure,
   createTRPCRouter,
@@ -88,12 +89,17 @@ export const photoRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const q = input.bib.trim();
+      // min(1) permite " ", que al trimear queda vacío. Sin esto, un query
+      // vacío devolvía la colección entera.
+      if (!q) return { exact: [], fuzzy: [] };
 
-      // Exact/contains match (supports comma-separated multi-bib strings)
+      // Whole-bib match against the comma-separated multi-bib string. Queries
+      // under 3 chars require an exact bib; longer ones prefix-match. A plain
+      // `contains` here used to bury bib 1 under 13, 103 and 1042.
       const exact = await ctx.db.photo.findMany({
         where: {
           collectionId: input.collectionId,
-          bibNumber: { contains: q, mode: "insensitive" },
+          ...bibSearchWhere(q),
         },
         orderBy: { order: "asc" },
         select: { id: true, bibNumber: true, storageKey: true, previewKey: true, filename: true },
@@ -491,6 +497,11 @@ export const photoRouter = createTRPCRouter({
   setBibNumber: adminProcedure
     .input(z.object({ id: z.string(), bibNumber: z.string().nullable() }))
     .mutation(({ ctx, input }) =>
-      ctx.db.photo.update({ where: { id: input.id }, data: { bibNumber: input.bibNumber } }),
+      // Normalized on write so the CSV never carries spaces around the commas —
+      // the matchers in ~/lib/bib-match rely on that to split on "," exactly.
+      ctx.db.photo.update({
+        where: { id: input.id },
+        data: { bibNumber: normalizeBibNumber(input.bibNumber) },
+      }),
     ),
 });

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
 import { sendPurchaseApprovedEmail } from "~/lib/email";
+import { bibEqualsWhere } from "~/lib/bib-match";
 
 export const settingsRouter = createTRPCRouter({
   getMpStatus: adminProcedure.query(async ({ ctx }) => {
@@ -40,7 +41,7 @@ export const settingsRouter = createTRPCRouter({
         try { photoCount = (JSON.parse(purchase.photoIds) as string[]).length; } catch { /* leave undefined */ }
       } else if (purchase.bibNumber) {
         photoCount = await ctx.db.photo.count({
-          where: { collectionId: purchase.collectionId, bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } },
+          where: { collectionId: purchase.collectionId, ...bibEqualsWhere(purchase.bibNumber) },
         });
       }
       await sendPurchaseApprovedEmail({

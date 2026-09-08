@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { db } from "~/server/db";
 import { sendPurchaseApprovedEmail } from "~/lib/email";
+import { bibEqualsWhere } from "~/lib/bib-match";
 import { env } from "~/env";
 
 async function getMpToken(): Promise<string | null> {
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest) {
         : await db.photo.count({
             where: {
               collectionId: purchase.collectionId,
-              ...(purchase.bibNumber ? { bibNumber: { contains: purchase.bibNumber, mode: "insensitive" } } : {}),
+              ...(purchase.bibNumber ? bibEqualsWhere(purchase.bibNumber) : {}),
             },
           });
       void sendPurchaseApprovedEmail({
