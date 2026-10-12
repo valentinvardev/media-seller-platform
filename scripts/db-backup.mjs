@@ -58,7 +58,8 @@ await new Promise((resolve, reject) => {
   console.log(`[backup] via ${container ? "docker exec " + container : "pg_dump local"}`);
   const gz = createGzip();
   const out = fs.createWriteStream(tmp);
-  dump.on("error", reject);
+  // No propagar el error crudo: Node incluye spawnargs (la URL con la contraseña).
+  dump.on("error", (e) => reject(new Error(`no se pudo ejecutar ${container ? "docker" : "pg_dump"}: ${e.code}`)));
   dump.on("close", (code) => { if (code !== 0) reject(new Error("pg_dump exit " + code)); });
   pipeline(dump.stdout, gz, out).then(resolve).catch(reject);
 });
