@@ -78,14 +78,16 @@ Parar la app ANTES de dumpear, si no una compra que entra entre el dump y el cam
 de `.env` queda en Supabase y no en Docker.
 
 ```bash
-pm2 stop all
+# SOLO esta app: en el VPS conviven otros proyectos bajo el mismo pm2.
+# altafoto-test es un resto de la prueba de S3 que apunta a la misma DB; se para y queda parado.
+pm2 stop photoplatform altafoto-test
 
 SUPABASE_URL="<DIRECT_URL de Supabase, puerto 5432>" bash scripts/db-migrate-to-docker.sh
 ```
 
 El script termina con la tabla de conteos y las dos líneas para el `.env`. **Si dice
 DIFERENCIAS, no sigas**: la app sigue apuntando a Supabase, con `pm2 start all`
-volvés al estado anterior sin pérdida.
+volvés al estado anterior sin pérdida (`pm2 start photoplatform`).
 
 ```bash
 nano .env
@@ -94,8 +96,8 @@ nano .env
 #   PG_DUMP_CONTAINER=altafoto-db
 #   (dejá comentadas las URLs viejas de Supabase por si hay que volver)
 
-pm2 start all
-pm2 logs --lines 50      # sin errores de conexión
+pm2 start photoplatform
+pm2 logs photoplatform --lines 50      # sin errores de conexión
 ```
 
 Sobre Mercado Pago durante el corte: si un webhook llega mientras la app está
@@ -123,8 +125,11 @@ no haya quedado una compra `PENDING` que en MP figure aprobada.
 node scripts/db-backup.mjs
 # debe imprimir "[backup] via docker exec altafoto-db" y "[backup] OK"
 
-crontab -e
-0 4 * * * cd ~/media-seller-platform && /usr/bin/node scripts/db-backup.mjs >> ~/db-backup.log 2>&1
+# El VPS no tiene cron instalado; se usa el cron de pm2 (ya corre otros, ej. surcodia-cron).
+# --no-autorestart: corre, termina, queda stopped hasta que el cron lo despierta.
+pm2 start scripts/db-backup.mjs --name altafoto-db-backup --cron-restart="0 4 * * *" --no-autorestart --time
+pm2 save
+# logs: ~/.pm2/logs/altafoto-db-backup-out.log
 ```
 
 **Probar una restauración** (un backup que nunca restauraste no es un backup):
@@ -138,7 +143,7 @@ docker exec altafoto-db psql -U altafoto -c "DROP DATABASE restore_test;"
 ```
 
 - [ ] Backup manual OK en S3
-- [ ] Cron agregado
+- [ ] Cron agregado (pm2 `altafoto-db-backup`)
 - [ ] Restore de prueba OK
 
 ## Paso 5 — Acceso desde tu PC (Prisma Studio, scripts)
@@ -159,6 +164,8 @@ público es lo primero que escanean los bots.
 
 ## Paso 6 — Esperar y recién después borrar Supabase
 
+**Estado 2026-10-12 23:30:** Pasos 0 a 4 hechos. App en Docker, latencia tRPC de 700–1900 ms → 4–41 ms, backup nocturno por pm2, restore de prueba OK (337 compras). Falta lo de abajo.
+
 - [ ] **Al menos 7 días** con la app en Docker, backups diarios llegando a S3 y
       ninguna sorpresa. Durante este tiempo Supabase sigue vivo como rollback.
 - [ ] Pausar el proyecto en Supabase (Settings → General → Pause) una semana más
@@ -168,6 +175,7 @@ público es lo primero que escanean los bots.
       de la org (pierden backups automáticos, se pausan tras 7 días sin uso).
 - [ ] Actualizar `src/app/privacidad/page.tsx`: hoy dice que la base está en
       Supabase (EE. UU.). Poner el proveedor y país reales del VPS.
+- [ ] `pm2 delete altafoto-test` (resto de la prueba de S3, quedó parado).
 - [ ] Borrar del `.env` las vars `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
       y `SUPABASE_SERVICE_ROLE_KEY` (solo las leían los scripts viejos de migración de storage).
 
