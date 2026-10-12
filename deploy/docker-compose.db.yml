@@ -1,0 +1,40 @@
+# Postgres 17 para la plataforma (reemplaza Supabase).
+# Misma major que usaba Supabase (17.x), así el dump/restore es 1:1.
+#
+# Levantar:   docker compose -f deploy/docker-compose.db.yml up -d
+# Logs:       docker logs -f altafoto-db
+# psql:       docker exec -it altafoto-db psql -U altafoto -d altafoto
+#
+# Credenciales en deploy/db.env (NO se commitea; ver deploy/db.env.example).
+# El puerto queda bindeado SOLO a 127.0.0.1: la app (pm2, mismo host) entra por
+# localhost y desde afuera no se ve. Para entrar desde tu PC usá un túnel SSH
+# (ver DOCKER-DB-MIGRATION.md).
+services:
+  db:
+    image: postgres:17
+    container_name: altafoto-db
+    restart: unless-stopped
+    env_file: ./db.env
+    ports:
+      # DB_PORT: puerto en el host (default 5432). Útil si 5432 está ocupado/reservado.
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    volumes:
+      - altafoto-pgdata:/var/lib/postgresql/data
+    shm_size: 256m
+    # max_connections=50: la app usa connection_limit=15 (src/server/db.ts);
+    # sobra para pg_dump, Prisma Studio y psql a la vez.
+    # log_min_duration_statement: loguea queries > 500 ms para ver qué se pone lento.
+    command: >
+      postgres
+      -c max_connections=50
+      -c log_min_duration_statement=500
+      -c timezone=America/Argentina/Cordoba
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  altafoto-pgdata:

@@ -44,3 +44,7 @@ yarn-error.log*
 
 # idea files
 .ideaCLOUDFRONT-INTEGRATION-GUIDE.md
+
+# credenciales del Postgres en Docker (VPS)
+/deploy/db.env
+/backups/

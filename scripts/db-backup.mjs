@@ -5,7 +5,13 @@
 // FUERA del prefijo de media (altafoto/), así el s3-orphan-audit nunca lo toca.
 // Al terminar, borra los backups de más de RETENTION_DAYS.
 //
-// Requisitos en el VPS: pg_dump (apt-get install postgresql-client-16), node.
+// Requisitos en el VPS: node y UNA de estas dos:
+//   a) PG_DUMP_CONTAINER=altafoto-db en .env → usa el pg_dump de adentro del
+//      contenedor (docker exec). Es lo que corresponde con la DB en Docker: la
+//      versión de pg_dump siempre coincide con la del servidor y no hay que
+//      instalar nada en el host.
+//   b) sin esa var → pg_dump del host (apt-get install postgresql-client-17;
+//      tiene que ser la MISMA major que el servidor o mayor).
 // Correr:  node scripts/db-backup.mjs
 // Cron:    0 4 * * *  cd ~/media-seller-platform && node scripts/db-backup.mjs >> ~/db-backup.log 2>&1
 import fs from "fs";
@@ -40,7 +46,16 @@ const tmp = path.join(os.tmpdir(), `altafoto-${stamp}.sql.gz`);
 // 1) pg_dump | gzip → archivo temporal
 console.log(`[backup] pg_dump → ${tmp}`);
 await new Promise((resolve, reject) => {
-  const dump = spawn("pg_dump", [DB_URL, "--no-owner", "--no-privileges"], { stdio: ["ignore", "pipe", "inherit"] });
+  const dumpArgs = [DB_URL, "--no-owner", "--no-privileges"];
+  const container = process.env.PG_DUMP_CONTAINER;
+  // Dentro del contenedor 127.0.0.1 es el propio Postgres, así que DIRECT_URL
+  // (…@127.0.0.1:5432/…) sirve tal cual. Si el host usa otro puerto (DB_PORT),
+  // adentro sigue siendo 5432: lo normalizamos.
+  const innerUrl = DB_URL.replace(/@127\.0\.0\.1:\d+\//, "@127.0.0.1:5432/");
+  const dump = container
+    ? spawn("docker", ["exec", "-i", container, "pg_dump", innerUrl, ...dumpArgs.slice(1)], { stdio: ["ignore", "pipe", "inherit"] })
+    : spawn("pg_dump", dumpArgs, { stdio: ["ignore", "pipe", "inherit"] });
+  console.log(`[backup] via ${container ? "docker exec " + container : "pg_dump local"}`);
   const gz = createGzip();
   const out = fs.createWriteStream(tmp);
   dump.on("error", reject);

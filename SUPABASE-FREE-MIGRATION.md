@@ -1,3 +1,8 @@
+> **Reemplazado (2026-10-12):** la org tiene 3 proyectos y Free permite 2, así que no se
+> puede bajar el plan. La base se migra al VPS en Docker: ver `DOCKER-DB-MIGRATION.md`.
+> Lo que sigue queda como referencia (el script de backup y la lógica de "qué se
+> pierde" siguen valiendo).
+
 # Plan: migrar Supabase Pro → Free
 
 **Objetivo:** dejar de pagar Supabase Pro (~USD 25/mes) sin perder nada crítico.

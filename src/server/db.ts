@@ -12,7 +12,8 @@ function buildDbUrl(base: string) {
   const sep = url.includes("?") ? "&" : "?";
   // pool_timeout=10: fail fast when pool is saturated instead of stacking 60s waits
   // connect_timeout=15: don't wait forever to establish a connection
-  // connection_limit=15: lower than before — Supabase pooler free tier only allows ~60 total
+  // connection_limit=15: un solo proceso Node; el Postgres en Docker tiene max_connections=50
+  // (deploy/docker-compose.db.yml), así queda margen para pg_dump, Studio y psql.
   return `${url}${sep}connection_limit=15&pool_timeout=10&connect_timeout=15`;
 }
 
